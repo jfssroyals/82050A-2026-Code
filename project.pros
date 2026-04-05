@@ -5,11 +5,6 @@
         "target": "v5",
         "templates": {
             "LemLib": {
-<<<<<<< HEAD
-                "location": "C:\\Users\\visha\\AppData\\Roaming\\PROS\\templates\\LemLib@0.5.6",
-=======
-                "location": "C:\\Users\\Laptop\\AppData\\Roaming\\PROS\\templates\\LemLib@0.5.6",
->>>>>>> 80dcdb6de14b36ba94216b77ff5aca7bca2f22ec
                 "metadata": {
                     "origin": "LemLib"
                 },
