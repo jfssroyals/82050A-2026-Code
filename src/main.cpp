@@ -1,7 +1,7 @@
-#include "main.h"
-#include "lemlib/api.hpp" // IWYU pragma: keep
-#include "autons.hpp"
-#include "constants.hpp"
+#include "../VEXtensions/main.h"
+#include "../VEXtensions/lemlib/api.hpp" // IWYU pragma: keep
+#include "../VEXtensions/autons.hpp"
+#include "../VEXtensions/constants.hpp"
 
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
