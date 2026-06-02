@@ -1,5 +1,6 @@
 #pragma once
 #include "main.h"
+#include "lemlib/api.hpp"
 
 extern pros::MotorGroup liftmotors;
 extern pros::Rotation liftRotation;

@@ -1,101 +1,42 @@
-#include "lift.hpp"
-#include <cmath>
+# include "lift.hpp"
 
-// =======================
-// DR4B LIFT MOTORS
-// Change ports to your robot
-// =======================
-pros::MotorGroup liftMotors({7, -8}, pros::MotorGearset::red);
+// Defining Motor Groups (1 and -2 are placeholders)
+pros::MotorGroup liftMotors({1, -2}, pros::MotorGearset::red);
+// 3 is also a placeholder for sender plug
+pros::Rotation liftRotation(3);
 
-// Rotation sensor for lift
-pros::Rotation liftRotation(9);
 
-// =======================
-// LIFT STAGE SENSOR VALUES
-// These are examples. Tune them on your robot.
-// =======================
-const double STAGE_1_SENSOR = 2500;   // 6.5"
-const double STAGE_2_SENSOR = 5200;   // 13"
-const double STAGE_3_SENSOR = 10500;  // 26"
-const double STAGE_4_SENSOR = 16000;  // 39"
+//Defining Stage Heights with constants
 
-// Current PID target
-double liftTarget = STAGE_1_SENSOR;
+    // 6.5 in 
+const int Stage_Height_1 = 2500; 
+    // 13 in
+const int Stage_Height_2 = 5200;
+    //26 in
+const int Stage_Height_3 = 10500;
+    //39 in
+const int Stage_Height_4 = 16000;
 
-// =======================
-// PID CONSTANTS
-// Tune these
-// =======================
-double kP = 0.018;
-double kI = 0.0;
-double kD = 0.08;
 
-// Helps lift hold against gravity
-double holdPower = 8;
+// Setting up PID for lemlib with variables
+// Variable 1: proportional (placeholder), 2: Integral (placeholder), 3:Derivative (placeholder), 4:Antiwindup, 5: SIgn-Flip not needed for lift
+lemlib::PID liftPID(0.018, 0.0, 0.08, 0, false);
 
-// Maximum motor power
-double maxLiftPower = 127;
+// Stores the target sensor value the lift is currently trying to reach
+int LiftTargetHeight = 0;
 
-double clampValue(double value, double minValue, double maxValue) {
-    if (value > maxValue) return maxValue;
-    if (value < minValue) return minValue;
-    return value;
-}
+//MAIN FUNCTION 
+    //Run by Autonomous decision of stage
 
-double getLiftPosition() {
-    return liftRotation.get_position();
-}
-
-void setLiftStage(int stage) {
-    if (stage == 1) {
-        liftTarget = STAGE_1_SENSOR;
-    } else if (stage == 2) {
-        liftTarget = STAGE_2_SENSOR;
-    } else if (stage == 3) {
-        liftTarget = STAGE_3_SENSOR;
-    } else if (stage == 4) {
-        liftTarget = STAGE_4_SENSOR;
+void setLiftStage(int Stage){
+    if (Stage==1){
+        LiftTargetHeight = Stage_Height_1;
+    }else if (Stage==2){
+        LiftTargetHeight = Stage_Height_2;
+    }else if (Stage==3){
+        LiftTargetHeight = Stage_Height_3;
+    }else if (Stage==4){
+        LiftTargetHeight = Stage_Height_4;
     }
-}
 
-void liftPIDTask() {
-    double lastError = 0;
-    double integral = 0;
-
-    while (true) {
-        double currentPosition = liftRotation.get_position();
-
-        double error = liftTarget - currentPosition;
-        double derivative = error - lastError;
-
-        integral += error;
-
-        // Stop integral from becoming too large
-        if (std::fabs(error) > 1000) {
-            integral = 0;
-        }
-
-        double power = (kP * error) + (kI * integral) + (kD * derivative);
-
-        // Add hold power when lift is raised
-        if (liftTarget > 500) {
-            power += holdPower;
-        }
-
-        power = clampValue(power, -maxLiftPower, maxLiftPower);
-
-        liftMotors.move(power);
-
-        lastError = error;
-
-        pros::delay(20);
-    }
-}
-
-void liftInit() {
-    liftRotation.reset_position();
-
-    liftTarget = STAGE_1_SENSOR;
-
-    static pros::Task liftTask(liftPIDTask);
 }
