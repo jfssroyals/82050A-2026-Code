@@ -1,6 +1,8 @@
 #pragma once
 #include "main.h"
 
-void liftInit();
-void setLiftStage(int stage);
-double getLiftPosition();
+extern pros::MotorGroup liftmotors;
+extern pros::Rotation liftRotation;
+
+void setLiftStage (int stage);
+
