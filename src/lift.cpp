@@ -40,3 +40,17 @@ void setLiftStage(int Stage){
     }
 
 }
+
+//Background Loop
+void liftcontrolloop(){
+    while (true){
+        // Current Position of Lift
+        double currentPosition = liftRotation.get_position();
+        // Calculate the error (Target minus where we are right now)
+        double error = LiftTargetHeight - currentPosition;
+        // Feed ONLY the error into LemLib's PID calculator
+        double motorPower = liftPID.update(error);
+        liftMotors.move(motorPower);
+        pros::delay(20);
+    }
+}
