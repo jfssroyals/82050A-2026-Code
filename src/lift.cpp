@@ -54,3 +54,33 @@ void liftcontrolloop(){
         pros::delay(20);
     }
 }
+
+// tracks current stage:
+int current_stage_number = 1;
+
+// Loop to control lift stage by controller
+void updateLiftController(pros::Controller& controller) {
+
+    static int rumbleTimer = 0;
+    // connects to R2 and checks if the stage isnt already at max
+    if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2) && current_stage_number < 4){
+        // Acts as 400-millisecond cooldown timer so holding the button advances stages one at a time instead of instantly shooting to the top.
+        if (pros::millis() - rumbleTimer > 400){
+            current_stage_number = current_stage_number + 1;
+            setLiftStage(current_stage_number);
+            // makes the controller beep after 400 miliseconds of holding r2 meanig traveling to stage 1
+            controller.rumble(".");          
+            //records time this happens to reset the countdown
+            rumbleTimer = pros::millis();
+        }
+    }
+
+    // for driver to press r1 to return to normal height
+    else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
+        if (current_stage_number!= 1){
+            current_stage_number = 1;
+            setLiftStage(current_stage_number); 
+        }
+    }
+}
+       

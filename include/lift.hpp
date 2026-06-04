@@ -5,5 +5,5 @@
 extern pros::MotorGroup liftmotors;
 extern pros::Rotation liftRotation;
 
-void setLiftStage (int stage);
-
+void setLiftStage(int Stage);
+void liftControlLoop();
