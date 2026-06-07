@@ -2,6 +2,7 @@
 #include "../VEXtensions/lemlib/api.hpp" // IWYU pragma: keep
 #include "../VEXtensions/autons.hpp"
 #include "../VEXtensions/constants.hpp"
+#include "lift.hpp"
 
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
@@ -85,6 +86,7 @@ void initialize() {
     pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
 
+    pros::Task liftTask(liftcontrolloop);
     pros::Task screenTask([&]() {
         while (true) {
             // print robot location to the brain screen
@@ -132,6 +134,7 @@ void opcontrol() {
         int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
         // move the chassis with curvature drive
         chassis.arcade(leftY, rightX);
+        updateLiftController(controller);
         // delay to save resources
         pros::delay(10);
     }

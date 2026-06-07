@@ -2,8 +2,11 @@
 #include "main.h"
 #include "lemlib/api.hpp"
 
-extern pros::MotorGroup liftmotors;
+// Shared hardware
+extern pros::MotorGroup liftMotors;
 extern pros::Rotation liftRotation;
 
+// Shared functions
 void setLiftStage(int Stage);
-void liftControlLoop();
+void liftcontrolloop();
+void updateLiftController(pros::Controller& controller);
