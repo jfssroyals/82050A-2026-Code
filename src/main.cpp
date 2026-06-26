@@ -1,5 +1,5 @@
 #include "../VEXtensions/main.h"
-#include "../VEXtensions/lemlib/api.hpp" // IWYU pragma: keep
+#include "lemlib/api.hpp" // IWYU pragma: keep
 #include "../VEXtensions/autons.hpp"
 #include "../VEXtensions/constants.hpp"
 #include "lift.hpp"
@@ -8,9 +8,9 @@
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
 // motor groups
-pros::MotorGroup leftMotors({-5, 4, -3},
+pros::MotorGroup leftMotors({7, 8, 10},
                             pros::MotorGearset::blue); // left motor group - ports 3 (reversed), 4, 5 (reversed)
-pros::MotorGroup rightMotors({6, -9, 7}, pros::MotorGearset::blue); // right motor group - ports 6, 7, 9 (reversed)
+pros::MotorGroup rightMotors({-1, -9, -5}, pros::MotorGearset::blue); // right motor group - ports 6, 7, 9 (reversed)
 
 // Inertial Sensor on port 10
 pros::Imu imu(10);
@@ -86,7 +86,7 @@ void initialize() {
     pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
 
-    pros::Task liftTask(liftcontrolloop);
+    // pros::Task liftTask(liftcontrolloop);
     pros::Task screenTask([&]() {
         while (true) {
             // print robot location to the brain screen
@@ -134,7 +134,7 @@ void opcontrol() {
         int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
         // move the chassis with curvature drive
         chassis.arcade(leftY, rightX);
-        updateLiftController(controller);
+        // updateLiftController(controller);
         // delay to save resources
         pros::delay(10);
     }
