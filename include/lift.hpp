@@ -1,9 +1,12 @@
-#pragma once
-#include "main.h"
-#include "lemlib/api.hpp"
+// #pragma once
+// // #include "main.h"
+// #include "lemlib/api.hpp"
 
-extern pros::MotorGroup liftmotors;
-extern pros::Rotation liftRotation;
+// // Shared hardware
+// extern pros::MotorGroup liftMotors;
+// extern pros::Rotation liftRotation;
 
-void setLiftStage(int Stage);
-void liftControlLoop();
+// // Shared functions
+// void setLiftStage(int Stage);
+// void liftcontrolloop();
+// void updateLiftController(pros::Controller& controller);

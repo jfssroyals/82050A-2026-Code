@@ -1,86 +1,145 @@
-# include "lift.hpp"
+// #include "lift.hpp"
 
-// Defining Motor Groups (1 and -2 are placeholders)
-pros::MotorGroup liftMotors({1, -2}, pros::MotorGearset::red);
-// 3 is also a placeholder for sender plug
-pros::Rotation liftRotation(3);
+// // Defining Motor Groups
+// pros::MotorGroup liftMotors({1, -2}, pros::MotorGearset::red);
 
-
-//Defining Stage Heights with constants
-
-    // 6.5 in 
-const int Stage_Height_1 = 2500; 
-    // 13 in
-const int Stage_Height_2 = 5200;
-    //26 in
-const int Stage_Height_3 = 10500;
-    //39 in
-const int Stage_Height_4 = 16000;
+// // Rotation sensor
+// pros::Rotation liftRotation(3);
 
 
-// Setting up PID for lemlib with variables
-// Variable 1: proportional (placeholder), 2: Integral (placeholder), 3:Derivative (placeholder), 4:Antiwindup, 5: SIgn-Flip not needed for lift
-lemlib::PID liftPID(0.018, 0.0, 0.08, 0, false);
+// // Defining Stage Heights with constants
+// // Starts at 3.25 inches and ends at 45.25 inches
 
-// Stores the target sensor value the lift is currently trying to reach
-int LiftTargetHeight = 0;
+// const int Stage_Height_1  = 1250;   // 3.25 in
+// const int Stage_Height_2  = 2490;   // 6.48 in
+// const int Stage_Height_3  = 3730;   // 9.70 in
+// const int Stage_Height_4  = 4970;   // 12.93 in
+// const int Stage_Height_5  = 6210;   // 16.16 in
+// const int Stage_Height_6  = 7450;   // 19.38 in
+// const int Stage_Height_7  = 8690;   // 22.61 in
+// const int Stage_Height_8  = 9930;   // 25.84 in
+// const int Stage_Height_9  = 11170;  // 29.06 in
+// const int Stage_Height_10 = 12410;  // 32.29 in
+// const int Stage_Height_11 = 13650;  // 35.52 in
+// const int Stage_Height_12 = 14890;  // 38.74 in
+// const int Stage_Height_13 = 16130;  // 41.97 in
+// const int Stage_Height_14 = 17404;  // 45.25 in
 
-//MAIN FUNCTION 
-    //Run by Autonomous decision of stage
 
-void setLiftStage(int Stage){
-    if (Stage==1){
-        LiftTargetHeight = Stage_Height_1;
-    }else if (Stage==2){
-        LiftTargetHeight = Stage_Height_2;
-    }else if (Stage==3){
-        LiftTargetHeight = Stage_Height_3;
-    }else if (Stage==4){
-        LiftTargetHeight = Stage_Height_4;
-    }
+// // Minimum and maximum stage numbers
+// const int MIN_STAGE = 1;
+// const int MAX_STAGE = 14;
 
-}
 
-//Background Loop
-void liftcontrolloop(){
-    while (true){
-        // Current Position of Lift
-        double currentPosition = liftRotation.get_position();
-        // Calculate the error (Target minus where we are right now)
-        double error = LiftTargetHeight - currentPosition;
-        // Feed ONLY the error into LemLib's PID calculator
-        double motorPower = liftPID.update(error);
-        liftMotors.move(motorPower);
-        pros::delay(20);
-    }
-}
+// // Setting up PID for lemlib
+// // Variable 1: Proportional
+// // Variable 2: Integral
+// // Variable 3: Derivative
+// // Variable 4: Antiwindup
+// // Variable 5: Sign-flip not needed for lift
+// lemlib::PID liftPID(0.018, 0.0, 0.08, 0, false);
 
-// tracks current stage:
-int current_stage_number = 1;
 
-// Loop to control lift stage by controller
-void updateLiftController(pros::Controller& controller) {
+// // Stores the target sensor value the lift is currently trying to reach
+// int LiftTargetHeight = Stage_Height_1;
 
-    static int rumbleTimer = 0;
-    // connects to R2 and checks if the stage isnt already at max
-    if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2) && current_stage_number < 4){
-        // Acts as 400-millisecond cooldown timer so holding the button advances stages one at a time instead of instantly shooting to the top.
-        if (pros::millis() - rumbleTimer > 400){
-            current_stage_number = current_stage_number + 1;
-            setLiftStage(current_stage_number);
-            // makes the controller beep after 400 miliseconds of holding r2 meanig traveling to stage 1
-            controller.rumble(".");          
-            //records time this happens to reset the countdown
-            rumbleTimer = pros::millis();
-        }
-    }
 
-    // for driver to press r1 to return to normal height
-    else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
-        if (current_stage_number!= 1){
-            current_stage_number = 1;
-            setLiftStage(current_stage_number); 
-        }
-    }
-}
-       
+// // Tracks current stage
+// int current_stage_number = 1;
+
+
+// // Sets lift stage safely
+// void setLiftStage(int Stage) {
+
+//     if (Stage < MIN_STAGE) {
+//         Stage = MIN_STAGE;
+//     }
+
+//     if (Stage > MAX_STAGE) {
+//         Stage = MAX_STAGE;
+//     }
+
+//     current_stage_number = Stage;
+
+//     if (Stage == 1) {
+//         LiftTargetHeight = Stage_Height_1;
+//     } else if (Stage == 2) {
+//         LiftTargetHeight = Stage_Height_2;
+//     } else if (Stage == 3) {
+//         LiftTargetHeight = Stage_Height_3;
+//     } else if (Stage == 4) {
+//         LiftTargetHeight = Stage_Height_4;
+//     } else if (Stage == 5) {
+//         LiftTargetHeight = Stage_Height_5;
+//     } else if (Stage == 6) {
+//         LiftTargetHeight = Stage_Height_6;
+//     } else if (Stage == 7) {
+//         LiftTargetHeight = Stage_Height_7;
+//     } else if (Stage == 8) {
+//         LiftTargetHeight = Stage_Height_8;
+//     } else if (Stage == 9) {
+//         LiftTargetHeight = Stage_Height_9;
+//     } else if (Stage == 10) {
+//         LiftTargetHeight = Stage_Height_10;
+//     } else if (Stage == 11) {
+//         LiftTargetHeight = Stage_Height_11;
+//     } else if (Stage == 12) {
+//         LiftTargetHeight = Stage_Height_12;
+//     } else if (Stage == 13) {
+//         LiftTargetHeight = Stage_Height_13;
+//     } else if (Stage == 14) {
+//         LiftTargetHeight = Stage_Height_14;
+//     }
+// }
+
+
+// // Background lift control loop
+// void liftcontrolloop() {
+//     while (true) {
+
+//         double currentPosition = liftRotation.get_position();
+
+//         double error = LiftTargetHeight - currentPosition;
+
+//         double motorPower = liftPID.update(error);
+
+//         liftMotors.move(motorPower);
+
+//         pros::delay(20);
+//     }
+// }
+
+
+// // Controller control
+// void updateLiftController(pros::Controller& controller) {
+
+//     static int buttonTimer = 0;
+
+//     // R2 = move up one stage every 0.4 seconds
+//     if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+
+//         if (pros::millis() - buttonTimer > 400) {
+
+//             if (current_stage_number < MAX_STAGE) {
+//                 setLiftStage(current_stage_number + 1);
+//                 controller.rumble(".");
+//             }
+
+//             buttonTimer = pros::millis();
+//         }
+//     }
+
+//     // R1 = move down one stage every 0.4 seconds
+//     else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+
+//         if (pros::millis() - buttonTimer > 400) {
+
+//             if (current_stage_number > MIN_STAGE) {
+//                 setLiftStage(current_stage_number - 1);
+//                 controller.rumble(".");
+//             }
+
+//             buttonTimer = pros::millis();
+//         }
+//     }
+// }
