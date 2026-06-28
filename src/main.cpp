@@ -1,7 +1,7 @@
-#include "../VEXtensions/main.h"
+// #include "main.h"
 #include "lemlib/api.hpp" // IWYU pragma: keep
-#include "../VEXtensions/autons.hpp"
-#include "../VEXtensions/constants.hpp"
+#include "autons.hpp"
+#include "constants.hpp"
 #include "lift.hpp"
 
 // controller
@@ -79,13 +79,13 @@ lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband out of 127
 
 // create the chassis
 lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors, &throttleCurve, &steerCurve);
-
+// create lift
+Lift lift(1, -2);
 
 void initialize() {
     pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
 
-    // pros::Task liftTask(liftcontrolloop);
     pros::Task screenTask([&]() {
         while (true) {
             // print robot location to the brain screen
@@ -112,7 +112,7 @@ void competition_initialize() {}
 
 // get a path used for pure pursuit
 // this needs to be put outside a function
-ASSET(example_txt); // '.' replaced with "_" to make c++ happy
+// ASSET(example_txt); // '.' replaced with "_" to make c++ happy
 
 /**
  * Runs during auto
@@ -133,7 +133,9 @@ void opcontrol() {
         int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
         // move the chassis with curvature drive
         chassis.arcade(leftY, rightX);
-        // updateLiftController(controller);
+        
+        lift.updateLiftController(controller);
+        
         // delay to save resources
         pros::delay(10);
     }
