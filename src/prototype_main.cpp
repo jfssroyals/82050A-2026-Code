@@ -233,8 +233,7 @@
 
 //         // Manual tuning:
 //         // R1 raises lift
-//         // R2 lowers lift
-//         if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+//         // R2 lowers lift//         if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
 //             liftMotors.move(80);
 //             liftTarget = liftRotation.get_position();
 //         } else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {

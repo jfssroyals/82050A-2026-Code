@@ -1,6 +1,5 @@
 #pragma once
 
-#include "main.h"
 #include "lemlib/api.hpp"
 
 // global objects defined in main.cpp

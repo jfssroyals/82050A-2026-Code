@@ -1,3 +1,3 @@
-#include "../VEXtensions/profiles.hpp"
-#include "../VEXtensions/autons.hpp"
-#include "../VEXtensions/constants.hpp"
+#include "profiles.hpp"
+#include "autons.hpp"
+#include "constants.hpp"
