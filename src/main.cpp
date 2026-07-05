@@ -4,7 +4,7 @@
 #include "constants.hpp"
 #include "lift.hpp"
 #include "claw.hpp"
-#include "chainbar.hpp"
+#include "claw_motor.hpp"
 
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
