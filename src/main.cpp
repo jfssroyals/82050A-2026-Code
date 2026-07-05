@@ -1,11 +1,19 @@
-// #include "main.h"
+#include "main.h"
 #include "lemlib/api.hpp" // IWYU pragma: keep
 #include "autons.hpp"
 #include "constants.hpp"
 #include "lift.hpp"
+#include "claw.hpp"
+#include "chainbar.hpp"
 
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
+
+// claw
+Claw claw('A');
+
+// chainbar
+ChainBar chainbar(6); // change 6 to your motor port
 
 // motor groups
 pros::MotorGroup leftMotors({14, 18, 15}, pros::MotorGearset::blue); // left motor group - ports 3 (reversed), 4, 5 (reversed)
@@ -85,7 +93,7 @@ Lift lift(1, -2);
 void initialize() {
     pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
-
+    chainbar.motor.tare_position();
     pros::Task screenTask([&]() {
         while (true) {
             // print robot location to the brain screen
@@ -136,6 +144,14 @@ void opcontrol() {
         
         lift.updateLiftController(controller);
         
+        if (controller.get_digital_new_press(
+                pros::E_CONTROLLER_DIGITAL_L1)) {
+            claw.toggle();
+        }
+        if (controller.get_digital_new_press(
+                pros::E_CONTROLLER_DIGITAL_L2)) {
+            chainbar.toggle();
+        }
         // delay to save resources
         pros::delay(10);
     }
