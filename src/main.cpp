@@ -6,14 +6,23 @@
 #include "claw.hpp"
 #include "claw_motor.hpp"
 
+// Claw modes for pickup and drop
+enum ClawMode {
+    PICKUP,
+    DROP
+};
+// start with pickup
+ClawMode clawMode = PICKUP;
+
+
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
 // claw
 Claw claw('A');
 
-// chainbar
-ChainBar chainbar(6); // change 6 to your motor port
+// bar
+Bar bar(6); // change 6 to your motor port
 
 // motor groups
 pros::MotorGroup leftMotors({14, 18, 15}, pros::MotorGearset::blue); // left motor group - ports 3 (reversed), 4, 5 (reversed)
@@ -93,7 +102,7 @@ Lift lift(1, -2);
 void initialize() {
     pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
-    chainbar.motor.tare_position();
+    bar.reset();
     pros::Task screenTask([&]() {
         while (true) {
             // print robot location to the brain screen
@@ -131,6 +140,35 @@ void autonomous() {
     //add autonomous selector
 }
 
+// Claw modes
+void sameSidePickup() {
+    bar.moveToFront();
+    claw.close();   
+}
+
+void oppositeSidePickup() {
+    bar.moveToBack();
+    claw.close();
+}
+
+void sameSideDrop() {
+    bar.moveToFront();
+    claw.open();
+}
+
+void oppositeSideDrop() {
+    bar.moveToBack();
+    claw.open();
+}
+
+// claw mode change
+void toggleClawMode() {
+    if (clawMode == PICKUP) {
+        clawMode = DROP;
+    } else {
+        clawMode = PICKUP;
+    }
+}
 
 void opcontrol() {
     // controller
@@ -143,15 +181,35 @@ void opcontrol() {
         chassis.arcade(leftY, rightX);
         
         lift.updateLiftController(controller);
+
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
+            toggleClawMode();
+        }
+
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+            if (clawMode == PICKUP) {
+                sameSidePickup();
+            } else {
+                sameSideDrop();
+            }
+        }
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+            if (clawMode == PICKUP) {
+                oppositeSidePickup();
+            } else {
+                oppositeSideDrop();
+            }
+        }
+    
         
-        if (controller.get_digital_new_press(
-                pros::E_CONTROLLER_DIGITAL_L1)) {
-            claw.toggle();
-        }
-        if (controller.get_digital_new_press(
-                pros::E_CONTROLLER_DIGITAL_L2)) {
-            chainbar.toggle();
-        }
+        //if (controller.get_digital_new_press(
+                //pros::E_CONTROLLER_DIGITAL_L1)) {
+            //claw.toggle();
+     //   }
+     //   if (controller.get_digital_new_press(
+        //        pros::E_CONTROLLER_DIGITAL_L2)) {
+          //  bar.toggle();
+      //  }
         // delay to save resources
         pros::delay(10);
     }

@@ -10,7 +10,6 @@ void Lift::updateLiftController(pros::Controller& controller) {
     if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
         liftTargetHeight += 50; // Adjust this to change how fast the target moves
     }
-<<<<<<< HEAD
     
     // R1 = Decrease target height (move down)
     else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
@@ -21,18 +20,6 @@ void Lift::updateLiftController(pros::Controller& controller) {
     double currentPosition = liftMotors.get_position();
     double error = liftTargetHeight - currentPosition;
 
-=======
-
-    // R1 = Decrease target height (move down)
-    else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-        liftTargetHeight -= 50; // Adjust this to change how fast the target moves
-    }
-
-    // move the lift
-    double currentPosition = liftMotors.get_position();
-    double error = liftTargetHeight - currentPosition;
-
->>>>>>> aa5cbcd5babeb550dcf9f3e411f3a5beb067d97d
     // Calculate PID output and apply it directly
     double motorPower = liftPID.update(error);
     liftMotors.move(motorPower);

@@ -1,30 +1,34 @@
 #include "../include/claw_motor.hpp"
 
-ChainBar::ChainBar(int motorPort)
+Bar::Bar(int motorPort)
     : motor(motorPort, pros::MotorGearset::green) {}
 
-double ChainBar::degreesToMotor(double realDegrees) {
-    return realDegrees * MOTOR_DEGREES_PER_CHAINBAR_DEGREE;
-}
+double Bar::degreesToMotor(double realDegrees) {
+    return realDegrees * MOTOR_DEGREES_PER_BAR_DEGREE;
+}     
 
-void ChainBar::moveToAngle(double realDegrees) {
+void Bar::moveToAngle(double realDegrees) {
     motor.move_absolute(degreesToMotor(realDegrees), 80);
 }
 
-void ChainBar::moveToFront() {
+void Bar::moveToFront() {
     moveToAngle(0);
     isBack = false;
 }
 
-void ChainBar::moveToBack() {
+void Bar::moveToBack() {
     moveToAngle(180); // 180 * 8 = 1440 motor degrees
     isBack = true;
 }
 
-void ChainBar::toggle() {
+void Bar::toggle() {
     if (isBack) {
         moveToFront();
     } else {
         moveToBack();
     }
+}
+
+void Bar::reset() {
+    motor.tare_position();
 }

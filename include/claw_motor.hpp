@@ -1,16 +1,16 @@
 #pragma once
 #include "main.h"
 
-class ChainBar {
+class Bar {
 public:
     pros::Motor motor;
     bool isBack = false;
 
     // Tested conversion:
-    // 1 chainbar degree = 8 motor degrees
-    const double MOTOR_DEGREES_PER_CHAINBAR_DEGREE = 7.25;
+    // 1 bar degree = 8 motor degrees
+    const double MOTOR_DEGREES_PER_BAR_DEGREE = 7.25;
 
-    ChainBar(int motorPort);
+    Bar(int motorPort);
 
     double degreesToMotor(double realDegrees);
     void moveToAngle(double realDegrees);
@@ -18,4 +18,5 @@ public:
     void moveToFront();
     void moveToBack();
     void toggle();
+    void reset();
 };
