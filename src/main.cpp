@@ -5,12 +5,9 @@
 #include "lift.hpp"
 #include "claw.hpp"
 #include "claw_motor.hpp"
+#include "control.hpp"
 
-// Claw modes for pickup and drop
-enum ClawMode {
-    PICKUP,
-    DROP
-};
+
 // start with pickup
 ClawMode clawMode = PICKUP;
 
@@ -23,6 +20,18 @@ Claw claw('A');
 
 // bar
 Bar bar(6); // change 6 to your motor port
+
+// create lift
+Lift lift(
+    1,      // left motor
+    -2,     // right motor
+    0,      // startHeight
+    500,    // stageGap
+    5       // totalStages
+);
+
+// control
+Control control(claw, bar, lift);
 
 // motor groups
 pros::MotorGroup leftMotors({14, 18, 15}, pros::MotorGearset::blue); // left motor group - ports 3 (reversed), 4, 5 (reversed)
@@ -96,8 +105,8 @@ lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband out of 127
 
 // create the chassis
 lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors, &throttleCurve, &steerCurve);
-// create lift
-Lift lift(1, -2);
+
+
 
 void initialize() {
     pros::lcd::initialize(); // initialize brain screen
@@ -136,39 +145,11 @@ void competition_initialize() {}
  *
  * This is an example autonomous routine which demonstrates a lot of the features LemLib has to offer
  */
+
 void autonomous() {
     //add autonomous selector
 }
 
-// Claw modes
-void sameSidePickup() {
-    bar.moveToFront();
-    claw.close();   
-}
-
-void oppositeSidePickup() {
-    bar.moveToBack();
-    claw.close();
-}
-
-void sameSideDrop() {
-    bar.moveToFront();
-    claw.open();
-}
-
-void oppositeSideDrop() {
-    bar.moveToBack();
-    claw.open();
-}
-
-// claw mode change
-void toggleClawMode() {
-    if (clawMode == PICKUP) {
-        clawMode = DROP;
-    } else {
-        clawMode = PICKUP;
-    }
-}
 
 void opcontrol() {
     // controller
@@ -182,23 +163,12 @@ void opcontrol() {
         
         lift.updateLiftController(controller);
 
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
-            toggleClawMode();
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+            control.sameSideAction();
         }
 
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
-            if (clawMode == PICKUP) {
-                sameSidePickup();
-            } else {
-                sameSideDrop();
-            }
-        }
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
-            if (clawMode == PICKUP) {
-                oppositeSidePickup();
-            } else {
-                oppositeSideDrop();
-            }
+            control.oppositeSideAction();
         }
     
         
