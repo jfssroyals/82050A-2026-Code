@@ -151,6 +151,7 @@ void autonomous() {
 }
 
 
+/*
 void opcontrol() {
     // controller
     // loop to continuously update motors
@@ -181,6 +182,79 @@ void opcontrol() {
           //  bar.toggle();
       //  }
         // delay to save resources
+        pros::delay(10);
+    }
+}
+*/
+
+void opcontrol() {
+    // Start with the claw open and ready to grab
+    claw.open(); 
+    
+    while (true) {
+        // ==========================================
+        // 1. DRIVETRAIN & LIFT CONTROL (KEPT EXACTLY THE SAME)
+        // ==========================================
+        int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+        int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
+        chassis.arcade(leftY, rightX);
+        
+        lift.updateLiftController(controller);
+
+        // ==========================================
+        // 2. NEW MODE SWITCHING (DOWN ARROW)
+        // ==========================================
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
+            if (clawMode == PICKUP) {
+                clawMode = DROP;
+                claw.close(); // Keep cup secure when switching to drop mode
+            } else {
+                clawMode = PICKUP;
+                claw.open();  // Reset claw open to ready up for a pickup
+            }
+        }
+
+        // ==========================================
+        // 3. NEW ACTION LOGIC (L1 & L2 DEPENDING ON MODE)
+        // ==========================================
+        if (clawMode == PICKUP) {
+            // === PICKUP MODE ===
+            
+            // L1: Pickup in FRONT (Starts open, then closes)
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+                bar.moveToFront(); 
+                claw.open();       
+                pros::delay(200);  
+                claw.close();      
+            }
+
+            // L2: Pickup from BEHIND (Rotates 180, then closes)
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+                bar.moveToBack();  
+                claw.open();       
+                pros::delay(350);  // Wait for the heavy physical bar to flip
+                claw.close();      
+            }
+
+        } else if (clawMode == DROP) {
+            // === DROP MODE ===
+            
+            // L1: Drop in FRONT (Stays closed until it faces front, then opens)
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+                bar.moveToFront(); 
+                pros::delay(200);
+                claw.open();       
+            }
+
+            // L2: Drop BEHIND (Stays closed until it rotates 180, then opens)
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+                bar.moveToBack();  
+                pros::delay(350);  // Wait for rotation so it doesn't drop early
+                claw.open();       
+            }
+        }
+        
+        // Background task delay (KEPT EXACTLY THE SAME)
         pros::delay(10);
     }
 }
