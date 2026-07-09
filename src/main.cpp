@@ -19,12 +19,12 @@ pros::Controller controller(pros::E_CONTROLLER_MASTER);
 Claw claw('A');
 
 // bar
-Bar bar(6); // change 6 to your motor port
+Bar bar(2); // change 6 to your motor port
 
 // create lift
 Lift lift(
-    1,      // left motor
-    -2,     // right motor
+    -3,      // left motor
+    9,     // right motor
     0,      // startHeight
     500,    // stageGap
     5       // totalStages
@@ -34,17 +34,17 @@ Lift lift(
 Control control(claw, bar, lift);
 
 // motor groups
-pros::MotorGroup leftMotors({14, 18, 15}, pros::MotorGearset::blue); // left motor group - ports 3 (reversed), 4, 5 (reversed)
-pros::MotorGroup rightMotors({-20, -17, -13}, pros::MotorGearset::blue); // right motor group - ports 6, 7, 9 (reversed)
+pros::MotorGroup leftMotors({6, 5, 4}, pros::MotorGearset::blue); // left motor group - ports 3 (reversed), 4, 5 (reversed)
+pros::MotorGroup rightMotors({-10, -8, -7}, pros::MotorGearset::blue); // right motor group - ports 6, 7, 9 (reversed)
 
 // Inertial Sensor on port 10
-pros::Imu imu(10);
+pros::Imu imu(15);
 
 // tracking wheels
-// horizontal tracking wheel encoder. Rotation sensor, port 20, not reversed
+// horizontal tracking wheel encoder. Rotation sensor, port 20
 pros::Rotation horizontalEnc(20);
-// vertical tracking wheel encoder. Rotation sensor, port 11, reversed
-pros::Rotation verticalEnc(-11);
+// vertical tracking wheel encoder. Rotation sensor
+pros::Rotation verticalEnc(-12);
 // horizontal tracking wheel. 2.75" diameter, 5.75" offset, back of the robot (negative)
 lemlib::TrackingWheel horizontal(&horizontalEnc, lemlib::Omniwheel::NEW_275, -5.75);
 // vertical tracking wheel. 2.75" diameter, 2.5" offset, left of the robot (negative)
