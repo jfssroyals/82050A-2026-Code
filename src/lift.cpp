@@ -1,78 +1,137 @@
 #include "lift.hpp"
+#include <algorithm>
+#include <cmath>
 
-// constructor
-Lift::Lift(
-    signed char leftPort, 
-    signed char rightPort, 
-    double start_height, 
-    double gap, 
-    int total_stages
-    ) 
-    : liftTargetHeight{0}, 
-    liftMotors{{leftPort, rightPort}, 
-    pros::MotorGearset::green},
-    
-    // ensure the variables and values can be used
-    startHeight{start_height},
 
-    stageGap{gap},
+// Constructor
+Lift::Lift(signed char leftPort, signed char rightPort)
+    : liftTargetHeight{0},
+      L_liftMotor(leftPort, pros::MotorGearset::green),
+      R_liftMotor(rightPort, pros::MotorGearset::green)
+{
+    L_liftMotor.set_brake_mode(pros::MotorBrake::hold);
+    R_liftMotor.set_brake_mode(pros::MotorBrake::hold);
+}
 
-    // might switch it for more
-    totalStages{total_stages},
+// void Lift::updateLiftController(pros::Controller& controller) {
 
-    currentStage{0}
+//     if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
+//         liftTargetHeight += 3;
+//         pros::lcd::print(5, "Target: %d", (int)liftTargetHeight);
+//     }
 
-    {}
+//     if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
+//         liftTargetHeight -= 3;
+//         pros::lcd::print(5, "Target: %d", (int)liftTargetHeight);
+//     }
 
-// Controller control - call this inside your main opcontrol while(true) loop
+
+//     // Limit height
+//     if(liftTargetHeight > 1000)
+//         liftTargetHeight = 1000;
+
+//     if(liftTargetHeight < 0)
+//         liftTargetHeight = 0;
+
+
+//     // Get both motor positions
+//     double leftPosition = L_liftMotor.get_position();
+//     double rightPosition = R_liftMotor.get_position();
+
+
+//     // Average position for height control
+//     double currentPosition = (leftPosition + rightPosition) / 2;
+
+
+//     // Height PID
+//     double error = liftTargetHeight - currentPosition;
+
+//     double motorPower = liftPID.update(error);
+
+
+//     // Synchronization correction
+//     double difference = leftPosition - rightPosition;
+
+//     double syncCorrection = difference * 0.05;
+
+
+//     // Apply correction
+//     double leftPower = motorPower - syncCorrection;
+//     double rightPower = motorPower + syncCorrection;
+
+
+//     // Limit power
+//     leftPower = std::clamp(leftPower, -20.0, 60.0);
+//     rightPower = std::clamp(rightPower, -20.0, 60.0);
+
+
+//     // Move motors separately
+//     L_liftMotor.move(leftPower);
+//     R_liftMotor.move(rightPower);
+// }
+
+// Lift controller
 void Lift::updateLiftController(pros::Controller& controller) {
 
-    // R2 = Increase target height (move up)
+    double currentPosition = L_liftMotor.get_position();
 
-    // yo change ts later if needed
-    // just keep like this for initial prototype
+    // Move up
     if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-        setLiftStage(currentStage + 1); // Adjust this to change how fast the target moves
+
+        // Only allow movement if below max height
+        if (currentPosition < 1600) {
+            L_liftMotor.move(80);
+            R_liftMotor.move(80);
+        }
+        else {
+            L_liftMotor.move(0);
+            R_liftMotor.move(0);
+        }
     }
-    
-    // R1 = Decrease target height (move down)
+
+
+    // Move down
     else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-        setLiftStage(currentStage - 1); // Adjust this to change how fast the target moves
+
+        // Only allow movement if above minimum height
+        if (currentPosition > 0) {
+            L_liftMotor.move(-20);
+            R_liftMotor.move(-20);
+        }
+        else {
+            L_liftMotor.move(0);
+            R_liftMotor.move(0);
+        }
     }
 
-    // move the lift
-    double currentPosition = liftMotors.get_position();
-    double error = liftTargetHeight - currentPosition;
+    
+    // Stop when no button pressed
+    else {
+        L_liftMotor.move(0);
+        R_liftMotor.move(0);
+    }
 
-    // Calculate PID output and apply it directly
-    double motorPower = liftPID.update(error);
-    liftMotors.move(motorPower);
+    // // Limit lift range
+    // if (liftTargetHeight > 1000) {
+    //     liftTargetHeight = 1000;
+    // }
+
+    // if (liftTargetHeight < 0) {
+    //     liftTargetHeight = 0;
+    // }
+
+
+    
+
+
+    // Debug information
+    pros::lcd::print(5, "Target: %d", (int)liftTargetHeight);
+    // pros::lcd::print(6, "Pos: %d", (int)currentPosition);
+    // pros::lcd::print(7, "Power: %d", (int)motorPower);
 }
 
-// Note: when you use this you can change name but it wont intefere with odometry
-// under Lift namespace
 
-// sets the stage of the lift
+// // Placeholder for future preset heights
+// void Lift::setLiftStage(int Stage) {
 
-// test this out if it doesn't work, message me on discord, available to fix from 12pm onwards
-void Lift::setLiftStage (int newStage)
-{
-    if (newStage < 0)
-    {
-        newStage = 0;
-    }
-
-    if (newStage >= totalStages)
-    {
-        newStage = totalStages - 1;
-    }
-
-    // keeps track of stage that lift is at
-    currentStage = newStage;
-
-    // changes the target height to 
-    liftTargetHeight = startHeight + (newStage * stageGap);
-
-}
-
-// we gotta add on more to this
+// }

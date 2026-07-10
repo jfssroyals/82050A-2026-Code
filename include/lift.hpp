@@ -3,25 +3,20 @@
 #include "lemlib/api.hpp"
 
 class Lift {
+    // Stores the target sensor value the lift is currently trying to reach
     double liftTargetHeight;
-    pros::MotorGroup liftMotors;
-    lemlib::PID liftPID{0.018, 0.0, 0.0, 0, false};
 
-    double startHeight;
-    double stageGap;
-    int totalStages;
+    // Motor group for lift
+    pros::Motor L_liftMotor;
 
-    int currentStage;
+    pros::Motor R_liftMotor;
+    
+    // PID controller (kP, kI, kD, anti-windup, derivative filter)
+    lemlib::PID liftPID{0.5, 0.0, 0.0, 0, false};
 
 public:
-    Lift(
-        signed char leftPort,
-        signed char rightPort,
-        double startHeight,
-        double stageGap,
-        int totalStages
-    );
+    Lift(signed char leftPort, signed char rightPort);
 
-    void setLiftStage(int stage);
+    void setLiftStage(int Stage);
     void updateLiftController(pros::Controller& controller);
 };
