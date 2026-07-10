@@ -8,14 +8,14 @@ Control::Control(Claw& claw, Bar& bar, Lift& lift)
 {}
 
 
-// Change between pickup and drop
-void Control::toggleClawMode() {
-    if (clawMode == PICKUP) {
-        clawMode = DROP;
-    } else {
-        clawMode = PICKUP;
-    }
-}
+// // Change between pickup and drop
+// void Control::toggleClawMode() {
+//     if (clawMode == PICKUP) {
+//         clawMode = DROP;
+//     } else {
+//         clawMode = PICKUP;
+//     }
+// }
 
 
 // Same side button
@@ -41,7 +41,6 @@ void Control::oppositeSideAction() {
 // Pickup functions
 void Control::sameSidePickup() {
     bar.moveToFront();
-    pros::delay(500);
     claw.close();
 }
 

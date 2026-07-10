@@ -14,11 +14,13 @@ void Bar::moveToAngle(double realDegrees) {
 void Bar::moveToFront() {
     moveToAngle(0);
     isBack = false;
+    motor.move(0);
 }
 
 void Bar::moveToBack() {
     moveToAngle(180); // 180 * 8 = 1440 motor degrees
     isBack = true;
+    motor.move(0);
 }
 
 void Bar::toggle() {

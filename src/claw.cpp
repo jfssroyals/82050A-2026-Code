@@ -4,11 +4,13 @@ Claw::Claw(char port)
     : piston(port) {}
 
 void Claw::open() {
+    printf("open()\n");
     piston.set_value(true);
     isOpen = true;
 }
 
 void Claw::close() {
+    printf("close()\n");
     piston.set_value(false);
     isOpen = false;
 }

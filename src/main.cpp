@@ -156,26 +156,26 @@ void opcontrol() {
         
         lift.updateLiftController(controller);
 
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
+            if (clawMode == PICKUP) {
+                clawMode = DROP;
+                
+            } else {
+                clawMode = PICKUP;
+            }
+        }
+
+        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
             control.sameSideAction();
         }
 
         else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
             control.oppositeSideAction();
         }
-
-        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
-            if (clawMode == PICKUP) {
-                clawMode = DROP;
-                claw.close(); // Keep cup secure when switching to drop mode
-            } else {
-                clawMode = PICKUP;
-                claw.open();  // Reset claw open to ready up for a pickup
-            }
-        }
         
         else {
             continue;
+            pros::delay(10);
         }
         
         // delay to save resources
