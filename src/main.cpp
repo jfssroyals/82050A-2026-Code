@@ -153,17 +153,22 @@ void opcontrol() {
         
         lift.updateLiftController(controller);
 
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
-            control.toggleClawMode();
-        }
+        // L1 + L2 together = toggle claw mode
+    if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)) {
+        control.toggleClawMode();
+    }
 
-        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
-            control.frontSideAction();
-        }
+    // L1 = front action
+    else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
 
-        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
-            control.backSideAction();
-        }
+        control.frontSideAction();
+    }
+
+    // L2 = back action
+    else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+
+        control.backSideAction();
+    }
         
         else {
             continue;

@@ -28,37 +28,24 @@ void Control::frontSideAction() {
 }
 
 
-// // back side button
-// void Control::backSideAction() {
-//     if (clawMode == PICKUP) {
-//         backSidePickup();
-//     } else {
-//         backSideDrop();
-//     }
-// }
-
-void Control::backSideDrop() {
-    bar.moveToBack();
-
-    while (!bar.isAtBack()) {
-        pros::delay(10);
+// back side button
+void Control::backSideAction() {
+    if (clawMode == PICKUP) {
+        backSidePickup();
+    } else {
+        backSideDrop();
     }
-
-    claw.open();
 }
-
 
 // Pickup functions
 void Control::frontSidePickup() {
     bar.moveToFront();
+    while (!bar.isAtFront()) {
+        pros::delay(10);
+    }
     claw.close();
 }
 
-// void Control::backSidePickup() {
-//     bar.moveToBack();
-//     pros::delay(1000);
-//     claw.close();
-// }
 void Control::backSidePickup() {
     bar.moveToBack();
 
@@ -66,19 +53,25 @@ void Control::backSidePickup() {
         pros::delay(10);
     }
 
-    claw.open();
+    claw.close();
 }
 
 
 // Drop functions
 void Control::frontSideDrop() {
-    bar.moveToFront();
-    // pros::delay(1000);
+     bar.moveToFront();
+     // pros::delay(1000);
+     while (!bar.isAtFront()){
+        pros::delay(10);
+    }
     claw.open();
 }
 
 void Control::backSideDrop() {
     bar.moveToBack();
-    pros::delay(1000);
+    while (!bar.isAtBack()) {
+        pros::delay(10);
+    }
+
     claw.open();
 }
