@@ -8,9 +8,6 @@
 #include "control.hpp"
 
 
-// start with pickup
-ClawMode clawMode = PICKUP;
-
 
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
@@ -157,20 +154,15 @@ void opcontrol() {
         lift.updateLiftController(controller);
 
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
-            if (clawMode == PICKUP) {
-                clawMode = DROP;
-                
-            } else {
-                clawMode = PICKUP;
-            }
+            control.toggleClawMode();
         }
 
         else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
-            control.sameSideAction();
+            control.frontSideAction();
         }
 
         else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
-            control.oppositeSideAction();
+            control.backSideAction();
         }
         
         else {

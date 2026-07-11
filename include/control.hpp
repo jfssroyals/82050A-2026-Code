@@ -15,8 +15,8 @@ public:
 
     void toggleClawMode();
 
-    void sameSideAction();
-    void oppositeSideAction();
+    void frontSideAction();
+    void backSideAction();
 
 private:
     Claw& claw;
@@ -25,9 +25,9 @@ private:
 
     ClawMode clawMode;
     
-    void sameSidePickup();
-    void oppositeSidePickup();
+    void frontSidePickup();
+    void backSidePickup();
 
-    void sameSideDrop();
-    void oppositeSideDrop();
+    void frontSideDrop();
+    void backSideDrop();
 };

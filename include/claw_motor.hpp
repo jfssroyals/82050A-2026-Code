@@ -6,8 +6,6 @@ public:
     pros::Motor motor;
     bool isBack = false;
 
-    // Tested conversion:
-    // 1 bar degree = 8 motor degrees
     const double MOTOR_DEGREES_PER_BAR_DEGREE = 7.25;
 
     Bar(int motorPort);
@@ -19,4 +17,7 @@ public:
     void moveToBack();
     void toggle();
     void reset();
+
+    bool isAtBack();
+    bool isAtFront();
 };
