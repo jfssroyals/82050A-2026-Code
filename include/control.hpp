@@ -1,16 +1,36 @@
 #pragma once
-
+#include "main.h"
 #include "claw.hpp"
 #include "claw_motor.hpp"
 #include "lift.hpp"
 
-enum ClawMode {
-    PICKUP,
-    DROP
-};
-
 class Control {
+
+private:
+    Claw& claw;
+    Bar& bar;
+    Lift& lift;
+
+    enum ActionState {
+        IDLE,
+        MOVING_FRONT_PICKUP,
+        MOVING_BACK_PICKUP,
+        MOVING_FRONT_DROP,
+        MOVING_BACK_DROP
+    };
+
+    ActionState state;
+
+    enum ClawMode {
+        PICKUP,
+        DROP
+    };
+
+    ClawMode clawMode;
+
+
 public:
+
     Control(Claw& claw, Bar& bar, Lift& lift);
 
     void toggleClawMode();
@@ -18,16 +38,6 @@ public:
     void frontSideAction();
     void backSideAction();
 
-private:
-    Claw& claw;
-    Bar& bar;
-    Lift& lift;
+    void update();
 
-    ClawMode clawMode;
-    
-    void frontSidePickup();
-    void backSidePickup();
-
-    void frontSideDrop();
-    void backSideDrop();
 };
