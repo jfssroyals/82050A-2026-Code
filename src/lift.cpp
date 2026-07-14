@@ -65,7 +65,7 @@ void Lift::reset() {
 //         liftTargetHeight -= 3;
 //         pros::lcd::print(5, "Target: %d", (int)liftTargetHeight);
 //     }
-
+  
 
 //     // Limit height
 //     if(liftTargetHeight > 1000)
