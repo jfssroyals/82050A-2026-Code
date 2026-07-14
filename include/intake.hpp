@@ -2,17 +2,19 @@
 #include "main.h"
 
 class Intake {
-    private:
-        pros::Motor motor;
+private:
+    pros::Motor motor;
+    
+    // State variables to track the toggle behavior
+    bool isRunning = false;
+    bool isSpinningInward = true; // True = inward, False = outward
 
-    public:
-        Intake(int motorPort);
+public:
+    Intake(int motorPort);
 
-        // Functions
-        void spinInward();
-        void spinOutward();
-        void stop();
-        
-        // Function to handle driver inputs 
-        void update(pros::Controller& controller);
+    void spinInward();
+    void spinOutward();
+    void stop();
+    
+    void update(pros::Controller& controller);
 };
