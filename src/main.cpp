@@ -139,29 +139,29 @@ void autonomous() {
 
 void opcontrol() {
 
-    static bool barCalibrated = false;
+    // static bool barCalibrated = false;
 
-    // calibrate bar as the first thing in opcontrol, but only once when the program runs. This is to ensure that the bar is calibrated before any other actions are taken, but also to avoid recalibrating it every time opcontrol runs.
-    if (!barCalibrated) {
-                // Start with the bar against the hard stop and set that position to zero.
-                bar.motor.move(-20);
-                double lastPos = bar.motor.get_position();
-                int stableCount = 0;
-                while (stableCount < 5) {
-                    pros::delay(20);
-                    double pos = bar.motor.get_position();
-                    if (fabs(pos - lastPos) < 0.5) {
-                        stableCount++;
-                    } else {
-                        stableCount = 0;
-                    }
-                    lastPos = pos;
-                }
-                bar.motor.move(0);
-                bar.reset();
-                bar.moveToBack();
-                barCalibrated = true;
-            }
+    // // calibrate bar as the first thing in opcontrol, but only once when the program runs. This is to ensure that the bar is calibrated before any other actions are taken, but also to avoid recalibrating it every time opcontrol runs.
+    // if (!barCalibrated) {
+    //             // Start with the bar against the hard stop and set that position to zero.
+    //             bar.motor.move(-20); 
+    //             double lastPos = bar.motor.get_position();
+    //             int stableCount = 0;
+    //             while (stableCount < 5) {
+    //                 pros::delay(20);
+    //                 double pos = bar.motor.get_position();
+    //                 if (fabs(pos - lastPos) < 0.5) {
+    //                     stableCount++;
+    //                 } else {
+    //                     stableCount = 0;
+    //                 }
+    //                 lastPos = pos;
+    //             }
+    //             bar.motor.move(0);
+    //             bar.reset();
+    //             bar.moveToBack();
+    //             barCalibrated = true;
+    //         }
             
     // controller
     // loop to continuously update motors
@@ -173,29 +173,29 @@ void opcontrol() {
         chassis.arcade(leftY, rightX);
 
         lift.updateLiftController(controller);
+
+        control.update();
     
-
         // L1 + L2 together = toggle claw mode
-    if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)) {
-        control.toggleClawMode();
-    }
+        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)) {
+            control.toggleClawMode();
+        }
 
-    // L1 = front action
-    else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+        // L1 = front action
+        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
 
-        control.frontSideAction();
-    }
+            control.frontSideAction();
+        }
 
-    // L2 = back action
-    else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+        // L2 = back action
+        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
 
-        control.backSideAction();
-    }
-         
-    else {
-                pros::delay(10);
-            }
-        
+            control.backSideAction();
+        }
+            
+        else {
+            pros::delay(10);
+        }
         
         // delay to save resources
         pros::delay(10);
