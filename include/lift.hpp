@@ -19,4 +19,5 @@ public:
 
     void setLiftStage(int Stage);
     void updateLiftController(pros::Controller& controller);
+    void reset();
 };

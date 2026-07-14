@@ -2,11 +2,14 @@
 #include "main.h"
 
 class Bar {
+private:
+    void calibrateBack();
+
 public:
     pros::Motor motor;
     bool isBack = false;
 
-    const double MOTOR_DEGREES_PER_BAR_DEGREE = 7.25;
+    const double MOTOR_DEGREES_PER_BAR_DEGREE = 7.8;
 
     Bar(int motorPort);
 

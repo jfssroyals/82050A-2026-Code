@@ -13,6 +13,47 @@ Lift::Lift(signed char leftPort, signed char rightPort)
     R_liftMotor.set_brake_mode(pros::MotorBrake::hold);
 }
 
+void Lift::reset() {
+
+    // Move lift down toward hard stop
+    L_liftMotor.move(-40);
+    R_liftMotor.move(-40);
+
+    double lastPosition = (L_liftMotor.get_position() + R_liftMotor.get_position()) / 2;
+    int stoppedTime = 0;
+
+    while (true) {
+
+        pros::delay(20);
+
+        double currentPosition = (L_liftMotor.get_position() + R_liftMotor.get_position()) / 2;
+
+        // If motor barely moved
+        if (fabs(currentPosition - lastPosition) < 0.5) {
+            stoppedTime += 20;
+        } 
+        else {
+            stoppedTime = 0;
+        }
+
+        // If it has not moved for 1 second
+        if (stoppedTime >= 1000) {
+            break;
+        }
+
+        lastPosition = currentPosition;
+    }
+
+    // Stop motors
+    L_liftMotor.move(0);
+    R_liftMotor.move(0);
+
+    // Set bottom position as zero
+    L_liftMotor.tare_position();
+    R_liftMotor.tare_position();
+
+    liftTargetHeight = 0;
+}
 // void Lift::updateLiftController(pros::Controller& controller) {
 
 //     if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
@@ -70,10 +111,15 @@ Lift::Lift(signed char leftPort, signed char rightPort)
 //     R_liftMotor.move(rightPower);
 // }
 
+
+
+
+
+
+
+
 // Lift controller
 void Lift::updateLiftController(pros::Controller& controller) {
-
-    double currentPosition = L_liftMotor.get_position();
 
     // Move up
     if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
@@ -89,30 +135,12 @@ void Lift::updateLiftController(pros::Controller& controller) {
         R_liftMotor.move(-80);
     }
 
-    
+
     // Stop when no button pressed
     else {
         L_liftMotor.move(0);
         R_liftMotor.move(0);
     }
-
-    // // Limit lift range
-    // if (liftTargetHeight > 1000) {
-    //     liftTargetHeight = 1000;
-    // }
-
-    // if (liftTargetHeight < 0) {
-    //     liftTargetHeight = 0;
-    // }
-
-
-    
-
-
-    // Debug information
-    pros::lcd::print(5, "Target: %d", (int)liftTargetHeight);
-    // pros::lcd::print(6, "Pos: %d", (int)currentPosition);
-    // pros::lcd::print(7, "Power: %d", (int)motorPower);
 }
 
 
