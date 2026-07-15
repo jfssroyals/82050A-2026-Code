@@ -20,6 +20,7 @@ public:
     void moveToBack();
     void toggle();
     void reset();
+    void cometopickup();
 
     bool isAtBack();
     bool isAtFront();

@@ -74,6 +74,10 @@ void Bar::reset() {
     calibrateBack();
 }
 
+void Bar::cometopickup(){
+    motor.move(-270);
+}
+
 bool Bar::isAtBack() {
     return isBack &&
            std::fabs(

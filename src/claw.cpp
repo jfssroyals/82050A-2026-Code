@@ -17,3 +17,4 @@ void Claw::toggle() {
     isOpen = !isOpen;
     piston.set_value(isOpen);
 }
+

@@ -138,33 +138,6 @@ void autonomous() {
 }
 
 void opcontrol() {
-
-    // static bool barCalibrated = false;
-
-    // // calibrate bar as the first thing in opcontrol, but only once when the program runs. This is to ensure that the bar is calibrated before any other actions are taken, but also to avoid recalibrating it every time opcontrol runs.
-    // if (!barCalibrated) {
-    //             // Start with the bar against the hard stop and set that position to zero.
-    //             bar.motor.move(-20); 
-    //             double lastPos = bar.motor.get_position();
-    //             int stableCount = 0;
-    //             while (stableCount < 5) {
-    //                 pros::delay(20);
-    //                 double pos = bar.motor.get_position();
-    //                 if (fabs(pos - lastPos) < 0.5) {
-    //                     stableCount++;
-    //                 } else {
-    //                     stableCount = 0;
-    //                 }
-    //                 lastPos = pos;
-    //             }
-    //             bar.motor.move(0);
-    //             bar.reset();
-    //             bar.moveToBack();
-    //             barCalibrated = true;
-    //         }
-            
-    // controller
-    // loop to continuously update motors
     while (true) {
         // get joystick positions
         int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
@@ -192,7 +165,7 @@ void opcontrol() {
 
             control.backSideAction();
         }
-            
+    
         else {
             pros::delay(10);
         }
