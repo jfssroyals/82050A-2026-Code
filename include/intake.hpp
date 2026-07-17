@@ -16,5 +16,7 @@ public:
     void spinOutward();
     void stop();
     
-    void update(pros::Controller& controller);
+    void update();
+    void toggle_state();
+    void toggle_direction();
 };

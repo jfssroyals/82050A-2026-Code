@@ -4,8 +4,11 @@
 #include "constants.hpp"
 #include "lift.hpp"
 #include "claw.hpp"
+#include "lift.cpp"
 #include "claw_motor.hpp"
+#include "intake.hpp"
 #include "control.hpp"
+#include "intake.cpp"
 
 
 
@@ -23,6 +26,10 @@ Lift lift(-9, 2);
 
 // control
 Control control(claw, bar, lift);
+
+// Intake 
+// Change the port later 
+Intake intake(11);
 
 // motor groups
 pros::MotorGroup leftMotors({6, 5, 4}, pros::MotorGearset::blue); // left motor group - ports 3 (reversed), 4, 5 (reversed)
@@ -148,7 +155,8 @@ void opcontrol() {
         lift.updateLiftController(controller);
 
         control.update();
-    
+        intake.update();
+
         // L1 + L2 together = toggle claw mode
         if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)) {
             control.toggleClawMode();
@@ -165,7 +173,26 @@ void opcontrol() {
 
             control.backSideAction();
         }
-    
+
+        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
+            lift.stepStageUp();
+        } 
+        
+        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) 
+        {
+            lift.stepStageDown();
+        }    
+
+        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) 
+        {
+            intake.toggle_state();
+        }
+
+        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A))
+        {
+            intake.toggle_direction();
+        }
+
         else {
             pros::delay(10);
         }

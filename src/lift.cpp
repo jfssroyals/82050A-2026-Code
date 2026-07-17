@@ -53,40 +53,40 @@ void Lift::reset() {
 }
 
 // Lift controller
-void Lift::updateLiftController(pros::Controller& controller) {
+// void Lift::updateLiftController(pros::Controller& controller) {
 
-    // Move up
-    if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-        // Only allow movement if below max height
-        L_liftMotor.move(127);
-        R_liftMotor.move(127);
-    }
-
-
-    // Move down
-    else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-        L_liftMotor.move(-80);
-        R_liftMotor.move(-80);
-    }
-
-        // 2. Toggle DIRECTION (Button A)
-    else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
-        L_liftMotor.move(80);
-        R_liftMotor.move(80);
-    }
+//     // Move up
+//     if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+//         // Only allow movement if below max height
+//         L_liftMotor.move(127);
+//         R_liftMotor.move(127);
+//     }
 
 
-    // Stop when no button pressed
-    else {
-        L_liftMotor.move(0);
-        R_liftMotor.move(0);
-    } 
-}
+//     // Move down
+//     else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+//         L_liftMotor.move(-80);
+//         R_liftMotor.move(-80);
+//     }
+
+//         // 2. Toggle DIRECTION (Button A)
+//     else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
+//         L_liftMotor.move(80);
+//         R_liftMotor.move(80);
+//     }
+
+
+//     // Stop when no button pressed
+//     else {
+//         L_liftMotor.move(0);
+//         R_liftMotor.move(0);
+//     } 
+// }
 
 
 // === COMPLEX LIFT FUNCTIONS (Commented Out / Prepared) ===
 
-/*
+
 void Lift::setLiftStage(int stage) {
     // Clamp the target stage between 0 and the max stages index
     currentStage = std::clamp(stage, 0, totalStages - 1);
@@ -103,13 +103,6 @@ void Lift::stepStageDown() {
 
 void Lift::updateComplexLift(pros::Controller& controller) {
     // Stage controls (Press R2 to step up a stage, R1 to step down a stage)
-    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
-        stepStageUp();
-    } 
-    else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) {
-        stepStageDown();
-    }
-
     // Average current position of both lift motors
     double leftPosition = L_liftMotor.get_position();
     double rightPosition = R_liftMotor.get_position();
@@ -130,4 +123,3 @@ void Lift::updateComplexLift(pros::Controller& controller) {
     L_liftMotor.move(std::clamp(leftPower, -127.0, 127.0));
     R_liftMotor.move(std::clamp(rightPower, -127.0, 127.0));
 }
-*/

@@ -16,18 +16,19 @@ void Intake::stop() {
     motor.move(0); 
 }
 
+void Intake::toggle_state()
+{
+    isRunning = !isRunning;    
+}
+
+void Intake::toggle_direction()
+{
+    isSpinningInward = !isSpinningInward;
+}  
+
+
 // Handles the toggle logic during driver control
-void Intake::update(pros::Controller& controller) {
-    // 1. Toggle ON/OFF (Button Y)
-    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
-        isRunning = !isRunning; // Flip the running state
-    }
-
-    // 2. Toggle DIRECTION (Button A)
-    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
-        isSpinningInward = !isSpinningInward; // Flip the direction state
-    }
-
+void Intake::update() {
     // 3. Apply the states to the physical motor
     if (isRunning) {
         if (isSpinningInward) {
