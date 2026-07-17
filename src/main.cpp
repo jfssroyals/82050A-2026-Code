@@ -4,12 +4,9 @@
 #include "constants.hpp"
 #include "lift.hpp"
 #include "claw.hpp"
-#include "lift.cpp"
 #include "claw_motor.hpp"
 #include "intake.hpp"
 #include "control.hpp"
-#include "intake.cpp"
-
 
 
 // controller
@@ -29,7 +26,7 @@ Control control(claw, bar, lift);
 
 // Intake 
 // Change the port later 
-Intake intake(11);
+Intake intake(1);
 
 // motor groups
 pros::MotorGroup leftMotors({6, 5, 4}, pros::MotorGearset::blue); // left motor group - ports 3 (reversed), 4, 5 (reversed)
@@ -105,12 +102,11 @@ lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband out of 127
 lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors, &throttleCurve, &steerCurve);
 
 
-
 void initialize() {
     pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
-    bar.reset();
-    // lift.reset();
+    // bar.reset();
+    lift.reset();
     pros::Task screenTask([&]() {
         while (true) {
             // print robot location to the brain screen
@@ -152,50 +148,50 @@ void opcontrol() {
         // move the chassis with curvature drive
         chassis.arcade(leftY, rightX);
 
-        lift.updateLiftController(controller);
+        // lift.updateComplexLift();
 
-        control.update();
-        intake.update();
+        // control.update();
+        // intake.update();
 
-        // L1 + L2 together = toggle claw mode
-        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)) {
-            control.toggleClawMode();
-        }
+        // // L1 + L2 together = toggle claw mode
+        // if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)) {
+        //     control.toggleClawMode();
+        // }
 
-        // L1 = front action
-        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+        // // L1 = front action
+        // else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
 
-            control.frontSideAction();
-        }
+        //     control.frontSideAction();
+        // }
 
-        // L2 = back action
-        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+        // // L2 = back action
+        // else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
 
-            control.backSideAction();
-        }
+        //     control.backSideAction();
+        // }
 
-        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
-            lift.stepStageUp();
-        } 
+        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
+        //     lift.stepStageUp();
+        // } 
         
-        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) 
-        {
-            lift.stepStageDown();
-        }    
+        // else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) 
+        // {
+        //     lift.stepStageDown();
+        // }    
 
-        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) 
-        {
-            intake.toggle_state();
-        }
+        // else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) 
+        // {
+        //     intake.toggle_state();
+        // }
 
-        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A))
-        {
-            intake.toggle_direction();
-        }
+        // else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A))
+        // {
+        //     intake.toggle_direction();
+        // }
 
-        else {
-            pros::delay(10);
-        }
+        // else {
+        //     pros::delay(10);
+        // }
         
         // delay to save resources
         pros::delay(10);

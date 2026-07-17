@@ -14,27 +14,31 @@ Lift::Lift(signed char leftPort, signed char rightPort)
 
 void Lift::reset() {
 
-    // Move lift down toward hard stop
-    L_liftMotor.move(-40);
-    R_liftMotor.move(-40);
+    // Let lift fall toward the hard stop
+    L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 
-    double lastPosition = (L_liftMotor.get_position() + R_liftMotor.get_position()) / 2;
-    int stoppedTime = 0;
+    L_liftMotor.move(-60);
+    R_liftMotor.move(-60);
 
-    while (true) {
+    int stableTime = 0;
+
+    double lastPosition = 
+        (L_liftMotor.get_position() + R_liftMotor.get_position()) / 2;
+
+    while (stableTime < 500) {
+
         pros::delay(20);
-        double currentPosition = (L_liftMotor.get_position() + R_liftMotor.get_position()) / 2;
 
-        // If motor barely moved
-        if (fabs(currentPosition - lastPosition) < 0.5) {
-            stoppedTime += 20;
-        } else {
-            stoppedTime = 0;
-        }
+        double currentPosition =
+            (L_liftMotor.get_position() + R_liftMotor.get_position()) / 2;
 
-        // If it has not moved for 1 second
-        if (stoppedTime >= 1000) {
-            break;
+        // Lift is no longer moving
+        if (std::fabs(currentPosition - lastPosition) < 0.5) {
+            stableTime += 20;
+        } 
+        else {
+            stableTime = 0;
         }
 
         lastPosition = currentPosition;
@@ -44,12 +48,15 @@ void Lift::reset() {
     L_liftMotor.move(0);
     R_liftMotor.move(0);
 
-    // Set bottom position as zero
+    // Set hard stop as zero
     L_liftMotor.tare_position();
     R_liftMotor.tare_position();
 
-    // liftTargetHeight = 0;
-    // currentStage = 0;
+    // Return to hold mode after calibration
+    L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+
+    pros::lcd::print(6, "Lift Calibrated");
 }
 
 // Lift controller
@@ -101,7 +108,7 @@ void Lift::stepStageDown() {
     setLiftStage(currentStage - 1);
 }
 
-void Lift::updateComplexLift(pros::Controller& controller) {
+void Lift::updateComplexLift() {
     // Stage controls (Press R2 to step up a stage, R1 to step down a stage)
     // Average current position of both lift motors
     double leftPosition = L_liftMotor.get_position();

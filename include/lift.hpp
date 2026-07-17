@@ -23,7 +23,7 @@ public:
    void setLiftStage(int Stage);
    void stepStageUp();
    void stepStageDown();
-   void updateComplexLift(pros::Controller& controller);
-   void updateLiftController(pros::Controller& controller);
+   void updateComplexLift();
+   void updateLiftController();
    void reset();
 };
