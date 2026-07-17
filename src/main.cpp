@@ -148,7 +148,7 @@ void opcontrol() {
         // move the chassis with curvature drive
         chassis.arcade(leftY, rightX);
 
-        // lift.updateComplexLift();
+        lift.updateComplexLift();
 
         // control.update();
         // intake.update();
@@ -170,14 +170,14 @@ void opcontrol() {
         //     control.backSideAction();
         // }
 
-        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
-        //     lift.stepStageUp();
-        // } 
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
+            lift.stepStageUp();
+        } 
         
-        // else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) 
-        // {
-        //     lift.stepStageDown();
-        // }    
+        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) 
+        {
+            lift.stepStageDown();
+        }    
 
         // else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) 
         // {
