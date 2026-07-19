@@ -29,8 +29,10 @@ Control control(claw, bar, lift);
 Intake intake(1);
 
 // motor groups
-pros::MotorGroup leftMotors({6, 5, 4}, pros::MotorGearset::blue); // left motor group - ports 3 (reversed), 4, 5 (reversed)
-pros::MotorGroup rightMotors({-10, -8, -7}, pros::MotorGearset::blue); // right motor group - ports 6, 7, 9 (reversed)
+pros::MotorGroup leftMotors({-6, -5, -4}); // left motor group - ports 3 (reversed), 4, 5 (reversed)
+pros::MotorGroup rightMotors({10, 8, 7}); // right motor group - ports 6, 7, 9 (reversed)
+
+
 
 // Inertial Sensor on port 10
 pros::Imu imu(15);
@@ -154,9 +156,10 @@ void opcontrol() {
         // intake.update();
 
         // // L1 + L2 together = toggle claw mode
-        // if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)) {
-        //     control.toggleClawMode();
-        // }
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
+            // control.toggleClawMode();
+            claw.toggle();
+        }
 
         // // L1 = front action
         // else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
