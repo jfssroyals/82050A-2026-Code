@@ -119,14 +119,11 @@ void Lift::updateComplexLift() {
     double error = liftTargetHeight - currentPosition;
     double motorPower = liftPID.update(error);
 
-    // Auto-synchronize sides to keep the lift level
-    double difference = leftPosition - rightPosition;
-    double syncCorrection = difference * 0.05;
-
-    double leftPower = motorPower - syncCorrection;
-    double rightPower = motorPower + syncCorrection;
+    pros::lcd::print(0, "Error: %.1f", error);
+    pros::lcd::print(1, "Power: %.1f", motorPower);
 
     // Apply motor power safely
-    L_liftMotor.move(std::clamp(leftPower, -127.0, 127.0));
-    R_liftMotor.move(std::clamp(rightPower, -127.0, 127.0));
+    L_liftMotor.move(std::clamp(motorPower, -127.0, 127.0));
+    R_liftMotor.move(std::clamp(motorPower, -127.0, 127.0));
+    
 }

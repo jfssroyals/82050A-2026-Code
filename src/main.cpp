@@ -175,11 +175,13 @@ void opcontrol() {
 
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
             lift.stepStageUp();
+            controller.rumble(".");
         } 
         
         else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) 
         {
             lift.stepStageDown();
+            controller.rumble(".");
         }    
 
         // else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) 
