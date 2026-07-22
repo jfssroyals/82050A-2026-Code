@@ -32,8 +32,6 @@ Intake intake(1);
 pros::MotorGroup leftMotors({-6, -5, -4}); // left motor group - ports 3 (reversed), 4, 5 (reversed)
 pros::MotorGroup rightMotors({10, 8, 7}); // right motor group - ports 6, 7, 9 (reversed)
 
-
-
 // Inertial Sensor on port 10
 pros::Imu imu(15);
 
@@ -107,7 +105,7 @@ lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors
 void initialize() {
     pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
-    // bar.reset();
+    bar.reset();
     lift.reset();
     pros::Task screenTask([&]() {
         while (true) {
@@ -152,26 +150,25 @@ void opcontrol() {
 
         lift.updateComplexLift();
 
-        // control.update();
+        control.update();
         // intake.update();
 
         // // L1 + L2 together = toggle claw mode
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
-            // control.toggleClawMode();
-            claw.toggle();
+            control.toggleClawMode();
         }
 
-        // // L1 = front action
-        // else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+        // L1 = front action
+        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
 
-        //     control.frontSideAction();
-        // }
+            control.frontSideAction();
+        }
 
-        // // L2 = back action
-        // else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+        // L2 = back action
+        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
 
-        //     control.backSideAction();
-        // }
+            control.backSideAction();
+        }
 
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
             lift.stepStageUp();
@@ -184,19 +181,24 @@ void opcontrol() {
             controller.rumble(".");
         }    
 
-        // else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) 
-        // {
-        //     intake.toggle_state();
-        // }
+        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) 
+        {
+            intake.toggle_state();
+        }
 
-        // else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A))
-        // {
-        //     intake.toggle_direction();
-        // }
+        else if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X))
+        {
+            lift.goToHighestStage();
+        }
 
-        // else {
-        //     pros::delay(10);
-        // }
+        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A))
+        {
+            intake.toggle_direction();
+        }
+
+        else {
+            pros::delay(10);
+        }
         
         // delay to save resources
         pros::delay(10);

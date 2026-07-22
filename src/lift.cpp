@@ -108,6 +108,10 @@ void Lift::stepStageDown() {
     setLiftStage(currentStage - 1);
 }
 
+void Lift::goToHighestStage() {
+    setLiftStage(totalStages - 1);
+}
+
 void Lift::updateComplexLift() {
     // Stage controls (Press R2 to step up a stage, R1 to step down a stage)
     // Average current position of both lift motors

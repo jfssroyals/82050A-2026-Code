@@ -11,11 +11,11 @@ private:
     double liftTargetHeight = 0;
     int currentStage = 0;
     const int totalStages = 5;
-    const double stageGap = 500.0;
+    const double stageGap = 300.0;
 
 
     // PID controller (kP, kI, kD, anti-windup, derivative filter)
-    lemlib::PID liftPID{1,  0.0, 0.5, 0, false};
+    lemlib::PID liftPID{0.5,  0.0, 0.5, 0, false};
 
 public:
     Lift(signed char leftPort, signed char rightPort);
@@ -25,5 +25,6 @@ public:
    void stepStageDown();
    void updateComplexLift();
    void updateLiftController();
+   void goToHighestStage();
    void reset();
 };
