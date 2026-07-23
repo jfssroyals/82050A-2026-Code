@@ -43,9 +43,9 @@ void Control::backSideAction() {
         // bar.moveToBack();
         // lastPickup = BACK;
         // state = MOVING_BACK_PICKUP;
-        claw.open();
+        claw.close();
     }
-    else {
+    if (clawMode == DROP) {
         // Always allow dropping at the back
         bar.moveToBack();
         claw.open();

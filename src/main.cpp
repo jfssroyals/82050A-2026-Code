@@ -157,9 +157,9 @@ void opcontrol() {
         // intake.update();
 
         // L1 + L2 together = toggle claw mode
-        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
-        //     control.toggleClawMode();
-        // }
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
+            control.toggleClawMode();
+        }
 
         // L1 = front action
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
