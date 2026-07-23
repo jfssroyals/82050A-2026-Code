@@ -148,8 +148,11 @@ void opcontrol() {
         // move the chassis with curvature drive
         chassis.arcade(leftY, rightX);
 
-        lift.updateComplexLift();
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
+            claw.toggle();
+        }
 
+        lift.updateComplexLift();
         control.update();
         // intake.update();
 
@@ -181,24 +184,20 @@ void opcontrol() {
             controller.rumble(".");
         }    
 
-        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) 
-        {
-            intake.toggle_state();
-        }
+        // else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) 
+        // {
+        //     intake.toggle_state();
+        // }
 
-        else if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X))
-        {
-            lift.goToHighestStage();
-        }
+        // // else if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X))
+        // // {
+        // //     lift.goToHighestStage();
+        // // }
 
-        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A))
-        {
-            intake.toggle_direction();
-        }
-
-        else {
-            pros::delay(10);
-        }
+        // else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A))
+        // {
+        //     intake.toggle_direction();
+        // }
         
         // delay to save resources
         pros::delay(10);

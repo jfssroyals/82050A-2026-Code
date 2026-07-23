@@ -9,7 +9,7 @@ double Bar::degreesToMotor(double realDegrees) {
 }
 
 void Bar::moveToAngle(double realDegrees) {
-    motor.move_absolute(degreesToMotor(realDegrees), 80);
+    motor.move_absolute(degreesToMotor(realDegrees), 60);
 }
 
 void Bar::moveToFront() {
@@ -36,7 +36,7 @@ void Bar::calibrateBack() {
     int stableTime = 0;
     double lastPosition = motor.get_position();
 
-    while (stableTime < 500) {
+    while (stableTime < 300) {
         pros::delay(20);
 
         double currentPosition = motor.get_position();

@@ -15,7 +15,7 @@ private:
 
 
     // PID controller (kP, kI, kD, anti-windup, derivative filter)
-    lemlib::PID liftPID{0.5,  0.0, 0.5, 0, false};
+    lemlib::PID liftPID{1,  0.0, 1, 0, false};
 
 public:
     Lift(signed char leftPort, signed char rightPort);
