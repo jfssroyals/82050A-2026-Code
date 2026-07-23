@@ -22,28 +22,34 @@ void Control::toggleClawMode() {
 void Control::frontSideAction() {
 
     if (clawMode == PICKUP) {
-        bar.moveToFront();
-        lastPickup = FRONT;
-        state = MOVING_FRONT_PICKUP;
+        // claw.open();
+        // pros::delay(500);
+        claw.close();
+        // bar.moveToFront();
+        // lastPickup = FRONT;
+        // state = MOVING_FRONT_PICKUP;
     }
-    else if (lastPickup == FRONT) {
-        bar.moveToFront();
-        state = MOVING_FRONT_DROP;
-    }
+    // else if (lastPickup == FRONT) {
+
+    //     bar.moveToFront();
+    //     state = MOVING_FRONT_DROP;
+    // }
 }
 
 
 void Control::backSideAction() {
 
     if (clawMode == PICKUP) {
-        bar.moveToBack();
-        lastPickup = BACK;
-        state = MOVING_BACK_PICKUP;
+        // bar.moveToBack();
+        // lastPickup = BACK;
+        // state = MOVING_BACK_PICKUP;
+        claw.open();
     }
     else {
         // Always allow dropping at the back
         bar.moveToBack();
-        state = MOVING_BACK_DROP;
+        claw.open();
+        // state = MOVING_BACK_DROP;
     }
 }
 

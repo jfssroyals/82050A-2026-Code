@@ -106,7 +106,7 @@ void initialize() {
     pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
     bar.reset();
-    lift.reset();
+    // lift.reset();
     pros::Task screenTask([&]() {
         while (true) {
             // print robot location to the brain screen
@@ -148,41 +148,41 @@ void opcontrol() {
         // move the chassis with curvature drive
         chassis.arcade(leftY, rightX);
 
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
-            claw.toggle();
-        }
+        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
+        //     claw.toggle();
+        // }
 
-        lift.updateComplexLift();
-        control.update();
+        // lift.updateComplexLift();
+        // control.update();
         // intake.update();
 
-        // // L1 + L2 together = toggle claw mode
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
-            control.toggleClawMode();
-        }
+        // L1 + L2 together = toggle claw mode
+        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
+        //     control.toggleClawMode();
+        // }
 
         // L1 = front action
-        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
 
             control.frontSideAction();
         }
 
         // L2 = back action
         else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
-
+            
             control.backSideAction();
         }
 
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
-            lift.stepStageUp();
-            controller.rumble(".");
-        } 
+        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
+        //     lift.stepStageUp();
+        //     controller.rumble(".");
+        // } 
         
-        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) 
-        {
-            lift.stepStageDown();
-            controller.rumble(".");
-        }    
+        // else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) 
+        // {
+        //     lift.stepStageDown();
+        //     controller.rumble(".");
+        // }    
 
         // else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) 
         // {
