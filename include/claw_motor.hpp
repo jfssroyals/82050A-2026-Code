@@ -8,7 +8,7 @@ private:
 public:
     pros::Motor motor;
     bool isBack = false;
-
+    bool back = false;
     const double MOTOR_DEGREES_PER_BAR_DEGREE = 7.8;
 
     Bar(int motorPort);
@@ -18,7 +18,6 @@ public:
 
     void moveToFront();
     void moveToBack();
-    void toggle();
     void reset();
     void cometopickup();
 

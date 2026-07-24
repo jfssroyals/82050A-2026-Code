@@ -1,4 +1,5 @@
 #pragma once
+
 #include "main.h"
 #include "claw.hpp"
 #include "claw_motor.hpp"
@@ -7,44 +8,55 @@
 class Control {
 
 private:
+
     Claw& claw;
     Bar& bar;
     Lift& lift;
 
+
+    // Current automatic action
     enum ActionState {
         IDLE,
+
+        // Moving bar to front to grab an object
         MOVING_FRONT_PICKUP,
-        MOVING_BACK_PICKUP,
+
+        // Moving bar to front to release an object
         MOVING_FRONT_DROP,
+
+        // Moving bar to back to release an object
         MOVING_BACK_DROP
     };
 
+
     ActionState state;
 
-    enum ClawMode {
-        PICKUP,
-        DROP
-    };
-
-    ClawMode clawMode;
-
-        enum PickupSide {
-        NONE,
-        FRONT,
-        BACK
-    };
-
-    PickupSide lastPickup;
 
 public:
 
     Control(Claw& claw, Bar& bar, Lift& lift);
 
-    void toggleClawMode();
 
-    void picking();
-    void scoring();
+    // L1: pickup from front
+    void frontPickup();
 
+
+    // L2: drop based on toggle
+    void drop();
+
+
+    // Toggle between front drop and back drop
+    void toggleDropSide();
+
+
+    // Runs every loop and finishes actions
     void update();
+
+
+private:
+
+    // false = back drop
+    // true = front drop
+    bool frontDrop;
 
 };

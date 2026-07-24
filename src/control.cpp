@@ -1,139 +1,121 @@
 #include "control.hpp"
 
+
 Control::Control(Claw& claw, Bar& bar, Lift& lift)
-    : claw(claw), 
-      bar(bar), 
-      lift(lift),
-      clawMode(PICKUP),
-      state(IDLE)
+    : 
+    claw(claw),
+    bar(bar),
+    lift(lift),
+    state(IDLE),
+    frontDrop(false)
 {}
 
 
-// Change between pickup and drop
-void Control::toggleClawMode() {
-    if (clawMode == PICKUP) {
-        clawMode = DROP;
-    } else {
-        clawMode = PICKUP;
-    }
+
+// Toggle where L2 drops
+// false = back drop
+// true = front drop
+void Control::toggleDropSide() {
+
+    frontDrop = !frontDrop;
+
 }
 
 
-void Control::scoring() {
 
-    if (clawMode == PICKUP) {
-        // claw.open();
-        // pros::delay(500);
-        claw.close();
-        // bar.moveToFront();
-        // lastPickup = FRONT;
-        // state = MOVING_FRONT_PICKUP;
-    }
-    // else if (lastPickup == FRONT) {
+// L1 action
+// Move to front and grab
+void Control::frontPickup() {
 
-    //     bar.moveToFront();
-    //     state = MOVING_FRONT_DROP;
-    // }
+    bar.moveToFront();
+
+    state = MOVING_FRONT_PICKUP;
+
 }
 
-// controls picking up the objects
-void Control::picking() {
 
-    if (clawMode == PICKUP) {
-        // bar.moveToBack();
-        // lastPickup = BACK;
-        // state = MOVING_BACK_PICKUP;
-        claw.close();
+
+// L2 action
+// Either front drop or back drop
+void Control::drop() {
+
+
+    if(frontDrop) {
+
+        // Move to front and release
+        bar.moveToFront();
+
+        state = MOVING_FRONT_DROP;
+
     }
-    if (clawMode == DROP) {
-        // Always allow dropping at the back
+    else {
+
+        // Move to back and release
         bar.moveToBack();
-        claw.open();
-        // state = MOVING_BACK_DROP;
+
+        state = MOVING_BACK_DROP;
+
     }
+
 }
 
-// updates the claw based on the  
+
+
+// Runs continuously in opcontrol
+// Checks when bar reaches position
+// then controls claw
 void Control::update() {
 
+
     switch(state) {
+
 
         case MOVING_FRONT_PICKUP:
 
             if(bar.isAtFront()) {
+
                 claw.close();
+
                 state = IDLE;
+
             }
 
             break;
 
-        case MOVING_BACK_PICKUP:
 
-            if(bar.isAtBack()) {
-                claw.close();
-                state = IDLE;
-            }
-
-            break;
 
         case MOVING_FRONT_DROP:
 
             if(bar.isAtFront()) {
+
                 claw.open();
+
                 state = IDLE;
+
             }
 
             break;
+
+
 
         case MOVING_BACK_DROP:
 
             if(bar.isAtBack()) {
+
                 claw.open();
+
                 state = IDLE;
+
             }
 
             break;
 
+
+
         case IDLE:
+
             break;
+
     }
+
 }
-
-// // Pickup functions
-// void Control::frontSidePickup() {
-//     bar.moveToFront();
-//     while (!bar.isAtFront()) {
-//         pros::delay(10);
-//     }
-//     claw.close();
-// }
-
-// void Control::backSidePickup() {
-//     bar.moveToBack();
-
-//     while (!bar.isAtBack()) {
-//         pros::delay(10);
-//     }
-
-//     claw.close();
-// }
-
-
-// // Drop functions
-// void Control::frontSideDrop() {
-//      bar.moveToFront();
-//      // pros::delay(1000);
-//      while (!bar.isAtFront()){
-//         pros::delay(10);
-//     }
-//     claw.open();
-// }
-
-// void Control::backSideDrop() {
-//     bar.moveToBack();
-//     while (!bar.isAtBack()) {
-//         pros::delay(10);
-//     }
-
-//     claw.open();
-// }
