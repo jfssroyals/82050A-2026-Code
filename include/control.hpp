@@ -42,8 +42,8 @@ public:
 
     void toggleClawMode();
 
-    void frontSideAction();
-    void backSideAction();
+    void picking();
+    void scoring();
 
     void update();
 

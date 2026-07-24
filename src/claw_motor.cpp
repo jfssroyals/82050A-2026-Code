@@ -28,6 +28,8 @@ void Bar::moveToBack() {
     calibrateBack();
 }
 
+// calibrates the bar to the starting position
+// bar is ready for movements after this 
 void Bar::calibrateBack() {
     // Let the bar fall toward the hard stop
     motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
@@ -55,6 +57,7 @@ void Bar::calibrateBack() {
     motor.move(0);
     motor.tare_position();
 
+    // the robot starts in the back
     isBack = true;
 
     pros::lcd::print(7, "Pos: %.2f", motor.get_position());

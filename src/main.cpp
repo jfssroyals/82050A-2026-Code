@@ -164,13 +164,13 @@ void opcontrol() {
         // L1 = front action
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
 
-            control.frontSideAction();
+            control.picking();
         }
 
         // L2 = back action
         else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
             
-            control.backSideAction();
+            control.dropping();
         }
 
         // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {

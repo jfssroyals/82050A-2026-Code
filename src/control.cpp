@@ -19,7 +19,7 @@ void Control::toggleClawMode() {
 }
 
 
-void Control::frontSideAction() {
+void Control::scoring() {
 
     if (clawMode == PICKUP) {
         // claw.open();
@@ -36,8 +36,8 @@ void Control::frontSideAction() {
     // }
 }
 
-
-void Control::backSideAction() {
+// controls picking up the objects
+void Control::picking() {
 
     if (clawMode == PICKUP) {
         // bar.moveToBack();
@@ -53,6 +53,7 @@ void Control::backSideAction() {
     }
 }
 
+// updates the claw based on the  
 void Control::update() {
 
     switch(state) {
