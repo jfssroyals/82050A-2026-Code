@@ -1,10 +1,6 @@
 #pragma once
 
 namespace constants {
-    // drivetrain
-    constexpr float trackWidth = 10.0;
-    constexpr int driveRpm = 360;
-    constexpr float horizontalDrift = 2.0;
 
     // linear controller
     constexpr float linear_kP = 10;
@@ -18,14 +14,14 @@ namespace constants {
     constexpr float linear_slew = 20;
 
     // angular controller
-    constexpr float angular_kP = 2;
+    constexpr float angular_kP = 5;
     constexpr float angular_kI = 0;
-    constexpr float angular_kD = 10;
-    constexpr float angular_antiWindup = 3;
-    constexpr float angular_smallError = 1;
-    constexpr int angular_smallTimeout = 100;
-    constexpr float angular_largeError = 3;
-    constexpr int angular_largeTimeout = 500;
+    constexpr float angular_kD = 40;
+    constexpr float angular_antiWindup = 0;
+    constexpr float angular_smallError = 0;
+    constexpr int angular_smallTimeout = 0;
+    constexpr float angular_largeError = 0;
+    constexpr int angular_largeTimeout = 0;
     constexpr float angular_slew = 0;
 
     // // profile wrappers
