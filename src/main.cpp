@@ -44,7 +44,7 @@ pros::MotorGroup rightMotors({10, 8, 7}); // right motor group - ports 6, 7, 9 (
 // Inertial Sensor on port 6
 pros::Imu imu(6);
 
-// horizontal tracking wheel encoder. Rotation sensor, port 20
+// horizontal tracking wheel encoder Rotation sensor, port 20
 pros::Rotation horizontalEnc(-12);
 
 // horizontal tracking wheel. 2.75" diameter, 5.75" offset, back of the robot (negative)
@@ -155,10 +155,12 @@ void competition_initialize() {}
 
 
 void autonomous() {
-    // set position to x:0, y:0, heading:0
-    chassis.setPose(0, 0, 0);
-    // turn to face heading 90 with a very long timeout
-    chassis.turnToHeading(90, 100000);
+    // // set position to x:0, y:0, heading:0
+    // chassis.setPose(0, 0, 0);
+    // // turn to face heading 90 with a very long timeout
+    // chassis.turnToHeading(90, 100000);
+    chassis.setPose(0, 0, 0)
+    chassis.moveToPoint(0, 24, 2000);
 }
 
 void opcontrol() {
