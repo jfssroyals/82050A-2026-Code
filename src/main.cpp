@@ -7,11 +7,12 @@
 #include "claw_motor.hpp"
 #include "intake.hpp"
 #include "control.hpp"
-
+#include "titanselect/titanselect.hpp"
 
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
+// subsystems ports
 // claw
 Claw claw('A');
 
@@ -28,29 +29,35 @@ Control control(claw, bar, lift);
 // Change the port later 
 Intake intake(1);
 
+// ------------------------------ //
+
 // motor groups
-pros::MotorGroup leftMotors({-6, -5, -4}); // left motor group - ports 3 (reversed), 4, 5 (reversed)
+pros::MotorGroup leftMotors({-20, -5, -4}); // left motor group - ports 3 (reversed), 4, 5 (reversed)
 pros::MotorGroup rightMotors({10, 8, 7}); // right motor group - ports 6, 7, 9 (reversed)
+// Tell PROS that motor index 1 (port 5) has a green cartridge
+// leftMotors.set_gearing(pros::MotorGears::green, 1);
 
-// Inertial Sensor on port 10
-pros::Imu imu(15);
+// 8,7,5 not working on the drivetrain
 
-// tracking wheels
+// tracking
+
+// Inertial Sensor on port 6
+pros::Imu imu(6);
+
 // horizontal tracking wheel encoder. Rotation sensor, port 20
-pros::Rotation horizontalEnc(20);
-// vertical tracking wheel encoder. Rotation sensor
-pros::Rotation verticalEnc(-12);
+pros::Rotation horizontalEnc(12);
+
 // horizontal tracking wheel. 2.75" diameter, 5.75" offset, back of the robot (negative)
-lemlib::TrackingWheel horizontal(&horizontalEnc, lemlib::Omniwheel::NEW_275, -5.75);
-// vertical tracking wheel. 2.75" diameter, 2.5" offset, left of the robot (negative)
-lemlib::TrackingWheel vertical(&verticalEnc, lemlib::Omniwheel::NEW_275, -2.5);
+lemlib::TrackingWheel horizontal(&horizontalEnc, lemlib::Omniwheel::NEW_2, -4.917);
+
+// ------------------------------ //
 
 // drivetrain settings
 lemlib::Drivetrain drivetrain(&leftMotors, // left motor group
                               &rightMotors, // right motor group
-                              10, // 10 inch track width
-                              lemlib::Omniwheel::NEW_4, // using new 4" omnis
-                              360, // drivetrain rpm is 360
+                              12.1, // 12.1 inch track width
+                              lemlib::Omniwheel::NEW_275, // using new 2.75" omnis
+                              450, // drivetrain rpm is 450
                               2 // horizontal drift is 2. If we had traction wheels, it would have been 8
 );
 
@@ -79,7 +86,7 @@ lemlib::ControllerSettings angularController(
 );
 
 // sensors for odometry
-lemlib::OdomSensors sensors(&vertical, // vertical tracking wheel
+lemlib::OdomSensors sensors(nullptr, // we do not have vertical tracking wheel
                             nullptr, // vertical tracking wheel 2, set to nullptr as we don't have a second one
                             &horizontal, // horizontal tracking wheel
                             nullptr, // horizontal tracking wheel 2, set to nullptr as we don't have a second one
@@ -119,6 +126,7 @@ void initialize() {
             pros::delay(50);
         }
     });
+    ts::selector::get()->display(); // display the auton selector on the brain screen
 }
 
 /**
@@ -136,8 +144,17 @@ void competition_initialize() {}
 // ASSET(example_txt); // '.' replaced with "_" to make c++ happy
 
 
+// auton selector definitions
+// ts::auton redLeftEntry("Red Left", redLeftAuton);
+// ts::auton redRightEntry("Red Right", redRightAuton);
+// ts::auton blueLeftEntry("Blue Left", blueLeftAuton);
+// ts::auton blueRightEntry("Blue Right", blueRightAuton);
+// ts::auton skillsEntry("Skills", skillsAuton);
+
+
 void autonomous() {
     //add autonomous selector
+    ts::selector::get()->run_selected_auton();
 }
 
 void opcontrol() {

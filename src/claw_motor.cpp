@@ -29,15 +29,15 @@ void Bar::moveToFront() {
     motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 
     // Fast movement.
-    motor.move(70);
-    pros::delay(180);
+    motor.move(127);
+    pros::delay(300);
 
     // Medium speed.
-    motor.move(40);
-    pros::delay(120);
+    motor.move(90);
+    pros::delay(300);
 
     // Slow approach.
-    motor.move(10);
+    motor.move(20);
 
     int stableTime = 0;
     double lastPosition = motor.get_position();
@@ -74,15 +74,15 @@ void Bar::moveToBack() {
     motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 
     // Fast movement.
-    motor.move(-70);
-    pros::delay(180);
+    motor.move(-127);
+    pros::delay(300);
 
     // Medium speed.
-    motor.move(-40);
-    pros::delay(120);
+    motor.move(-90);
+    pros::delay(300);
 
     // Slow approach.
-    motor.move(-10);
+    motor.move(-20);
 
     int stableTime = 0;
     double lastPosition = motor.get_position();
@@ -173,10 +173,10 @@ void Bar::cometopickup() {
 // and the encoder is close to zero.
 bool Bar::isAtBack() {
 
-    return isBack &&
-           std::fabs(
-               motor.get_position() - degreesToMotor(0)
-           ) < 20;
+    return isBack;
+        //    std::fabs(
+        //        motor.get_position() - degreesToMotor(0)
+        //    ) < 20;
 
 }
 
