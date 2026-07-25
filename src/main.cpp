@@ -45,7 +45,7 @@ pros::MotorGroup rightMotors({10, 8, 7}); // right motor group - ports 6, 7, 9 (
 pros::Imu imu(6);
 
 // horizontal tracking wheel encoder. Rotation sensor, port 20
-pros::Rotation horizontalEnc(12);
+pros::Rotation horizontalEnc(-12);
 
 // horizontal tracking wheel. 2.75" diameter, 5.75" offset, back of the robot (negative)
 lemlib::TrackingWheel horizontal(&horizontalEnc, lemlib::Omniwheel::NEW_2, -4.917);
@@ -120,13 +120,15 @@ void initialize() {
             pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
             pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
             pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
+            pros::lcd::print(1, "Rotation Sensor: %i", horizontalEnc.get_position());
+
             // log position telemetry
             lemlib::telemetrySink()->info("Chassis pose: {}", chassis.getPose());
             // delay to save resources
             pros::delay(50);
         }
     });
-    ts::selector::get()->display(); // display the auton selector on the brain screen
+    // ts::selector::get()->display(); // display the auton selector on the brain screen
 }
 
 /**
@@ -153,8 +155,10 @@ void competition_initialize() {}
 
 
 void autonomous() {
-    //add autonomous selector
-    ts::selector::get()->run_selected_auton();
+    // set position to x:0, y:0, heading:0
+    chassis.setPose(0, 0, 0);
+    // turn to face heading 90 with a very long timeout
+    chassis.turnToHeading(90, 100000);
 }
 
 void opcontrol() {
