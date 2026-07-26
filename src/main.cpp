@@ -149,12 +149,12 @@ void autonomous() {
     // // turn to face heading 90 with a very long timeout
     // chassis.turnToHeading(90, 100000);
     chassis.setPose(0, 0, 0);
-    chassis.moveToPoint(0, 74, 5000);
+    chassis.moveToPoint(0, 12.3, 5000);
+    chassis.waitUntilDone();
     chassis.turnToHeading(270, 2000);
-    pros::delay(100);
-    chassis.setPose(0, 0, 0);
-    chassis.moveToPoint(-34, 0, 5000);
-    chassis.moveToPoint(0, 0, 5000);
+    chassis.waitUntilDone();
+    chassis.moveToPoint(-17, 12, 5000);
+    chassis.waitUntilDone();
 }
 
 void opcontrol() {
