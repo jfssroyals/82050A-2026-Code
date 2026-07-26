@@ -1,2 +1,2 @@
 # 82050A-2026-Code
-JFSS VEX git hub
+31860A (prev. 82050A) 2026-2027 VEX Override Code Repository
