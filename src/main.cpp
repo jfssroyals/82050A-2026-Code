@@ -7,7 +7,6 @@
 #include "claw_motor.hpp"
 #include "intake.hpp"
 #include "control.hpp"
-#include "titanselect/titanselect.hpp"
 
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
@@ -128,7 +127,6 @@ void initialize() {
             pros::delay(50);
         }
     });
-    // ts::selector::get()->display(); // display the auton selector on the brain screen
 }
 
 /**
@@ -144,15 +142,6 @@ void competition_initialize() {}
 // get a path used for pure pursuit
 // this needs to be put outside a function
 // ASSET(example_txt); // '.' replaced with "_" to make c++ happy
-
-
-// auton selector definitions
-// ts::auton redLeftEntry("Red Left", redLeftAuton);
-// ts::auton redRightEntry("Red Right", redRightAuton);
-// ts::auton blueLeftEntry("Blue Left", blueLeftAuton);
-// ts::auton blueRightEntry("Blue Right", blueRightAuton);
-// ts::auton skillsEntry("Skills", skillsAuton);
-
 
 void autonomous() {
     // // set position to x:0, y:0, heading:0
