@@ -120,7 +120,7 @@ void initialize() {
             pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
             pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
             pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
-            pros::lcd::print(1, "Rotation Sensor: %i", horizontalEnc.get_position());
+            pros::lcd::print(3, "Rotation Sensor: %i", horizontalEnc.get_position());
 
             // log position telemetry
             lemlib::telemetrySink()->info("Chassis pose: {}", chassis.getPose());
@@ -159,8 +159,13 @@ void autonomous() {
     // chassis.setPose(0, 0, 0);
     // // turn to face heading 90 with a very long timeout
     // chassis.turnToHeading(90, 100000);
-    chassis.setPose(0, 0, 0)
-    chassis.moveToPoint(0, 24, 2000);
+    chassis.setPose(0, 0, 0);
+    chassis.moveToPoint(0, 74, 5000);
+    chassis.turnToHeading(270, 2000);
+    pros::delay(100);
+    chassis.setPose(0, 0, 0);
+    chassis.moveToPoint(-34, 0, 5000);
+    chassis.moveToPoint(0, 0, 5000);
 }
 
 void opcontrol() {

@@ -3,9 +3,9 @@
 namespace constants {
 
     // linear controller
-    constexpr float linear_kP = 2;
+    constexpr float linear_kP = 7;
     constexpr float linear_kI = 0;
-    constexpr float linear_kD = 10;
+    constexpr float linear_kD = 42.8;
     constexpr float linear_antiWindup = 3;
     constexpr float linear_smallError = 1;
     constexpr int linear_smallTimeout = 100;
