@@ -170,25 +170,7 @@ void opcontrol() {
         // }
 
         // lift.updateComplexLift();
-        // control.update();
-        // intake.update();
-
-        // // L1 + L2 together = toggle claw mode
-        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
-        //     control.toggleClawMode();
-        // }
-
-        // // L1 = front action
-        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
-
-        //     control.picking();
-        // }
-
-        // // L2 = back action
-        // else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
-            
-        //     control.dropping();
-        // }
+          
 
         // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
         //     lift.stepStageUp();
@@ -207,19 +189,19 @@ void opcontrol() {
         // // }
 
         
-        // for testing
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
-            if (bar.isAtBack()){
-                bar.moveToFront();
-            }
-            else {
-                bar.moveToBack();
-            }
-        }
+        // // for testing
+        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+        //     if (bar.isAtBack()){
+        //         bar.moveToFront();
+        //     }
+        //     else {
+        //         bar.moveToBack();
+        //     }
+        // }
 
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
-            claw.toggle();
-        }
+        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+        //     claw.toggle();
+        // }
         
         // delay to save resources
         pros::delay(10);
