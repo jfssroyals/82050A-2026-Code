@@ -1,0 +1,76 @@
+[33me4f335c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mintake-testing[m[33m, [m[1;31morigin/intake-testing[m[33m)[m need to start fixing auton
+[33m13524e6[m Fresh Code
+[33m02d6bdd[m Auton Selectors Removed
+[33md7ac4a7[m tuned lateral pid and set up basic movement
+[33m5cf9208[m first lateral pid test
+[33mfb11761[m pid value updated
+[33m33573ce[m start tuning
+[33me3fa74d[m Claw is Done, Working on Odom Config
+[33mace1033[m Test Claw with Slower Bar
+[33mc1b26b8[m trying to fix the bar
+[33m8e3d9b6[m pickup needs to be fixed later
+[33m4dce911[m changed the claw bar modes
+[33m1650d37[m While Loop Issues, Bar Code Issues, Reset Lift at Bottom
+[33m3e036e4[m Cristiano Ronaldo
+[33m08a6519[m pid: p at 1, d at 0.5, everything else 0
+[33m7c2569f[m Fix Drivetrain Issues
+[33m2289718[m starting PID
+[33me45f839[m Drive issues
+[33m52b0bcd[m[33m ([m[1;32mmain[m[33m)[m set KP = 1, everything else 0
+[33m1bde819[m Pid Tuning For Lift Starting
+[33m58aaad0[m Lift Reset Fixing Needed
+[33m98b62f4[m Moved functionality and button handling to opcontrol
+[33ma67ff0f[m start of intake and lift alignment
+[33m017c62c[m Put all button presses in op control
+[33m10272fa[m toggle mode on ontake added
+[33m494e457[m intake.hpp (rough)
+[33m2f12354[m new file
+[33m3252ff5[m Claw Bar Operation and Calibration
+[33m1795281[m Claw Testing
+[33ma58ad22[m Claw Hardstop Calibration
+[33m4968a00[m[33m ([m[1;31morigin/Claw&Lift-Calibration[m[33m)[m Claw Testing
+[33me934331[m Lift tuning
+[33m567d784[m code with better backside actions
+[33m085ca72[m Claw_Motor
+[33ma438774[m Lift code testing
+[33mf5605b2[m Code
+[33m118fd01[m updated port
+[33m45b89cc[m tried to add claw motor stage - Vikas
+[33m433ade0[m  Control class created
+[33m73bde2e[m lift tracking now configurable variables, test it
+[33mb654742[m added claw modes
+[33m5540941[m Merge branch 'main' of https://github.com/jfssroyals/82050A-2026-Code
+[33md30f68c[m Merge branch 'main' of https://github.com/jfssroyals/82050A-2026-Code
+[33m8203e85[m up-to-date code
+[33m3a49ef2[m Claw and Chainbar Code Completed
+[33m2ee3c04[m Merge branch 'main' of https://github.com/jfssroyals/82050A-2026-Code
+[33maa5cbcd[m Added claw and chainbar code
+[33m063ca0b[m basic claw functionality
+[33m361f860[m yo msg me after u test it i gotchu
+[33me3a8b2e[m Your commit message
+[33m789d223[m VEX Overwrite
+[33m7416614[m VEX Overwrite
+[33medab04e[m VEX Overwrite
+[33me3b795f[m Jordan
+[33m8beecf1[m lebron james
+[33m544f287[m Added lift code to opcontrol
+[33mfe6de03[m Lift code update
+[33mb18bf53[m Pre-emptive non-empty auton selector program
+[33m5d2be21[m added controls for controller R1 and R2 to lift
+[33m039969a[m Finished lift subsystem with LemLib PID
+[33m80b3b91[m Added evrything to lift except background loop
+[33mdb0a6bb[m Started rebuilding hpp, just defined motors and set up function
+[33m8378200[m Merge branch 'main' of https://github.com/jfssroyals/82050A-2026-Code
+[33mf8afcd8[m This is the first prototype of the lift
+[33ma6ad9b9[m Updated robot code
+[33md01670b[m Made new file
+[33m111df97[m Pro Files' Change
+[33mbc0830c[m Refactor libname attribute into "VEXtensions"
+[33m6fae35f[m Test Pull Access
+[33m7862a55[m code cleaned
+[33m821a7eb[m Configured
+[33m8e5a2a0[m Resolve merge conflicts
+[33m43a814b[m First commit
+[33m80dcdb6[m First commit
+[33m0cdffdf[m Firt upload
+[33m103f091[m Initial commit

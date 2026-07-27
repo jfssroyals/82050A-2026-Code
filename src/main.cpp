@@ -112,7 +112,7 @@ void initialize() {
     pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
     bar.reset();
-    // lift.reset();
+    lift.reset();
     pros::Task screenTask([&]() {
         while (true) {
             // print robot location to the brain screen
@@ -143,19 +143,19 @@ void competition_initialize() {}
 // this needs to be put outside a function
 // ASSET(example_txt); // '.' replaced with "_" to make c++ happy
 
-void autonomous() {
-    // // set position to x:0, y:0, heading:0
-    // chassis.setPose(0, 0, 0);
-    // // turn to face heading 90 with a very long timeout
-    // chassis.turnToHeading(90, 100000);
-    chassis.setPose(0, 0, 0);
-    chassis.moveToPoint(0, 12.3, 5000);
-    chassis.waitUntilDone();
-    chassis.turnToHeading(270, 2000);
-    chassis.waitUntilDone();
-    chassis.moveToPoint(-17, 12, 5000);
-    chassis.waitUntilDone();
-}
+// void autonomous() {
+//     // // set position to x:0, y:0, heading:0
+//     // chassis.setPose(0, 0, 0);
+//     // // turn to face heading 90 with a very long timeout
+//     // chassis.turnToHeading(90, 100000);
+//     chassis.setPose(0, 0, 0);
+//     chassis.moveToPoint(0, 12.3, 5000);
+//     chassis.waitUntilDone();
+//     chassis.turnToHeading(270, 2000);
+//     chassis.waitUntilDone();
+//     chassis.moveToPoint(-17, 12, 5000);
+//     chassis.waitUntilDone();
+// }
 
 void opcontrol() {
     while (true) {
@@ -171,38 +171,48 @@ void opcontrol() {
 
         // lift.updateComplexLift();
           
+// LIFT
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
+            lift.stepStageUp();
+            controller.rumble(".");
 
-        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
-        //     lift.stepStageUp();
-        //     controller.rumble(".");
-        // } 
+        } 
         
-        // else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) 
+        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) 
+        {
+            lift.stepStageDown();
+            controller.rumble(".");
+
+        }    
+
+        // else if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X))
         // {
-        //     lift.stepStageDown();
-        //     controller.rumble(".");
-        // }    
-
-        // // else if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X))
-        // // {
-        // //     lift.goToHighestStage();
-        // // }
-
-        
-        // // for testing
-        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
-        //     if (bar.isAtBack()){
-        //         bar.moveToFront();
-        //     }
-        //     else {
-        //         bar.moveToBack();
-        //     }
+        //     lift.goToHighestStage();
         // }
 
-        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
-        //     claw.toggle();
-        // }
         
+
+        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+            if (bar.isAtBack()){
+                bar.moveToFront();
+            }
+            else {
+                bar.moveToBack();
+            }
+        }
+
+        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+            claw.toggle();
+        }
+
+        
+        
+        // else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)){
+        //     claw.close();
+        // }
+        // else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)){
+            
+        // }
         // delay to save resources
         pros::delay(10);
     }

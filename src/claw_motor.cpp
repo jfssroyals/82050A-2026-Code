@@ -30,11 +30,11 @@ void Bar::moveToFront() {
 
     // Fast movement.
     motor.move(127);
-    pros::delay(300);
+    pros::delay(600);
 
     // Medium speed.
     motor.move(90);
-    pros::delay(300);
+    pros::delay(100);
 
     // Slow approach.
     motor.move(20);
@@ -75,11 +75,10 @@ void Bar::moveToBack() {
 
     // Fast movement.
     motor.move(-127);
-    pros::delay(300);
+    pros::delay(700);
 
-    // Medium speed.
     motor.move(-90);
-    pros::delay(300);
+    pros::delay(50);
 
     // Slow approach.
     motor.move(-20);
