@@ -201,20 +201,23 @@ void opcontrol() {
 
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
             claw.toggle();
-            // if (claw.isopen() == false){
-            //     bar.moveToAngle(180);
-            // }
-            
-        }
+            pros::delay(1000);
+            pros::lcd::print(5,  "Boolean: %.2f", claw.isopen());
+            if (claw.isopen() == false){
+                bar.motor.move(-80);
+                pros::delay(100);
+                bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+                bar.motor.brake();
+            }
         
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) {
-            bar.motor.move(-60);
-            pros::delay(100);
-            bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-            bar.motor.brake();
         }
+        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) {
+        //     bar.motor.move(-108);
+        //     pros::delay(500);
+        //     bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+        //     bar.motor.brake();
+        // }
         // delay to save resources
         pros::delay(10);
     }
 }
-
