@@ -153,7 +153,7 @@ void autonomous() {
     chassis.waitUntilDone();
     chassis.turnToHeading(270, 2000);
     chassis.waitUntilDone();
-    chassis.moveToPoint(-17, 12, 5000);
+    chassis.moveToPoint(-17, 12, 5000);  
     chassis.waitUntilDone();
 }
 
@@ -202,11 +202,17 @@ void opcontrol() {
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
             claw.toggle();
             // if (claw.isopen() == false){
-            //     bar.moveToAngle(165);
+            //     bar.moveToAngle(180);
             // }
             
         }
         
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) {
+            bar.motor.move(-60);
+            pros::delay(100);
+            bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+            bar.motor.brake();
+        }
         // delay to save resources
         pros::delay(10);
     }
