@@ -189,19 +189,23 @@ void opcontrol() {
         // // }
 
         
-        // // for testing
-        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
-        //     if (bar.isAtBack()){
-        //         bar.moveToFront();
-        //     }
-        //     else {
-        //         bar.moveToBack();
-        //     }
-        // }
+        // for testing
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+            if (bar.isAtBack()){
+                bar.moveToFront();
+            }
+            else {
+                bar.moveToBack();
+            }
+        }
 
-        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
-        //     claw.toggle();
-        // }
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+            claw.toggle();
+            // if (claw.isopen() == false){
+            //     bar.moveToAngle(165);
+            // }
+            
+        }
         
         // delay to save resources
         pros::delay(10);
