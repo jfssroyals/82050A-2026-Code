@@ -83,6 +83,10 @@ void Bar::moveToBack() {
     // Slow approach.
     motor.move(-20);
 
+    test.test.test()
+    
+    
+
     int stableTime = 0;
     double lastPosition = motor.get_position();
 
