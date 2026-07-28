@@ -10,8 +10,8 @@ private:
     
     double liftTargetHeight = 0;
     int currentStage = 0;
-    const int totalStages = 5;
-    const double stageGap = 300.0;
+    const int totalStages = 7;
+    const double stageGap = 725.0;
 
 
     // PID controller (kP, kI, kD, anti-windup, derivative filter)
@@ -27,4 +27,5 @@ public:
    void updateLiftController();
    void goToHighestStage();
    void reset();
+   void test_lift();
 };

@@ -173,6 +173,7 @@ void opcontrol() {
           
 
         // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
+        //     // lift.test_lift();
         //     lift.stepStageUp();
         //     controller.rumble(".");
         // } 
@@ -182,11 +183,6 @@ void opcontrol() {
         //     lift.stepStageDown();
         //     controller.rumble(".");
         // }    
-
-        // // else if(controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X))
-        // // {
-        // //     lift.goToHighestStage();
-        // // }
 
         
         // for testing
@@ -199,18 +195,18 @@ void opcontrol() {
             }
         }
 
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) { 
             claw.toggle();
             pros::delay(1000);
             pros::lcd::print(5,  "Boolean: %.2f", claw.isopen());
-            if (claw.isopen() == false){
+            if (claw.isopen() == true){
                 bar.motor.move(-80);
                 pros::delay(100);
                 bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
                 bar.motor.brake();
             }
-        
         }
+        // }
         // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) {
         //     bar.motor.move(-108);
         //     pros::delay(500);
@@ -219,5 +215,6 @@ void opcontrol() {
         // }
         // delay to save resources
         pros::delay(10);
+    
     }
 }

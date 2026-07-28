@@ -6,7 +6,7 @@ Claw::Claw(char port)
 void Claw::open() {
     printf("open()\n");
     piston.set_value(false);
-}
+}  
 
 void Claw::close() {
     printf("close()\n");
@@ -15,7 +15,7 @@ void Claw::close() {
 
 void Claw::toggle() {
     isOpen = !isOpen;
-    piston.set_value(isOpen);
+    piston.set_value(isOpen); // true closes
 }
 
 bool Claw::isopen() {

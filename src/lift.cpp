@@ -131,3 +131,12 @@ void Lift::updateComplexLift() {
     R_liftMotor.move(std::clamp(motorPower, -127.0, 127.0));
     
 }
+
+
+void Lift::test_lift(){
+    L_liftMotor.move(100);
+    R_liftMotor.move(100);
+    pros::delay(100);
+    L_liftMotor.move(0);
+    R_liftMotor.move(0);
+}
