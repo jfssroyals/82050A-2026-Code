@@ -111,7 +111,7 @@ lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors
 void initialize() {
     pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
-    // bar.reset();
+    bar.reset();
     lift.reset();
     // pros::Task cd screenTask([&]() {
     //     while (true) {
@@ -153,7 +153,7 @@ void autonomous() {
     chassis.waitUntilDone();
     chassis.turnToHeading(270, 2000);
     chassis.waitUntilDone();
-    chassis.moveToPoint(-17, 12, 5000);  
+    chassis.moveToPoint(-17, 1552, 5000);  
     chassis.waitUntilDone();
 }
 
@@ -172,42 +172,48 @@ void opcontrol() {
         lift.updateComplexLift();
           
 
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
+        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
             // lift.test_lift();
             // controller.rumble(".");
             lift.stepStageUp();
             controller.rumble(".");
         } 
         
-        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) 
+        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) 
         {
             controller.rumble(".");
             lift.stepStageDown();
             controller.rumble(".");
         }    
 
+        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) 
+        {
+            controller.rumble(".");
+            lift.stepStageDown();
+            controller.rumble(".");
+        }  
         
-        // // for testing
-        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
-        //     if (bar.isAtBack()){
-        //         bar.moveToFront();
-        //     }
-        //     else {
-        //         bar.moveToBack();
-        //     }
-        // }
+        // for testing
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+            if (bar.isAtBack()){
+                bar.moveToFront();
+            }
+            else {
+                bar.moveToBack();
+            }
+        }
 
-        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) { 
-        //     claw.toggle();
-        //     pros::delay(1000);
-        //     pros::lcd::print(5,  "Boolean: %.2f", claw.isopen());
-        //     if (claw.isopen() == true){
-        //         bar.motor.move(-80);
-        //         pros::delay(100);
-        //         bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-        //         bar.motor.brake();
-        //     }
-        // }
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) { 
+            claw.toggle();
+            pros::delay(450);
+            // pros::lcd::print(5,  "Boolean: %.2f", claw.isopen());
+            if (claw.isopen() == true){
+                bar.motor.move(-60);
+                pros::delay(400);
+                bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+                bar.motor.brake();
+            }
+        }
         // }
         // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) {
         //     bar.motor.move(-108);
@@ -216,7 +222,7 @@ void opcontrol() {
         //     bar.motor.brake();
         // }
         // delay to save resources
-        pros::delay(20);
+        pros::delay(10);
     
     }
 }

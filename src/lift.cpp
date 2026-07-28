@@ -14,39 +14,39 @@ Lift::Lift(signed char leftPort, signed char rightPort)
 
 void Lift::reset() {
 
-    // // Let lift fall toward the hard stop
-    // L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-    // R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    // Let lift fall toward the hard stop
+    L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 
-    // L_liftMotor.move(-60);
-    // R_liftMotor.move(-60);
+    L_liftMotor.move(-80);
+    R_liftMotor.move(-80);
 
-    // int stableTime = 0;
+    int stableTime = 0;
 
-    // double lastPosition = 
-    //     (L_liftMotor.get_position() + R_liftMotor.get_position()) / 2;
+    double lastPosition = 
+        (L_liftMotor.get_position() + R_liftMotor.get_position()) / 2;
 
-    // while (stableTime < 500) {
+    while (stableTime < 500) {
 
-    //     pros::delay(20);
+        pros::delay(20);
 
-    //     double currentPosition =
-    //         (L_liftMotor.get_position() + R_liftMotor.get_position()) / 2;
+        double currentPosition =
+            (L_liftMotor.get_position() + R_liftMotor.get_position()) / 2;
 
-    //     // Lift is no longer moving
-    //     if (std::fabs(currentPosition - lastPosition) < 0.5) {
-    //         stableTime += 20;
-    //     } 
-    //     else {
-    //         stableTime = 0;
-    //     }
+        // Lift is no longer moving
+        if (std::fabs(currentPosition - lastPosition) < 0.5) {
+            stableTime += 20;
+        } 
+        else {
+            stableTime = 0;
+        }
 
-    //     lastPosition = currentPosition;
-    // }
+        lastPosition = currentPosition;
+    }
 
-    // // Stop motors
-    // L_liftMotor.move(0);
-    // R_liftMotor.move(0);
+    // Stop motors
+    L_liftMotor.move(0);
+    R_liftMotor.move(0);
 
     // Set hard stop as zero
     L_liftMotor.tare_position();
@@ -94,65 +94,69 @@ void Lift::reset() {
 // === COMPLEX LIFT FUNCTIONS (Commented Out / Prepared) ===
 
 
-void Lift::setLiftStage(int stage) {
-    // Clamp the target stage between 0 and the max stages index
-    currentStage = std::clamp(stage, 0, totalStages - 1);
-    //liftTargetHeight = currentStage * stageGap;
-    // currentStage = stage;
-    if (currentStage == 0)
-    {
-        liftTargetHeight = 0;
-    }
-    else if (currentStage == 1)
-    {
-        liftTargetHeight = 200*3;
-    }
-    else if (currentStage == 2)
-    {
-        liftTargetHeight = 350*3;
-    }
-    else if (currentStage == 3)
-    {
-        liftTargetHeight = 500*3;
-    }
-    else if (currentStage == 4)
-    {
-        liftTargetHeight = 675*3;
-    }
+// void Lift::setLiftStage(int stage) {
+//     // Clamp the target stage between 0 and the max stages index
+//     currentStage = std::clamp(stage, 0, totalStages - 1);
+//     //liftTargetHeight = currentStage * stageGap;
+//     // currentStage = stage;
+//     if (currentStage == 0)
+//     {
+//         liftTargetHeight = 0;
+//     }
+//     else if (currentStage == 1)
+//     {
+//         liftTargetHeight = 200*3;
+//     }
+//     else if (currentStage == 2)
+//     {
+//         liftTargetHeight = 350*3;
+//     }
+//     else if (currentStage == 3)
+//     {
+//         liftTargetHeight = 500*3;
+//     }
+//     else if (currentStage == 4)
+//     {
+//         liftTargetHeight = 675*3;
+//     }
 
-}
+// }
 
 void Lift::stepStageUp() {
-    setLiftStage(currentStage + 1);
+    liftTargetHeight += 20;
 }
 
 void Lift::stepStageDown() {
-    setLiftStage(currentStage - 1);
+    liftTargetHeight -= 20;
 }
 
-void Lift::goToHighestStage() {
-    setLiftStage(totalStages - 1);
+void Lift::goToLowest() { 
+    reset();
 }
 
 void Lift::updateComplexLift() {
-    // Stage controls (Press R2 to step up a stage, R1 to step down a stage)
-    // Average current position of both lift motors
+    // Prevent going past limits
+    liftTargetHeight = std::clamp(liftTargetHeight, 0.0, 2000.0);
+
+
+    // Get current lift position
     double leftPosition = L_liftMotor.get_position();
     double rightPosition = R_liftMotor.get_position();
+
     double currentPosition = (leftPosition + rightPosition) / 2.0;
 
-    // Calculate PID output based on height error
+
+    // PID to target
     double error = liftTargetHeight - currentPosition;
     double motorPower = liftPID.update(error);
 
-    // pros::lcd::print(0, "Error: %.1f", error);
-    // pros::lcd::print(1, "Power: %.1f", motorPower);
-    // pros::lcd::print(2, "Deg: %.1f", currentPosition);
 
-    // Apply motor power safely
-    L_liftMotor.move(std::clamp(motorPower, -127.0, 127.0));
-    R_liftMotor.move(std::clamp(motorPower, -127.0, 127.0));
-    
+    // Limit power
+    motorPower = std::clamp(motorPower, -70.0, 127.0);
+
+
+    L_liftMotor.move(motorPower);
+    R_liftMotor.move(motorPower);
     
 }
 

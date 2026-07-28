@@ -21,15 +21,15 @@ void Bar::moveToAngle(double realDegrees) {
 void Bar::moveToFront() {
     motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
     motor.move(127);
-    pros::delay(600);
-    motor.move(90);
-    pros::delay(100);
+    pros::delay(500);
+    // motor.move(90);
+    // pros::delay(100);
     motor.move(20);
 
     int stableTime = 0;
     double lastPosition = motor.get_position();
 
-    while (stableTime < 100) {
+    while (stableTime < 50) {
         pros::delay(20);
         double currentPosition = motor.get_position();
         if (std::fabs(currentPosition - lastPosition) < 0.5) {
@@ -39,8 +39,7 @@ void Bar::moveToFront() {
         }
         lastPosition = currentPosition;
     }
-
-    motor.move(0);
+    motor.brake();
     isBack = false;
 }
 
@@ -49,9 +48,9 @@ void Bar::moveToFront() {
 void Bar::moveToBack() {
     motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
     motor.move(-127);
-    pros::delay(600);
-    motor.move(-90);
-    pros::delay(100);
+    pros::delay(500);
+    // motor.move(-90);
+    // pros::delay(100);
     motor.move(-20);
 
     int stableTime = 0;
@@ -68,7 +67,7 @@ void Bar::moveToBack() {
         lastPosition = currentPosition;
     }
 
-    motor.move(0);
+    motor.brake();
     motor.tare_position();
     isBack = true;
 }
@@ -77,7 +76,7 @@ void Bar::moveToBack() {
 // Slowly moves into the back hard stop and sets that position as encoder zero.
 void Bar::calibrateBack() {
     motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-    motor.move(-30);
+    motor.move(-70);
     int stableTime = 0;
     double lastPosition = motor.get_position();
 
