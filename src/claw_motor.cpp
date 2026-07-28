@@ -48,7 +48,7 @@ void Bar::moveToFront() {
 void Bar::moveToBack() {
     motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
     motor.move(-127);
-    pros::delay(500);
+    pros::delay(650);
     // motor.move(-90);
     // pros::delay(100);
     motor.move(-20);
