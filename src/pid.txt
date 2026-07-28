@@ -1,0 +1,30 @@
+PID Iterations
+
+1. P = 2, D = 10
+ - slow to adjust
+
+2. P = 10, D = 10
+- shaking too much 
+- too much oscillation
+
+3. P = 10, D = 15
+- less shaking
+- oscillation was still existing
+
+4. P = 10, D = 35
+- oscillations were weaker
+
+5. P = 10, D = 67
+- 
+
+6. P = 10, D = 76
+
+7. P = 10, D = 80 
+- smooth 
+
+8. P = 10, D = 78.5
+- 
+
+9. P = 10, D = 90
+
+10. P = 10, D = 60 

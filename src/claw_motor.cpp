@@ -92,7 +92,7 @@ void Bar::moveToBack() {
 
         pros::delay(20);
 
-        double currentPosition = motor.get_position();
+        double currentPosition = motor.get_position();   
 
         if (std::fabs(currentPosition - lastPosition) < 0.5) {
             stableTime += 20;

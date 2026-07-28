@@ -3,6 +3,7 @@
 #include "autons.hpp"
 #include "constants.hpp"
 #include "lift.hpp"
+#include "titanselect/titanselect.hpp"
 #include "claw.hpp"
 #include "claw_motor.hpp"
 #include "intake.hpp"
@@ -144,6 +145,9 @@ void competition_initialize() {}
 // ASSET(example_txt); // '.' replaced with "_" to make c++ happy
 
 void autonomous() {
+
+    ts::selector::get()->run_selected_auton();
+
     // // set position to x:0, y:0, heading:0
     // chassis.setPose(0, 0, 0);
     // // turn to face heading 90 with a very long timeout
