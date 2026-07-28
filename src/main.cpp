@@ -3,7 +3,6 @@
 #include "autons.hpp"
 #include "constants.hpp"
 #include "lift.hpp"
-#include "titanselect/titanselect.hpp"
 #include "claw.hpp"
 #include "claw_motor.hpp"
 #include "intake.hpp"
@@ -114,6 +113,7 @@ void initialize() {
     chassis.calibrate(); // calibrate sensors
     bar.reset();
     // lift.reset();
+    ts::selector::get()
     pros::Task screenTask([&]() {
         while (true) {
             // print robot location to the brain screen
