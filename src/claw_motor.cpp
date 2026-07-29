@@ -21,15 +21,15 @@ void Bar::moveToAngle(double realDegrees) {
 void Bar::moveToFront() {
     motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
     motor.move(127);
-    pros::delay(500);
+    pros::delay(800);
     // motor.move(90);
     // pros::delay(100);
-    motor.move(20);
+    motor.move(30);
 
     int stableTime = 0;
     double lastPosition = motor.get_position();
 
-    while (stableTime < 50) {
+    while (stableTime < 100) {
         pros::delay(20);
         double currentPosition = motor.get_position();
         if (std::fabs(currentPosition - lastPosition) < 0.5) {
@@ -48,10 +48,10 @@ void Bar::moveToFront() {
 void Bar::moveToBack() {
     motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
     motor.move(-127);
-    pros::delay(500);
+    pros::delay(800);
     // motor.move(-90);
     // pros::delay(100);
-    motor.move(-20);
+    motor.move(-30);
 
     int stableTime = 0;
     double lastPosition = motor.get_position();

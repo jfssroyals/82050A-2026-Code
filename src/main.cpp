@@ -194,7 +194,7 @@ void opcontrol() {
         }  
         
         // for testing
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
             if (bar.isAtBack()){
                 bar.moveToFront();
             }
@@ -203,7 +203,7 @@ void opcontrol() {
             }
         }
 
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) { 
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) { 
             claw.toggle();
             pros::delay(450);
             leftMotors.move(-25);  // Power range: -127 to 127
