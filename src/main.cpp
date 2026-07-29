@@ -113,6 +113,7 @@ void initialize() {
     chassis.calibrate(); // calibrate sensors
     // bar.reset();
     lift.reset();
+    claw.close();
     // print position to brain screen
     pros::Task screen_task([&]() {
         while (true) {
@@ -142,11 +143,25 @@ void competition_initialize() {}
 
 
 void autonomous() {
+    pros::delay(1000);
     chassis.setPose(0, 0, 0);
     
-    chassis.moveToPoint(0, 3, 300, {.maxSpeed = 127});
-    chassis.moveToPoint(0, 0, 300, {.maxSpeed = 127});
-    chassis.moveToPoint(0, 3, 300, {.maxSpeed = 127});
+    chassis.arcade(127, 0);
+    pros::delay(300);
+    chassis.arcade(-127, 0);
+    pros::delay(150);
+    chassis.arcade(100, 0);
+    pros::delay(450);
+    chassis.arcade(0, 0);
+    chassis.moveToPose(20, -12.3, 270, 1000, {.forwards = false, .lead = 0.6});
+    
+    // pros::delay(100);
+    // chassis.setPose(0, 0, 0);
+    // chassis.moveToPose(24, 24, 0, 500, {.lead = 0.5});
+
+    // chassis.arcade(-127, 0);
+    // chassis.moveToPoint(0, -3, 300, {.minSpeed = 127});
+    // chassis.moveToPoint(0, 3, 500, {.minSpeed = 127});
    
     // // 1. Move forward 12 inches
     // chassis.moveToPoint(0, 12, 1000);
