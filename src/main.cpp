@@ -113,20 +113,17 @@ void initialize() {
     chassis.calibrate(); // calibrate sensors
     bar.reset();
     lift.reset();
-    // pros::Task cd screenTask([&]() {
-    //     while (true) {
-    //         // print robot location to the brain screen
-    //         // pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
-    //         // pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
-    //         // pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
-    //         // pros::lcd::print(3, "Rotation Sensor: %i", horizontalEnc.get_position());
-
-    //         // log position telemetry
-    //         lemlib::telemetrySink()->info("Chassis pose: {}", chassis.getPose());
-    //         // delay to save resources
-    //         pros::delay(50);
-    //     }
-    // });
+    // print position to brain screen
+    pros::Task screen_task([&]() {
+        while (true) {
+            // print robot location to the brain screen
+            pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
+            pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
+            pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
+            // delay to save resources
+            pros::delay(20);
+        }
+    });
 }
 
 /**
