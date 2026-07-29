@@ -113,6 +113,7 @@ void initialize() {
     chassis.calibrate(); // calibrate sensors
     bar.reset();
     lift.reset();
+    claw.close();
     // print position to brain screen
     pros::Task screen_task([&]() {
         while (true) {
