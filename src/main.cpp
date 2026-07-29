@@ -31,8 +31,8 @@ Intake intake(1);
 // ------------------------------ //
 
 // motor groups
-pros::MotorGroup leftMotors({-20, -5, -4}); // left motor group - ports 3 (reversed), 4, 5 (reversed)
-pros::MotorGroup rightMotors({10, 8, 7}); // right motor group - ports 6, 7, 9 (reversed)
+pros::MotorGroup leftMotors({-10, -8, -7}); // left motor group - ports 3 (reversed), 4, 5 (reversed)
+pros::MotorGroup rightMotors({20, 5, 4}); // right motor group - ports 6, 7, 9 (reversed)
 // Tell PROS that motor index 1 (port 5) has a green cartridge
 // leftMotors.set_gearing(pros::MotorGears::green, 1);
 
@@ -111,7 +111,7 @@ lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors
 void initialize() {
     pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
-    bar.reset();
+    // bar.reset();
     lift.reset();
     // print position to brain screen
     pros::Task screen_task([&]() {
@@ -140,19 +140,30 @@ void competition_initialize() {}
 // this needs to be put outside a function
 // ASSET(example_txt); // '.' replaced with "_" to make c++ happy
 
+
 void autonomous() {
-    // // set position to x:0, y:0, heading:0
-    // chassis.setPose(0, 0, 0);
-    // // turn to face heading 90 with a very long timeout
-    // chassis.turnToHeading(90, 100000);
     chassis.setPose(0, 0, 0);
-    chassis.moveToPoint(0, 12.3, 5000);
-    chassis.waitUntilDone();
-    chassis.turnToHeading(270, 2000);
-    chassis.waitUntilDone();
-    chassis.moveToPoint(-17, 1552, 5000);  
-    chassis.waitUntilDone();
+    
+    chassis.moveToPoint(0, 3, 300, {.maxSpeed = 127});
+    chassis.moveToPoint(0, 0, 300, {.maxSpeed = 127});
+    chassis.moveToPoint(0, 3, 300, {.maxSpeed = 127});
+   
+    // // 1. Move forward 12 inches
+    // chassis.moveToPoint(0, 12, 1000);
+    // chassis.waitUntilDone(); // Wait for forward movement to complete
+
+    // // 2. Turn 90 degrees
+    // chassis.turnToHeading(90, 1000);
+    // chassis.waitUntilDone(); // Wait for turn to complete!
+
+    // 3. Smoothly drive back to (0,0) facing 0 degrees
+    // chassis.turnToHeading(0, 1000, {.direction = AngularDirection::CCW_COUNTERCLOCKWISE});
+    // chassis.waitUntilDone();
+
+    // chassis.moveToPose(5, 24, 90, 2200, {.lead = 0.5});
+    // chassis.waitUntilDone();
 }
+
 
 void opcontrol() {
     while (true) {
