@@ -1,12 +1,14 @@
 #include "main.h"
 #include "lemlib/api.hpp" // IWYU pragma: keep
 #include "autons.hpp"
+#include "robodash/api.h"
 #include "constants.hpp"
 #include "lift.hpp"
 #include "claw.hpp"
 #include "claw_motor.hpp"
 #include "intake.hpp"
 #include "control.hpp"
+#include "robodash/views/selector.hpp"
 
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
@@ -107,13 +109,16 @@ lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband out of 127
 // create the chassis
 lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors, &throttleCurve, &steerCurve);
 
+rd::Selector selector({
+    {"redLeftAuton", redLeftAuton}
+});
 
 void initialize() {
     pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
     bar.reset();
     // lift.reset();
-    ts::selector::get()
+
     pros::Task screenTask([&]() {
         while (true) {
             // print robot location to the brain screen
@@ -146,7 +151,8 @@ void competition_initialize() {}
 
 void autonomous() {
 
-    
+    selector.run_auton();
+
     // // set position to x:0, y:0, heading:0
     // chassis.setPose(0, 0, 0);
     // // turn to face heading 90 with a very long timeout

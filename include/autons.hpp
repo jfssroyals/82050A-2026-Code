@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lemlib/api.hpp"
+#include "robodash/views/selector.hpp"
 
 // global objects defined in main.cpp
 extern pros::Controller controller;

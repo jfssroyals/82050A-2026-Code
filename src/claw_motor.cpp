@@ -24,7 +24,7 @@ void Bar::moveToAngle(double realDegrees) {
 // Uses a manual slew so the bar slows down
 // before contacting the stop.
 void Bar::moveToFront() {
-
+    
     // Allow the bar to move freely.
     motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 
