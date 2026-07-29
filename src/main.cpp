@@ -31,8 +31,8 @@ Intake intake(1);
 // ------------------------------ //
 
 // motor groups
-pros::MotorGroup leftMotors({-20, -5, -4}); // left motor group - ports 3 (reversed), 4, 5 (reversed)
-pros::MotorGroup rightMotors({10, 8, 7}); // right motor group - ports 6, 7, 9 (reversed)
+pros::MotorGroup leftMotors({-10, -8, -7}); // left motor group - ports 3 (reversed), 4, 5 (reversed)
+pros::MotorGroup rightMotors({20, 5, 4}); // right motor group - ports 6, 7, 9 (reversed)
 // Tell PROS that motor index 1 (port 5) has a green cartridge
 // leftMotors.set_gearing(pros::MotorGears::green, 1);
 
@@ -206,8 +206,8 @@ void opcontrol() {
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) { 
             claw.toggle();
             pros::delay(450);
-            leftMotors.move(25);  // Power range: -127 to 127
-            rightMotors.move(25);
+            leftMotors.move(-25);  // Power range: -127 to 127
+            rightMotors.move(-25);
             pros::delay(10);
             // pros::lcd::print(5,  "Boolean: %.2f", claw.isopen());
             if (claw.isopen() == true){
