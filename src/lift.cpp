@@ -56,7 +56,7 @@ void Lift::reset() {
     L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
     R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 
-    pros::lcd::print(6, "Lift Calibrated");
+    //pros::lcd::print(6, "Lift Calibrated");
 }
 
 // Lift controller

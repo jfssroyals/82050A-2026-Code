@@ -95,8 +95,8 @@ void Bar::calibrateBack() {
     motor.tare_position();
     isBack = true;
 
-    pros::lcd::print(7, "Pos: %.2f", motor.get_position());
-    pros::lcd::print(6, "Bar Calibrated");
+    //pros::lcd::print(7, "Pos: %.2f", motor.get_position());
+    //pros::lcd::print(6, "Bar Calibrated");
 }
 
 void Bar::reset() {
