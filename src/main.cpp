@@ -204,17 +204,29 @@ void opcontrol() {
         }
 
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) { 
+            
             claw.toggle();
             pros::delay(450);
+
+            if (claw.isOpen == false) {
+                leftMotors.move(-25);  // Power range: -127 to 127
+                rightMotors.move(-25);
+                pros::delay(10);
+
+            }
+    
             leftMotors.move(-25);  // Power range: -127 to 127
             rightMotors.move(-25);
             pros::delay(10);
             // pros::lcd::print(5,  "Boolean: %.2f", claw.isopen());
+
             if (claw.isopen() == true){
+                if (lift.isUp == true) {
                 bar.motor.move(-60);
                 pros::delay(200);
                 bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
                 bar.motor.brake();
+                }
             }
         }
         // }
