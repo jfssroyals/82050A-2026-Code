@@ -195,16 +195,7 @@ void opcontrol() {
         
         // for testing
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
-            if (bar.isAtBack()){
-                bar.moveToFront();
-            }
-            else {
-                bar.moveToBack();
-            }
-        }
-
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) { 
-            
+             
             claw.toggle();
             pros::delay(450);
 
@@ -227,6 +218,17 @@ void opcontrol() {
                 bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
                 bar.motor.brake();
                 }
+            }
+
+        }
+
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) { 
+         
+            if (bar.isAtBack()){
+                bar.moveToFront();
+            }
+            else {
+                bar.moveToBack();
             }
         }
         // }
