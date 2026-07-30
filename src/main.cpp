@@ -57,7 +57,7 @@ lemlib::Drivetrain drivetrain(&leftMotors, // left motor group
                               12.1, // 12.1 inch track width
                               lemlib::Omniwheel::NEW_275, // using new 2.75" omnis
                               450, // drivetrain rpm is 450
-                              2 // horizontal drift is 2. If we had traction wheels, it would have been 8
+                              8 // horizontal drift is 2. If we had traction wheels, it would have been 8
 );
 
 lemlib::ControllerSettings linearController(
@@ -143,19 +143,20 @@ void competition_initialize() {}
 
 
 void autonomous() {
-    pros::delay(1000);
-    chassis.setPose(0, 0, 0);
+    fourPinBlue();
+    // pros::delay(1000);
+    // chassis.setPose(0, 0, 0);
     
-    chassis.arcade(127, 0);
-    pros::delay(300);
-    chassis.arcade(-127, 0);
-    pros::delay(150);
-    chassis.arcade(100, 0);
-    pros::delay(450);
-    chassis.arcade(0, 0);
-    chassis.moveToPose(20, -12.3, 270, 1000, {.forwards = false, .lead = 0.6});
-    
+    // chassis.arcade(127, 0);
+    // pros::delay(300);
+    // chassis.arcade(-127, 0);
+    // pros::delay(150);
+    // chassis.arcade(100, 0);
+    // pros::delay(450);
+    // chassis.arcade(0, 0);
+    // chassis.moveToPose(22, -12.3, 270, 1000, {.forwards = false, .lead = 0.6});  
     // pros::delay(100);
+    
     // chassis.setPose(0, 0, 0);
     // chassis.moveToPose(24, 24, 0, 500, {.lead = 0.5});
 
