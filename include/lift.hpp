@@ -28,4 +28,6 @@ public:
    void goToLowest();
    void reset();
    void test_lift();
+
+   bool isUp = false; 
 };

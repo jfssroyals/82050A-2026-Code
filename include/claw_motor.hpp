@@ -22,3 +22,5 @@ public:
     bool isAtBack();
     bool isAtFront();
 };
+
+extern Bar bar;

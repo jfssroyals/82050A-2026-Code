@@ -52,6 +52,8 @@ void Lift::reset() {
     L_liftMotor.tare_position();
     R_liftMotor.tare_position();
 
+    isUp = false;
+
     // Return to hold mode after calibration
     L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
     R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
@@ -132,6 +134,7 @@ void Lift::stepStageDown() {
 
 void Lift::goToLowest() { 
     reset();
+    isUp = false;
 }
 
 void Lift::updateComplexLift() {
@@ -157,6 +160,16 @@ void Lift::updateComplexLift() {
 
     L_liftMotor.move(motorPower);
     R_liftMotor.move(motorPower);
+
+    if (currentPosition > 0)
+    {
+        isUp  = true;
+    }
+
+    else
+    {
+        isUp = false;
+    }
     
 }
 

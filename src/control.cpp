@@ -1,4 +1,8 @@
 #include "control.hpp"
+#include "claw_motor.hpp"
+#include "pros/abstract_motor.hpp"
+#include "pros/motors.h"
+#include "lift.hpp"
 
 
 Control::Control(Claw& claw, Bar& bar, Lift& lift)
@@ -8,8 +12,7 @@ Control::Control(Claw& claw, Bar& bar, Lift& lift)
     lift(lift),
     state(IDLE),
     frontDrop(false)
-{}
-
+{};
 
 
 // Toggle where L2 drops
@@ -40,7 +43,7 @@ void Control::frontPickup() {
 void Control::drop() {
 
 
-    if(frontDrop) {
+    if (frontDrop) {
 
         // Move to front and release
         bar.moveToFront();
@@ -89,6 +92,16 @@ void Control::update() {
             if(bar.isAtFront()) {
 
                 claw.open();
+
+                if (lift.isUp)
+                {
+                    double adjust = bar.motor.get_position();
+
+                    bar.motor.move_absolute(adjust, 10);
+
+                    bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+
+                }
 
                 state = IDLE;
 
