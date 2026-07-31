@@ -18,6 +18,15 @@ Claw claw('A');
 // bar
 Bar bar(-3); 
 
+void barTask_moveFront(){
+    bar.moveToFront();
+}
+
+void barTask_moveBack(){
+    bar.moveToBack();
+}
+
+
 // create lift
 Lift lift(-9, 2);
 
@@ -196,7 +205,6 @@ void opcontrol() {
         
         // for testing
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
-             
             claw.toggle();
             pros::delay(450);
             
@@ -236,10 +244,12 @@ void opcontrol() {
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) { 
          
             if (bar.isAtBack()){
-                bar.moveToFront();
+                pros::Task my_task(barTask_moveFront);
+                // bar.moveToFront();
             }
             else {
-                bar.moveToBack();
+                pros::Task my_task(barTask_moveBack);
+                // bar.moveToBack();
             }
         }
 
