@@ -146,10 +146,14 @@ void autonomous() {
     // set position to x:0, y:0, heading:0
     chassis.setPose(0, 0, 0);
     // move 48" forwards
-    chassis.moveToPoint(0, 48, 10000);
-    chassis.waitUntilDone();
-    // fourPinBlue();
-    // pros::delay(1000);
+    // chassis.moveToPoint(5, 30, 10000);
+    // chassis.moveToPose(5, 30, 12.77, 10000);
+    // chassis.waitUntilDone();
+    // pros::delay(1000000);
+
+    // 2, 22
+    fourPinBlue();
+    pros::delay(100000);
     // chassis.setPose(0, 0, 0);
     
     // chassis.arcade(127, 0);
@@ -187,6 +191,7 @@ void autonomous() {
 
 
 void opcontrol() {
+    autonomous();
     while (true) {
         // get joystick positions
         int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);

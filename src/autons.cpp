@@ -39,24 +39,29 @@ void fourPinBlue() {
 
     chassis.waitUntilDone();
 
-    chassis.arcade(-127, 0);
+    chassis.arcade(-60, 0);
+    pros::delay(1000);
     bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-    pros::delay(500);
-    // chassis.arcade(0, 0);
+    pros::delay(600);
     claw.open();
     chassis.arcade(0, 0);
+    // finished first pin
+
+    //reset pose when on aligner right before leaving
+    // chassis.setPose(cosf(chassis.getPose().theta) * 6.5, sinf(chassis.getPose().theta) * 6.5, chassis.getPose().theta);
     pros::delay(100);
+    // radius: 6.5, angle: theta, 
 
-
-    // next movement setting up to pickup first pin cup stack
-    chassis.moveToPose(3, -5, 270, 800);
+    // chassis.setPose(0, 0, 0);
+    // // next movement setting up to pickup first pin cup stack
+    chassis.moveToPoint(-8, -10, 2000); //-20, -10
     chassis.waitUntilDone();
 
     // // Turn
-    chassis.turnToHeading(34, 800);
+    chassis.turnToHeading(35, 800);
 
     // Start bar movement in the background 
-    pros::Task barTask([]{
+    pros::Task barTask([&]{
         bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
         bar.motor.move(127);
         pros::delay(800);
@@ -65,11 +70,15 @@ void fourPinBlue() {
 
     chassis.waitUntilDone();
 
-    chassis.moveToPose(15.77, -0.6, 34, 1500);
+    chassis.moveToPoint(12, 6, 10000, {.maxSpeed = 20}); //-20, -10
     chassis.waitUntilDone();
+    // chassis.moveToPose(15.77, -0.6, 34, 1500);
+    // chassis.waitUntilDone();
     claw.close();
 }
 
 // move to pose 5, -6, 400
 
-// 15.77, -0.6, 390
+// -10, 7
+
+// 6, -12, 270
