@@ -45,27 +45,32 @@ void Bar::moveToFront() {
     // motor.tare_position();
     // isBack = false;
     if (lift.isUp) {
-        //move to angle only if the lift is raised, otherwise will just go till hardstop on intake
-        motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-        motor.move_absolute(-260, 110);
 
+        
+        motor.move_absolute(-260, 110);
+        
+        
         while (std::fabs(motor.get_position() - (-260)) > 10) {
+            printf("Motor Position: %.2f\n", motor.get_position());
             pros::delay(10);
         }
-
+        
+        //move to angle only if the lift is raised, otherwise will just go till hardstop on intake
+        motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
         motor.brake();
     }
     else {
         //move for time
-        motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+        
         motor.move(127);
         pros::delay(650);
         motor.move(20);
         pros::delay(100);
 
         motor.tare_position();
-
+        motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
         motor.brake();
+        pros::delay(50);
     }
 
     isBack = false;

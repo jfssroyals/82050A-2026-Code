@@ -192,9 +192,9 @@ void opcontrol() {
             controller.rumble(".");
             lift.stepStageDown();
             controller.rumble(".");
-        }    
+        }   
 
-        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) 
+        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_UP)) 
         {
             if (lift.isUp){
                 controller.rumble(".");
@@ -245,11 +245,11 @@ void opcontrol() {
          
             if (bar.isAtBack()){
                 pros::Task my_task(barTask_moveFront);
-                // bar.moveToFront();
+                //bar.moveToFront();
             }
             else {
                 pros::Task my_task(barTask_moveBack);
-                // bar.moveToBack();
+                //bar.moveToBack();
             }
         }
 
@@ -258,6 +258,7 @@ void opcontrol() {
             bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
             bar.motor.brake();
         }
+
         // }
         // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) {
         //     bar.motor.move(-108);
@@ -266,7 +267,7 @@ void opcontrol() {
         //     bar.motor.brake();
         // }
         // delay to save resources
-        pros::delay(10);
+        pros::delay(5);
     
     }
 }
