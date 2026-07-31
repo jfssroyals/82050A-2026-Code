@@ -143,7 +143,12 @@ void competition_initialize() {}
 
 
 void autonomous() {
-    fourPinBlue();
+    // set position to x:0, y:0, heading:0
+    chassis.setPose(0, 0, 0);
+    // move 48" forwards
+    chassis.moveToPoint(0, 48, 10000);
+    chassis.waitUntilDone();
+    // fourPinBlue();
     // pros::delay(1000);
     // chassis.setPose(0, 0, 0);
     
