@@ -143,7 +143,7 @@ void competition_initialize() {}
 
 
 void autonomous() {
-    fourPinBlue();
+    redRight();
     // pros::delay(1000);
     // chassis.setPose(0, 0, 0);
     
