@@ -94,13 +94,13 @@ lemlib::OdomSensors sensors(nullptr, // we do not have vertical tracking wheel
 
 // input curve for throttle input during driver control
 lemlib::ExpoDriveCurve throttleCurve(3, // joystick deadband out of 127
-                                     10, // minimum output where drivetrain will move out of 127
+                                     5, // minimum output where drivetrain will move out of 127
                                      1.019 // expo curve gain
 );
 
 // input curve for steer input during driver control
 lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband out of 127
-                                  10, // minimum output where drivetrain will move out of 127
+                                  5, // minimum output where drivetrain will move out of 127
                                   1.019 // expo curve gain
 );
 
@@ -171,7 +171,6 @@ void opcontrol() {
 
         lift.updateComplexLift();
           
-
         if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
             // lift.test_lift();
             // controller.rumble(".");
@@ -188,9 +187,11 @@ void opcontrol() {
 
         else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) 
         {
-            controller.rumble(".");
-            lift.stepStageDown();
-            controller.rumble(".");
+            if (lift.isUp){
+                controller.rumble(".");
+            }else{
+                controller.rumble("-");
+            }
         }  
         
         // for testing
@@ -198,27 +199,37 @@ void opcontrol() {
              
             claw.toggle();
             pros::delay(450);
+            
+            // if (claw.isOpen == false) {
+            //     leftMotors.move(-25);  // Power range: -127 to 127
+            //     rightMotors.move(-25);
+            //     pros::delay(10);
 
-            if (claw.isOpen == false) {
+            // }
+    
+            // leftMotors.move(-25);  // Power range: -127 to 127
+            // rightMotors.move(-25);
+            // pros::delay(10);
+            // pros::lcd::print(5,  "Boolean: %.2f", claw.isopen());
+
+            // if (claw.isopen() == true){
+            //     if (lift.isUp == true) {
+            //     bar.motor.move(-60);
+            //     pros::delay(200);
+            //     bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+            //     bar.motor.brake();
+            //     }
+            // }
+            //to handle loader - move back a little and lift the cup
+            if (claw.isopen() == true){ //means claw is closed
                 leftMotors.move(-25);  // Power range: -127 to 127
                 rightMotors.move(-25);
                 pros::delay(10);
-
-            }
-    
-            leftMotors.move(-25);  // Power range: -127 to 127
-            rightMotors.move(-25);
-            pros::delay(10);
-            // pros::lcd::print(5,  "Boolean: %.2f", claw.isopen());
-
-            if (claw.isopen() == true){
-                if (lift.isUp == true) {
                 bar.motor.move(-60);
                 pros::delay(200);
                 bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
                 bar.motor.brake();
-                }
-            }
+             }
 
         }
 
@@ -230,6 +241,12 @@ void opcontrol() {
             else {
                 bar.moveToBack();
             }
+        }
+
+        // if the lift is at the lowest and the claw is not holding anything, just let go of the bar
+        if(lift.isUp == false && claw.isopen() == false) { // claw is open
+            bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+            bar.motor.brake();
         }
         // }
         // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) {

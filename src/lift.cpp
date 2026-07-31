@@ -93,35 +93,6 @@ void Lift::reset() {
 // }
 
 
-// === COMPLEX LIFT FUNCTIONS (Commented Out / Prepared) ===
-
-
-// void Lift::setLiftStage(int stage) {
-//     // Clamp the target stage between 0 and the max stages index
-//     currentStage = std::clamp(stage, 0, totalStages - 1);
-//     //liftTargetHeight = currentStage * stageGap;
-//     // currentStage = stage;
-//     if (currentStage == 0)
-//     {
-//         liftTargetHeight = 0;
-//     }
-//     else if (currentStage == 1)
-//     {
-//         liftTargetHeight = 200*3;
-//     }
-//     else if (currentStage == 2)
-//     {
-//         liftTargetHeight = 350*3;
-//     }
-//     else if (currentStage == 3)
-//     {
-//         liftTargetHeight = 500*3;
-//     }
-//     else if (currentStage == 4)
-//     {
-//         liftTargetHeight = 675*3;
-//     }
-
 // }
 
 void Lift::stepStageUp() {
@@ -161,7 +132,7 @@ void Lift::updateComplexLift() {
     L_liftMotor.move(motorPower);
     R_liftMotor.move(motorPower);
 
-    if (currentPosition > 0)
+    if (currentPosition > 200)
     {
         isUp  = true;
     }
