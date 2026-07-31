@@ -132,6 +132,7 @@ void Lift::stepStageDown() {
     liftTargetHeight -= 20;
 }
 
+
 void Lift::goToLowest() { 
     reset();
     isUp = false;
@@ -161,7 +162,7 @@ void Lift::updateComplexLift() {
     L_liftMotor.move(motorPower);
     R_liftMotor.move(motorPower);
 
-    if (currentPosition > 0)
+    if (currentPosition > 18)
     {
         isUp  = true;
     }

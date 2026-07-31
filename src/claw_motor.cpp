@@ -1,6 +1,8 @@
 #include "../include/claw_motor.hpp"
 #include <cmath>
+#include "lift.hpp"
 
+extern Lift lift;
 // Creates the bar motor using the green gear cartridge.
 Bar::Bar(int motorPort) : motor(motorPort, pros::MotorGearset::green) {}
 
@@ -18,29 +20,48 @@ void Bar::moveToAngle(double realDegrees) {
 
 // Moves the bar to the front hard stop.
 // Uses a manual slew so the bar slows down before contacting the stop.
+
 void Bar::moveToFront() {
-    motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-    motor.move(127);
-    pros::delay(500);
-    // motor.move(90);
-    // pros::delay(100);
-    motor.move(20);
+    if (lift.isUp) {
+        //move to angle only if the lift is raised, otherwise will just go till hardstop on intake
+        motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+        motor.move_absolute(-330, 80);
 
-    int stableTime = 0;
-    double lastPosition = motor.get_position();
-
-    while (stableTime < 50) {
-        pros::delay(20);
-        double currentPosition = motor.get_position();
-        if (std::fabs(currentPosition - lastPosition) < 0.5) {
-            stableTime += 20;
-        } else {
-            stableTime = 0;
+        while (std::fabs(motor.get_position() - (-600)) > 10) {
+            pros::delay(10);
         }
-        lastPosition = currentPosition;
+
+        motor.brake();
     }
-    motor.brake();
+    else {
+        //move for time
+        motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+        motor.move(127);
+        pros::delay(650);
+        motor.move(20);
+        pros::delay(100);
+
+        motor.tare_position();
+
+        motor.brake();
+    }
+
     isBack = false;
+    
+    // int stableTime = 0;
+    // double lastPosition = motor.get_position();
+
+    // while (stableTime < 50) {
+    //     pros::delay(20);
+    //     double currentPosition = motor.get_position();
+    //     if (std::fabs(currentPosition - lastPosition) < 0.5) {
+    //         stableTime += 20;
+    //     } else {
+    //         stableTime = 0;
+    //     }
+    //     lastPosition = currentPosition;
+    // }
+   
 }
 
 // Moves the bar back to the rear hard stop.
@@ -48,9 +69,7 @@ void Bar::moveToFront() {
 void Bar::moveToBack() {
     motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
     motor.move(-127);
-    pros::delay(500);
-    // motor.move(-90);
-    // pros::delay(100);
+    pros::delay(650);
     motor.move(-20);
 
     int stableTime = 0;
@@ -66,17 +85,16 @@ void Bar::moveToBack() {
         }
         lastPosition = currentPosition;
     }
-
+    
     motor.brake();
-    motor.tare_position();
-    isBack = true;
+    isBack = true; 
 }
 
 // Used during initialize() to home the bar.
 // Slowly moves into the back hard stop and sets that position as encoder zero.
 void Bar::calibrateBack() {
     motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-    motor.move(-70);
+    motor.move(70);
     int stableTime = 0;
     double lastPosition = motor.get_position();
 
@@ -93,7 +111,7 @@ void Bar::calibrateBack() {
 
     motor.move(0);
     motor.tare_position();
-    isBack = true;
+    isBack = false;
 
     //pros::lcd::print(7, "Pos: %.2f", motor.get_position());
     //pros::lcd::print(6, "Bar Calibrated");

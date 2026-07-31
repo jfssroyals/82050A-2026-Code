@@ -94,13 +94,13 @@ lemlib::OdomSensors sensors(nullptr, // we do not have vertical tracking wheel
 
 // input curve for throttle input during driver control
 lemlib::ExpoDriveCurve throttleCurve(3, // joystick deadband out of 127
-                                     10, // minimum output where drivetrain will move out of 127
+                                     5, // minimum output where drivetrain will move out of 127 // just changed this from 10 to 5
                                      1.019 // expo curve gain
 );
 
 // input curve for steer input during driver control
 lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband out of 127
-                                  10, // minimum output where drivetrain will move out of 127
+                                  5, // minimum output where drivetrain will move out of 127 // just changed this from 10 to 5
                                   1.019 // expo curve gain
 );
 
@@ -162,6 +162,10 @@ void opcontrol() {
         // get joystick positions
         int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
         int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
+       
+        // Reduce sensitivity
+        //rightX = rightX * 0.6;
+
         // move the chassis with curvature drive
         chassis.arcade(leftY, rightX);
 
@@ -193,53 +197,52 @@ void opcontrol() {
             controller.rumble(".");
         }  
         
-        // for testing
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+        // // for testing
+        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
              
-            claw.toggle();
-            pros::delay(450);
+        //     claw.toggle();
+        //     pros::delay(450);
 
-            if (claw.isOpen == false) {
-                leftMotors.move(-25);  // Power range: -127 to 127
-                rightMotors.move(-25);
-                pros::delay(10);
+        //     //if claw was closed moves backwards lifts up little
 
-            }
-    
-            leftMotors.move(-25);  // Power range: -127 to 127
-            rightMotors.move(-25);
-            pros::delay(10);
-            // pros::lcd::print(5,  "Boolean: %.2f", claw.isopen());
+        //     if (claw.isopen() == true){ //means claw is closed
+        //         bar.motor.move(-60);
+        //         pros::delay(200);
+        //         bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+        //         bar.motor.brake();
+        //         leftMotors.move(-25);  // Power range: -127 to 127
+        //         rightMotors.move(-25);
+        //         pros::delay(10);
+        //     }
 
-            if (claw.isopen() == true){
-                if (lift.isUp == true) {
-                bar.motor.move(-60);
-                pros::delay(200);
-                bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-                bar.motor.brake();
-                }
-            }
-
-        }
-
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) { 
-         
-            if (bar.isAtBack()){
-                bar.moveToFront();
-            }
-            else {
-                bar.moveToBack();
-            }
-        }
+        //     // if (bar.isAtBack() == false){
+        //     //     if (claw.isopen() == true){
+        //     //         if (lift.isUp == true) {
+        //     //         bar.motor.move(-60);
+        //     //         pros::delay(200);
+        //     //         bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+        //     //         bar.motor.brake();
+        //     //         }
+        //     //     }
+        //     // }
         // }
-        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) {
-        //     bar.motor.move(-108);
-        //     pros::delay(500);
-        //     bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-        //     bar.motor.brake();
+
+
+        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) { 
+        //     controller.rumble(".");
+        //     if (bar.isAtBack()){
+        //         bar.moveToFront();
+        //     }
+        //     else {
+        //         bar.moveToBack();
+        //     }
         // }
-        // delay to save resources
-        pros::delay(10);
-    
+
+        // // if the lift is at the lowest and the claw is not holding anything, just let go of the bar
+        // if(lift.isUp == false && claw.isopen() == false) {
+        //     bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+        //   //  bar.motor.brake();
+        // }
     }
+    pros::delay(10);
 }
