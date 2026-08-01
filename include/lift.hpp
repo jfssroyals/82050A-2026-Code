@@ -28,4 +28,5 @@ public:
    void goToLowest();
    void reset();
    void test_lift();
+   void setTargetHeight(double height);
 };

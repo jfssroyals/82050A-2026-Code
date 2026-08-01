@@ -1,12 +1,12 @@
 #include "main.h"
 #include "lemlib/api.hpp" // IWYU pragma: keep
-#include "autons.hpp"
 #include "constants.hpp"
 #include "lift.hpp"
 #include "claw.hpp"
 #include "claw_motor.hpp"
 #include "intake.hpp"
 #include "control.hpp"
+#include "autons.hpp"
 
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
@@ -139,7 +139,7 @@ void competition_initialize() {}
 
 // get a path used for pure pursuit
 // this needs to be put outside a function
-// ASSET(example_txt); // '.' replaced with "_" to make c++ happy
+ASSET(path2_txt); // '.' replaced with "_" to make c++ happy
 
 
 void autonomous() {
@@ -152,6 +152,8 @@ void autonomous() {
     // pros::delay(1000000);
 
     // 2, 22
+    //test_follow();
+    // chassis.follow(path2_txt,15,4000);
     fourPinBlue();
     pros::delay(100000);
     // chassis.setPose(0, 0, 0);

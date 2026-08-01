@@ -9,6 +9,7 @@ extern lemlib::Chassis chassis;
 // auton routines
 //  void redLeftAuton();
 void fourPinBlue();
+//void test_follow();
 // void redRightAuton();
 // void blueLeftAuton();
 // void blueRightAuton();
