@@ -1,12 +1,12 @@
 #include "main.h"
 #include "lemlib/api.hpp" // IWYU pragma: keep
-#include "autons.hpp"
 #include "constants.hpp"
 #include "lift.hpp"
 #include "claw.hpp"
 #include "claw_motor.hpp"
 #include "intake.hpp"
 #include "control.hpp"
+#include "autons.hpp"
 
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
@@ -17,15 +17,6 @@ Claw claw('A');
 
 // bar
 Bar bar(-3); 
-
-void barTask_moveFront(){
-    bar.moveToFront();
-}
-
-void barTask_moveBack(){
-    bar.moveToBack();
-}
-
 
 // create lift
 Lift lift(-9, 2);
@@ -66,7 +57,7 @@ lemlib::Drivetrain drivetrain(&leftMotors, // left motor group
                               12.1, // 12.1 inch track width
                               lemlib::Omniwheel::NEW_275, // using new 2.75" omnis
                               450, // drivetrain rpm is 450
-                              2 // horizontal drift is 2. If we had traction wheels, it would have been 8
+                              8 // horizontal drift is 2. If we had traction wheels, it would have been 8
 );
 
 lemlib::ControllerSettings linearController(
@@ -103,13 +94,13 @@ lemlib::OdomSensors sensors(nullptr, // we do not have vertical tracking wheel
 
 // input curve for throttle input during driver control
 lemlib::ExpoDriveCurve throttleCurve(3, // joystick deadband out of 127
-                                     5, // minimum output where drivetrain will move out of 127
+                                     10, // minimum output where drivetrain will move out of 127
                                      1.019 // expo curve gain
 );
 
 // input curve for steer input during driver control
 lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband out of 127
-                                  5, // minimum output where drivetrain will move out of 127
+                                  10, // minimum output where drivetrain will move out of 127
                                   1.019 // expo curve gain
 );
 
@@ -120,22 +111,20 @@ lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors
 void initialize() {
     pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
-    bar.reset();
+    // bar.reset();
     lift.reset();
-    // pros::Task cd screenTask([&]() {
-    //     while (true) {
-    //         // print robot location to the brain screen
-    //         // pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
-    //         // pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
-    //         // pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
-    //         // pros::lcd::print(3, "Rotation Sensor: %i", horizontalEnc.get_position());
-
-    //         // log position telemetry
-    //         lemlib::telemetrySink()->info("Chassis pose: {}", chassis.getPose());
-    //         // delay to save resources
-    //         pros::delay(50);
-    //     }
-    // });
+    claw.close();
+    // print position to brain screen
+    pros::Task screen_task([&]() {
+        while (true) {
+            // print robot location to the brain screen
+            pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
+            pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
+            pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
+            // delay to save resources
+            pros::delay(20);
+        }
+    });
 }
 
 /**
@@ -150,23 +139,61 @@ void competition_initialize() {}
 
 // get a path used for pure pursuit
 // this needs to be put outside a function
-// ASSET(example_txt); // '.' replaced with "_" to make c++ happy
+ASSET(path2_txt); // '.' replaced with "_" to make c++ happy
+
 
 void autonomous() {
-    // // set position to x:0, y:0, heading:0
-    // chassis.setPose(0, 0, 0);
-    // // turn to face heading 90 with a very long timeout
-    // chassis.turnToHeading(90, 100000);
+    // set position to x:0, y:0, heading:0
     chassis.setPose(0, 0, 0);
-    chassis.moveToPoint(0, 12.3, 5000);
-    chassis.waitUntilDone();
-    chassis.turnToHeading(270, 2000);
-    chassis.waitUntilDone();
-    chassis.moveToPoint(-17, 1552, 5000);  
-    chassis.waitUntilDone();
+    // move 48" forwards
+    // chassis.moveToPoint(5, 30, 10000);
+    // chassis.moveToPose(5, 30, 12.77, 10000);
+    // chassis.waitUntilDone();
+    // pros::delay(1000000);
+
+    // 2, 22
+    //test_follow();
+    // chassis.follow(path2_txt,15,4000);
+    fourPinBlue();
+    pros::delay(100000);
+    // chassis.setPose(0, 0, 0);
+    
+    // chassis.arcade(127, 0);
+    // pros::delay(300);
+    // chassis.arcade(-127, 0);
+    // pros::delay(150);
+    // chassis.arcade(100, 0);
+    // pros::delay(450);
+    // chassis.arcade(0, 0);
+    // chassis.moveToPose(22, -12.3, 270, 1000, {.forwards = false, .lead = 0.6});  
+    // pros::delay(100);
+    
+    // chassis.setPose(0, 0, 0);
+    // chassis.moveToPose(24, 24, 0, 500, {.lead = 0.5});
+
+    // chassis.arcade(-127, 0);
+    // chassis.moveToPoint(0, -3, 300, {.minSpeed = 127});
+    // chassis.moveToPoint(0, 3, 500, {.minSpeed = 127});
+   
+    // // 1. Move forward 12 inches
+    // chassis.moveToPoint(0, 12, 1000);
+    // chassis.waitUntilDone(); // Wait for forward movement to complete
+
+    // // 2. Turn 90 degrees
+    // chassis.turnToHeading(90, 1000);
+    // chassis.waitUntilDone(); // Wait for turn to complete!
+
+    // 3. Smoothly drive back to (0,0) facing 0 degrees
+    // chassis.turnToHeading(0, 1000, {.direction = AngularDirection::CCW_COUNTERCLOCKWISE});
+    // chassis.waitUntilDone();
+
+    // chassis.moveToPose(5, 24, 90, 2200, {.lead = 0.5});
+    // chassis.waitUntilDone();
 }
 
+
 void opcontrol() {
+    autonomous();
     while (true) {
         // get joystick positions
         int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
@@ -180,6 +207,7 @@ void opcontrol() {
 
         lift.updateComplexLift();
           
+
         if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
             // lift.test_lift();
             // controller.rumble(".");
@@ -192,73 +220,39 @@ void opcontrol() {
             controller.rumble(".");
             lift.stepStageDown();
             controller.rumble(".");
-        }   
+        }    
 
-        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_UP)) 
+        else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) 
         {
-            if (lift.isUp){
-                controller.rumble(".");
-            }else{
-                controller.rumble("-");
-            }
+            controller.rumble(".");
+            lift.stepStageDown();
+            controller.rumble(".");
         }  
         
         // for testing
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+            if (bar.isAtBack()){
+                bar.moveToFront();
+            }
+            else {
+                bar.moveToBack();
+            }
+        }
+
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) { 
             claw.toggle();
             pros::delay(450);
-            
-            // if (claw.isOpen == false) {
-            //     leftMotors.move(-25);  // Power range: -127 to 127
-            //     rightMotors.move(-25);
-            //     pros::delay(10);
-
-            // }
-    
-            // leftMotors.move(-25);  // Power range: -127 to 127
-            // rightMotors.move(-25);
-            // pros::delay(10);
+            leftMotors.move(25);  // Power range: -127 to 127
+            rightMotors.move(25);
+            pros::delay(10);
             // pros::lcd::print(5,  "Boolean: %.2f", claw.isopen());
-
-            // if (claw.isopen() == true){
-            //     if (lift.isUp == true) {
-            //     bar.motor.move(-60);
-            //     pros::delay(200);
-            //     bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-            //     bar.motor.brake();
-            //     }
-            // }
-            //to handle loader - move back a little and lift the cup
-            if (claw.isopen() == true){ //means claw is closed
-                leftMotors.move(-25);  // Power range: -127 to 127
-                rightMotors.move(-25);
-                pros::delay(10);
+            if (claw.isopen() == true){
                 bar.motor.move(-60);
                 pros::delay(200);
                 bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
                 bar.motor.brake();
-             }
-
-        }
-
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) { 
-         
-            if (bar.isAtBack()){
-                pros::Task my_task(barTask_moveFront);
-                //bar.moveToFront();
-            }
-            else {
-                pros::Task my_task(barTask_moveBack);
-                //bar.moveToBack();
             }
         }
-
-        // if the lift is at the lowest and the claw is not holding anything, just let go of the bar
-        if(lift.isUp == false && claw.isopen() == false) { // claw is open
-            bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-            bar.motor.brake();
-        }
-
         // }
         // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) {
         //     bar.motor.move(-108);
@@ -267,7 +261,7 @@ void opcontrol() {
         //     bar.motor.brake();
         // }
         // delay to save resources
-        pros::delay(5);
+        pros::delay(10);
     
     }
 }
