@@ -163,3 +163,7 @@ void Lift::test_lift(){
     L_liftMotor.move(0);
     R_liftMotor.move(0);
 }
+
+void Lift::setTargetHeight(double height) {
+    liftTargetHeight = height;
+}
