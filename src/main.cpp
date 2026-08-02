@@ -122,6 +122,8 @@ void initialize() {
     chassis.calibrate(); // calibrate sensors
     bar.reset();
     lift.reset();
+    claw.open();
+
     // pros::Task cd screenTask([&]() {
     //     while (true) {
     //         // print robot location to the brain screen
@@ -178,37 +180,37 @@ void opcontrol() {
         //     claw.toggle();
         // }
 
-        lift.updateComplexLift();
+        // lift.updateComplexLift();
           
-        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-            // lift.test_lift();
-            // controller.rumble(".");
-            lift.stepStageUp();
-            controller.rumble(".");
-        } 
+        // if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+        //     // lift.test_lift();
+        //     // controller.rumble(".");
+        //     lift.stepStageUp();
+        //     controller.rumble(".");
+        // } 
         
-        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) 
-        {
-            controller.rumble(".");
-            lift.stepStageDown();
-            controller.rumble(".");
-        }   
+        // else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) 
+        // {
+        //     controller.rumble(".");
+        //     lift.stepStageDown();
+        //     controller.rumble(".");
+        // }   
 
-        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_UP)) 
-        {
-            if (lift.isUp){
-                controller.rumble(".");
-            }else{
-                controller.rumble("-");
-            }
-        }  
+        // else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_UP)) 
+        // {
+        //     if (lift.isUp){
+        //         controller.rumble(".");
+        //     }else{
+        //         controller.rumble("-");
+        //     }
+        // }  
         
         // for testing
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
             claw.toggle();
             pros::delay(450);
             
-            // if (claw.isOpen == false) {
+            // if (claw.isExtended == false) {
             //     leftMotors.move(-25);  // Power range: -127 to 127
             //     rightMotors.move(-25);
             //     pros::delay(10);
@@ -218,9 +220,9 @@ void opcontrol() {
             // leftMotors.move(-25);  // Power range: -127 to 127
             // rightMotors.move(-25);
             // pros::delay(10);
-            // pros::lcd::print(5,  "Boolean: %.2f", claw.isopen());
+            // pros::lcd::print(5,  "Boolean: %.2f", claw.isExtended());
 
-            // if (claw.isopen() == true){
+            // if (claw.isExtended() == true){
             //     if (lift.isUp == true) {
             //     bar.motor.move(-60);
             //     pros::delay(200);
@@ -228,36 +230,39 @@ void opcontrol() {
             //     bar.motor.brake();
             //     }
             // }
-            //to handle loader - move back a little and lift the cup
-            if (claw.isopen() == true){ //means claw is closed
+            //to handle loader - move back a little and lift the cup          
+            if (claw.isExtended == false){ //means claw is closed
                 leftMotors.move(-25);  // Power range: -127 to 127
                 rightMotors.move(-25);
                 pros::delay(10);
-                bar.motor.move(-60);
+
+                bar.motor.move(-30);
                 pros::delay(200);
                 bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
                 bar.motor.brake();
-             }
+            }
 
         }
 
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) { 
          
             if (bar.isAtBack()){
+                controller.rumble("-");
                 pros::Task my_task(barTask_moveFront);
                 //bar.moveToFront();
             }
             else {
+                controller.rumble(". . .");
                 pros::Task my_task(barTask_moveBack);
                 //bar.moveToBack();
             }
         }
 
-        // if the lift is at the lowest and the claw is not holding anything, just let go of the bar
-        if(lift.isUp == false && claw.isopen() == false) { // claw is open
-            bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-            bar.motor.brake();
-        }
+        // // if the lift is at the lowest and the claw is not holding anything, just let go of the bar
+        // if(lift.isUp == false && claw.isExtended() == false) { // claw is open
+        //     bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+        //     bar.motor.brake();
+        // }
 
         // }
         // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) {

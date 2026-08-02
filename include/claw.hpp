@@ -4,12 +4,11 @@
 class Claw {
 public:
     pros::adi::DigitalOut piston;
-    bool isOpen = false;
+    bool isExtended = true;
 ;
     Claw(char port);
 
     void open();
     void close();
     void toggle();
-    bool isopen();
 };

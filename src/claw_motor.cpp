@@ -81,12 +81,10 @@ void Bar::moveToFront() {
 void Bar::moveToBack() {
     motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
     motor.move(-127);
-    pros::delay(500);
+    pros::delay(400);
     motor.move(-90);
-    pros::delay(300);
+    pros::delay(100);
     motor.move(-20);
-    // motor.move(-90);
-    // pros::delay(100);
 
     int stableTime = 0;
     double lastPosition = motor.get_position();
