@@ -12,7 +12,7 @@ extern Bar bar;
 extern Claw claw;
 extern Lift lift;
 
-void fourPinBlue() {
+void fivePin_red1() {
     
     pros::Task liftTask([&] { // lift.updateComplexLift will run independently every 20 ms
         while (true) {
@@ -112,10 +112,10 @@ void fourPinBlue() {
     // pros::delay(1600);
     
     // chassis.arcade(0, 0);
-    // chassis.moveToPose(15.5, -5.75, 125, 4000, {.lead = 0.3, .maxSpeed = 30}); //-20, -10
-    // chassis.waitUntilDone();
-    // claw.close();
-    // pros::delay(100);
+    chassis.moveToPose(15.5, -5.75, 125, 4000, {.lead = 0.3, .maxSpeed = 30}); //-20, -10
+    chassis.waitUntilDone();
+    claw.close();
+    pros::delay(100);
 
     
 
@@ -163,12 +163,119 @@ void fourPinBlue() {
     // bar.motor.brake();
 }
 
-// void test_follow() {
-//     controller.rumble("--");
-//     chassis.follow(example_txt, 10, 10000);
-// }
-// move to pose 5, -6, 400
+void fivePin_red2() {
 
-// -10, 7
 
-// 6, -12, 270
+}
+
+void fivePin_blue1() {
+
+}
+
+void fivePin_blue2() {
+
+}
+
+void skills_auton() {
+
+    pros::Task liftTask([&] { // lift.updateComplexLift will run independently every 20 ms
+        while (true) {
+            lift.updateComplexLift();
+            pros::delay(20);
+        }
+    });
+
+    pros::delay(2000);
+
+    // 350 -> 10
+    chassis.setPose(0, 0, 10);
+
+    // Open-loop movements (continuous motion)
+    chassis.arcade(127, -127);
+    pros::delay(700);
+
+    chassis.arcade(-80, 127);
+    pros::delay(200);
+
+    chassis.arcade(127, -127);
+    pros::delay(500);
+
+    chassis.arcade(-100, 0);
+    pros::delay(300);
+
+    // RIGHT swing -> LEFT swing
+    // 270 -> 90
+    chassis.swingToHeading(90, DriveSide::LEFT, 2000, {
+        .minSpeed = 127,
+        .earlyExitRange = 20
+    });
+
+    // Subsystem motion while moving
+    bar.motor.move(60);
+    pros::delay(200);
+    bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    bar.motor.brake();
+
+    chassis.waitUntilDone();
+
+    // Left motor toggle -> Right motor toggle
+    chassis.arcade(-60, 0);
+    pros::delay(1000);
+
+    bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    pros::delay(600);
+
+    claw.open();
+
+    chassis.arcade(0, 0);
+
+    // finished first pin
+
+    // reset pose when on aligner right before leaving
+
+    double goalRadius = 6.25;
+
+    // Current robot angle
+    double currentTheta = chassis.getPose().theta;
+
+    // Straight alignment angle
+    double straightTheta = 90.0;
+
+    // Calculate rotation offset from straight
+    double offsetTheta = currentTheta - straightTheta;
+
+    // Normalize angle between -180 and 180
+    while (offsetTheta > 180) offsetTheta -= 360;
+    while (offsetTheta < -180) offsetTheta += 360;
+
+    // Calculate offset around goal
+    double offsetX = sin(offsetTheta * M_PI / 180.0) * goalRadius;
+    double offsetY = (-cos(offsetTheta * M_PI / 180.0) * goalRadius) + goalRadius;
+
+    // Set new coordinate system
+    chassis.setPose(offsetX, offsetY, offsetTheta);
+    
+
+    // go to the loader for the first time
+    chassis.moveToPose(0, 8, 0, 1000);
+    chassis.waitUntilDone();
+
+    // // Turn
+    chassis.turnToHeading(126, 1000);//122
+
+    // Start bar movement in the background 
+    pros::Task barTask([&]{
+        bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+        bar.motor.move(127);
+        pros::delay(800);
+        bar.motor.brake();
+    });
+
+    chassis.waitUntilDone();
+
+}
+
+void test() {
+
+}
+

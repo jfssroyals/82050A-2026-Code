@@ -137,14 +137,12 @@ void disabled() {}
  */
 void competition_initialize() {}
 
-// get a path used for pure pursuit
-// this needs to be put outside a function
-ASSET(path2_txt); // '.' replaced with "_" to make c++ happy
+
 
 
 void autonomous() {
     // set position to x:0, y:0, heading:0
-    chassis.setPose(0, 0, 0);
+    // chassis.setPose(0, 0, 0);
     // move 48" forwards
     // chassis.moveToPoint(5, 30, 10000);
     // chassis.moveToPose(5, 30, 12.77, 10000);
@@ -154,41 +152,8 @@ void autonomous() {
     // 2, 22
     //test_follow();
     // chassis.follow(path2_txt,15,4000);
-    fourPinBlue();
+    fivePin_red1();
     pros::delay(100000);
-    // chassis.setPose(0, 0, 0);
-    
-    // chassis.arcade(127, 0);
-    // pros::delay(300);
-    // chassis.arcade(-127, 0);
-    // pros::delay(150);
-    // chassis.arcade(100, 0);
-    // pros::delay(450);
-    // chassis.arcade(0, 0);
-    // chassis.moveToPose(22, -12.3, 270, 1000, {.forwards = false, .lead = 0.6});  
-    // pros::delay(100);
-    
-    // chassis.setPose(0, 0, 0);
-    // chassis.moveToPose(24, 24, 0, 500, {.lead = 0.5});
-
-    // chassis.arcade(-127, 0);
-    // chassis.moveToPoint(0, -3, 300, {.minSpeed = 127});
-    // chassis.moveToPoint(0, 3, 500, {.minSpeed = 127});
-   
-    // // 1. Move forward 12 inches
-    // chassis.moveToPoint(0, 12, 1000);
-    // chassis.waitUntilDone(); // Wait for forward movement to complete
-
-    // // 2. Turn 90 degrees
-    // chassis.turnToHeading(90, 1000);
-    // chassis.waitUntilDone(); // Wait for turn to complete!
-
-    // 3. Smoothly drive back to (0,0) facing 0 degrees
-    // chassis.turnToHeading(0, 1000, {.direction = AngularDirection::CCW_COUNTERCLOCKWISE});
-    // chassis.waitUntilDone();
-
-    // chassis.moveToPose(5, 24, 90, 2200, {.lead = 0.5});
-    // chassis.waitUntilDone();
 }
 
 

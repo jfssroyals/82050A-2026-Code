@@ -7,10 +7,9 @@ extern pros::Controller controller;
 extern lemlib::Chassis chassis;
 
 // auton routines
-//  void redLeftAuton();
-void fourPinBlue();
-//void test_follow();
-// void redRightAuton();
-// void blueLeftAuton();
-// void blueRightAuton();
-// void skillsAuton();
+void fivePin_red1();
+void fivePin_red2();
+void fivePin_blue1();
+void fivePin_blue2();
+void test();
+void skillsAuton();
