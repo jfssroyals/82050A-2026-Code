@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cmath>
 
+extern pros::Controller controller;
 
 // Constructor
 Lift::Lift(signed char leftPort, signed char rightPort)
@@ -143,8 +144,10 @@ void Lift::updateComplexLift() {
     }
     
     if (isUp){
-        L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-        R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+        // L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+        // R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+        L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+        R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
     } 
     if (isUp == false) {
         L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);

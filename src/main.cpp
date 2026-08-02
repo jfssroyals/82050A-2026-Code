@@ -109,7 +109,7 @@ lemlib::ExpoDriveCurve throttleCurve(3, // joystick deadband out of 127
 
 // input curve for steer input during driver control
 lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband out of 127
-                                  5, // minimum output where drivetrain will move out of 127
+                                  4, // minimum output where drivetrain will move out of 127
                                   1.019 // expo curve gain
 );
 
@@ -123,7 +123,8 @@ void initialize() {
     bar.reset();
     lift.reset();
     claw.open();
-
+    pros::delay(1000);
+    claw.close();
     // pros::Task cd screenTask([&]() {
     //     while (true) {
     //         // print robot location to the brain screen
@@ -259,19 +260,19 @@ void opcontrol() {
             }
         }
 
-        // // if the lift is at the lowest and the claw is not holding anything, just let go of the bar
-        // if(lift.isUp == false && claw.isExtended() == false) { // claw is open
-        //     bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-        //     bar.motor.brake();
-        // }
+        // if the lift is at the lowest and the claw is not holding anything, just let go of the bar
+        if(lift.isUp == false && claw.isExtended == true) { // claw is open
+            bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+            bar.motor.brake();
+        }
 
-        // }
-        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) {
-        //     bar.motor.move(-108);
-        //     pros::delay(500);
-        //     bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-        //     bar.motor.brake();
-        // }
+        
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) {
+            bar.motor.move(-108);
+            pros::delay(500);
+            bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+            bar.motor.brake();
+            }
         // delay to save resources
         pros::delay(5);
     
