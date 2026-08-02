@@ -16,7 +16,7 @@ pros::Controller controller(pros::E_CONTROLLER_MASTER);
 Claw claw('A');
 
 //Bellcrank Piston
-pros::adi::DigitalOut intakePiston('B');
+pros::adi::DigitalOut intakePiston('H');
 
 // bar
 Bar bar(-3); 
