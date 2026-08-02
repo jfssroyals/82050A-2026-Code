@@ -273,6 +273,24 @@ void skills_auton() {
 
     chassis.waitUntilDone();
 
+    // next movement setting up to pickup first pin cup stack
+    chassis.moveToPose(0, 13, 0, 1000); //-20, -10
+    chassis.waitUntilDone();
+
+    // on the spot Turn
+    chassis.turnToHeading(-126, 1000);//122
+
+    // Swing turn
+    chassis.swingToHeading(
+        270,
+        lemlib::DriveSide::RIGHT,
+        5000
+    );
+    
+    // Move to the loader for the first time - not completed
+    chassis.moveToPose(0, 9 , 90, 1000); //-20, -10
+    chassis.waitUntilDone();
+
 }
 
 void test() {
