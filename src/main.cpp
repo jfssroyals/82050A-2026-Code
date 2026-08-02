@@ -180,21 +180,21 @@ void opcontrol() {
         //     claw.toggle();
         // }
 
-        // lift.updateComplexLift();
+        lift.updateComplexLift();
           
-        // if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-        //     // lift.test_lift();
-        //     // controller.rumble(".");
-        //     lift.stepStageUp();
-        //     controller.rumble(".");
-        // } 
+        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+            // lift.test_lift();
+            // controller.rumble(".");
+            lift.stepStageUp();
+            controller.rumble(".");
+        } 
         
-        // else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) 
-        // {
-        //     controller.rumble(".");
-        //     lift.stepStageDown();
-        //     controller.rumble(".");
-        // }   
+        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) 
+        {
+            controller.rumble(".");
+            lift.stepStageDown();
+            controller.rumble(".");
+        }   
 
         // else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_UP)) 
         // {
