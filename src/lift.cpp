@@ -152,3 +152,12 @@ void Lift::test_lift(){
     L_liftMotor.move(0);
     R_liftMotor.move(0);
 }
+
+// For intake sequence
+void Lift::adjustHeight(double delta) {
+    liftTargetHeight += delta;
+}
+
+void Lift::setTarget(double target) {
+    liftTargetHeight = target;
+}

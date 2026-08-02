@@ -25,7 +25,10 @@ private:
         MOVING_FRONT_DROP,
 
         // Moving bar to back to release an object
-        MOVING_BACK_DROP
+        MOVING_BACK_DROP,
+
+        // For Complex Intake Code
+        INTAKE_SEQUENCE
     };
 
 
@@ -41,6 +44,8 @@ public:
     void frontPickup();
 
 
+
+
     // L2: drop based on toggle
     void drop();
 
@@ -52,6 +57,12 @@ public:
     // Runs every loop and finishes actions
     void update();
 
+    // Intaje Sequence Function
+    void startIntakeSequence();
+
+    // intake sequence variables
+    int step = 0;
+    int stepStartTime = 0;
 
 private:
 

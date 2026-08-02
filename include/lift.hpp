@@ -29,5 +29,9 @@ public:
    void reset();
    void test_lift();
 
+   //new one for intake
+   void adjustHeight(double delta);
+   void setTarget(double target);
+
    bool isUp = false; 
 };

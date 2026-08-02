@@ -15,6 +15,9 @@ pros::Controller controller(pros::E_CONTROLLER_MASTER);
 // claw
 Claw claw('A');
 
+//Bellcrank Piston
+pros::adi::DigitalOut intakePiston('B');
+
 // bar
 Bar bar(-3); 
 
@@ -123,21 +126,6 @@ void initialize() {
     bar.reset();
     lift.reset();
     claw.open();
-
-    // pros::Task cd screenTask([&]() {
-    //     while (true) {
-    //         // print robot location to the brain screen
-    //         // pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
-    //         // pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
-    //         // pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
-    //         // pros::lcd::print(3, "Rotation Sensor: %i", horizontalEnc.get_position());
-
-    //         // log position telemetry
-    //         lemlib::telemetrySink()->info("Chassis pose: {}", chassis.getPose());
-    //         // delay to save resources
-    //         pros::delay(50);
-    //     }
-    // });
 }
 
 /**
@@ -180,56 +168,28 @@ void opcontrol() {
         //     claw.toggle();
         // }
 
-        // lift.updateComplexLift();
+        lift.updateComplexLift();
+        control.update();
           
-        // if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-        //     // lift.test_lift();
-        //     // controller.rumble(".");
-        //     lift.stepStageUp();
-        //     controller.rumble(".");
-        // } 
+        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+            // lift.test_lift();
+            // controller.rumble(".");
+            lift.stepStageUp();
+            controller.rumble(".");
+        } 
         
-        // else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) 
-        // {
-        //     controller.rumble(".");
-        //     lift.stepStageDown();
-        //     controller.rumble(".");
-        // }   
-
-        // else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_UP)) 
-        // {
-        //     if (lift.isUp){
-        //         controller.rumble(".");
-        //     }else{
-        //         controller.rumble("-");
-        //     }
-        // }  
+        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) 
+        {
+            controller.rumble(".");
+            lift.stepStageDown();
+            controller.rumble(".");
+        }   
         
-        // for testing
+        // For Claw Control
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
             claw.toggle();
             pros::delay(450);
-            
-            // if (claw.isExtended == false) {
-            //     leftMotors.move(-25);  // Power range: -127 to 127
-            //     rightMotors.move(-25);
-            //     pros::delay(10);
-
-            // }
-    
-            // leftMotors.move(-25);  // Power range: -127 to 127
-            // rightMotors.move(-25);
-            // pros::delay(10);
-            // pros::lcd::print(5,  "Boolean: %.2f", claw.isExtended());
-
-            // if (claw.isExtended() == true){
-            //     if (lift.isUp == true) {
-            //     bar.motor.move(-60);
-            //     pros::delay(200);
-            //     bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-            //     bar.motor.brake();
-            //     }
-            // }
+          
             //to handle loader - move back a little and lift the cup          
             if (claw.isExtended == false){ //means claw is closed
                 leftMotors.move(-25);  // Power range: -127 to 127
@@ -258,20 +218,19 @@ void opcontrol() {
             }
         }
 
-        // // if the lift is at the lowest and the claw is not holding anything, just let go of the bar
-        // if(lift.isUp == false && claw.isExtended() == false) { // claw is open
-        //     bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-        //     bar.motor.brake();
-        // }
+        // FOR INTAKE SEQUENCE
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) {
+        control.startIntakeSequence();
+        }
 
-        // }
-        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) {
-        //     bar.motor.move(-108);
-        //     pros::delay(500);
-        //     bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-        //     bar.motor.brake();
-        // }
-        // delay to save resources
+        //FOR NORMAL INTAKE
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
+        intake.toggle_state(); // turn intake ON/OFF
+        }
+
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
+        intake.toggle_direction(); // change direction
+        }
         pros::delay(5);
     
     }
