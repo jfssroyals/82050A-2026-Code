@@ -287,9 +287,24 @@ void skills_auton() {
         5000
     );
     
-    // Move to the loader for the first time - not completed
-    chassis.moveToPose(0, 9 , 90, 1000); //-20, -10
+    // move a little forward before the move to pose makes the turn
+    chassis.moveToPoint(-7, 17, 7000);
     chassis.waitUntilDone();
+
+   // need to chain these movements
+
+    // Move to the loader for the first time - not completed
+    chassis.moveToPose(16, 35, 90, 5000); //-20, -10
+    chassis.waitUntilDone();
+
+    // move to same quadrant goal
+    chassis.moveToPose(0, 5, 180, 5000);
+    chassis.waitUntilDone();
+
+    // move to other quadrant goal 
+    chassis.moveToPose(-18, 24, 270, 5000); // other quadrant goal 
+    chassis.waitUntilDone();
+
 
 }
 
