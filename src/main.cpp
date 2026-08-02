@@ -189,12 +189,13 @@ void opcontrol() {
             controller.rumble(".");
         } 
         
-        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) 
-        {
+        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
             controller.rumble(".");
             lift.stepStageDown();
             controller.rumble(".");
-        }   
+            }
+           
+
 
         // else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_UP)) 
         // {

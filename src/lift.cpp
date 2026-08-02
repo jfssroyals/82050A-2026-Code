@@ -137,11 +137,19 @@ void Lift::updateComplexLift() {
         isUp  = true;
     }
 
-    else
+    if (currentPosition < 200)
     {
         isUp = false;
     }
     
+    if (isUp){
+        L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+        R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    } 
+    if (isUp == false) {
+        L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+        R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    }
 }
 
 
