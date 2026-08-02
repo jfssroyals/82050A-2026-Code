@@ -66,7 +66,7 @@ lemlib::Drivetrain drivetrain(&leftMotors, // left motor group
                               12.1, // 12.1 inch track width
                               lemlib::Omniwheel::NEW_275, // using new 2.75" omnis
                               450, // drivetrain rpm is 450
-                              2 // horizontal drift is 2. If we had traction wheels, it would have been 8
+                              8 // horizontal drift is 2. If we had traction wheels, it would have been 8
 );
 
 lemlib::ControllerSettings linearController(
@@ -156,20 +156,12 @@ void competition_initialize() {}
 // ASSET(example_txt); // '.' replaced with "_" to make c++ happy
 
 void autonomous() {
-    // // set position to x:0, y:0, heading:0
-    // chassis.setPose(0, 0, 0);
-    // // turn to face heading 90 with a very long timeout
-    // chassis.turnToHeading(90, 100000);
-    chassis.setPose(0, 0, 0);
-    chassis.moveToPoint(0, 12.3, 5000);
-    chassis.waitUntilDone();
-    chassis.turnToHeading(270, 2000);
-    chassis.waitUntilDone();
-    chassis.moveToPoint(-17, 1552, 5000);  
-    chassis.waitUntilDone();
+    fivePin_red1();
+    pros::delay(100000);
 }
 
 void opcontrol() {
+    autonomous(); //comment when running driver
     while (true) {
         // get joystick positions
         int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
