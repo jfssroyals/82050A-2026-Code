@@ -123,7 +123,7 @@ lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors
 void initialize() {
     pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
-    bar.reset();
+    // bar.reset();
     lift.reset();
     claw.open();
 }
@@ -220,16 +220,16 @@ void opcontrol() {
 
         // FOR INTAKE SEQUENCE
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) {
-        control.startIntakeSequence();
+            control.startIntakeSequence();
         }
 
         //FOR NORMAL INTAKE
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
-        intake.toggle_state(); // turn intake ON/OFF
+            intake.toggle_direction(); // turn intake ON/OFF
         }
 
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
-        intake.toggle_direction(); // change direction
+            intake.toggle_direction(); // change direction
         }
         pros::delay(5);
     

@@ -19,4 +19,6 @@ public:
     void update();
     void toggle_state();
     void toggle_direction();
+    void toggle_inward();
+    void toggle_outward();
 };

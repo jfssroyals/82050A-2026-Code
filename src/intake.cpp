@@ -40,3 +40,27 @@ void Intake::update() {
         stop();
     }
 }
+
+void Intake::toggle_inward() {
+    // If already running inward → stop
+    if (isRunning && isSpinningInward) {
+        isRunning = false;
+    } 
+    // Otherwise → run inward
+    else {
+        isRunning = true;
+        isSpinningInward = true;
+    }
+}
+
+void Intake::toggle_outward() {
+    // If already running outward → stop
+    if (isRunning && !isSpinningInward) {
+        isRunning = false;
+    } 
+    // Otherwise → run outward
+    else {
+        isRunning = true;
+        isSpinningInward = false;
+    }
+}
