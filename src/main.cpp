@@ -8,6 +8,7 @@
 #include "intake.hpp"
 #include "control.hpp"
 
+
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
@@ -115,9 +116,20 @@ lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband out of 127
 
 // create the chassis
 lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors, &throttleCurve, &steerCurve);
+void screenTask(void*) {
+    while (true) {
+        // pros::lcd::print(0, "X: %.2f", chassis.getPose().x);
+        // pros::lcd::print(1, "Y: %.2f", chassis.getPose().y);
+        // pros::lcd::print(2, "Theta: %.2f", chassis.getPose().theta);
 
+        printf("X: %.2f Y: %.2f\n", chassis.getPose().x, chassis.getPose().y);
+        printf("Theta: %.2f\n", chassis.getPose().theta);
+        pros::delay(50);
+    }
+}
 
 void initialize() {
+    controller.rumble(".."); // rumble to indicate that the robot is initializing
     pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
     bar.reset();
@@ -125,20 +137,7 @@ void initialize() {
     claw.open();
     pros::delay(1000);
     claw.close();
-    // pros::Task cd screenTask([&]() {
-    //     while (true) {
-    //         // print robot location to the brain screen
-    //         // pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
-    //         // pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
-    //         // pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
-    //         // pros::lcd::print(3, "Rotation Sensor: %i", horizontalEnc.get_position());
-
-    //         // log position telemetry
-    //         lemlib::telemetrySink()->info("Chassis pose: {}", chassis.getPose());
-    //         // delay to save resources
-    //         pros::delay(50);
-    //     }
-    // });
+    //static pros::Task screen_task(screenTask);
 }
 
 /**
@@ -152,12 +151,31 @@ void disabled() {}
 void competition_initialize() {}
 
 // get a path used for pure pursuit
-// this needs to be put outside a function
-// ASSET(example_txt); // '.' replaced with "_" to make c++ happy
-
+ASSET(mtest_txt);
 void autonomous() {
-    fivePin_red1();
+    // fivePin_red1();
+    // pros::delay(100000);
+
+        // set chassis pose
+    //chassis.setPose(0, 0, 0);
+    skillsAuton();
     pros::delay(100000);
+    //printf("X: %.2f Y: %.2f\n", chassis.getPose().x, chassis.getPose().y);
+    // pros::lcd::print(0, "X = %.2f", chassis.getPose().x);
+    // pros::lcd::print(1, "Y = %.2f", chassis.getPose().y);
+    // pros::lcd::print(2, "Theta = %.2f", chassis.getPose().theta);
+    // lookahead distance: 15 inches
+    // timeout: 2000 ms
+    
+    // chassis.follow(mtest_txt, 15, 10000);
+    //printf("X: %.2f Y: %.2f\n", chassis.getPose().x, chassis.getPose().y);
+    //printf("Auton done");
+    // pros::lcd::print(3, "X = %.2f", chassis.getPose().x);
+    // pros::lcd::print(4, "Y = %.2f", chassis.getPose().y);
+    // pros::lcd::print(5, "Theta = %.2f", chassis.getPose().theta);
+    // pros::lcd::print(6, "Auton done");
+
+
 }
 
 void opcontrol() {
