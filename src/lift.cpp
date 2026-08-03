@@ -97,11 +97,11 @@ void Lift::reset() {
 // }
 
 void Lift::stepStageUp() {
-    liftTargetHeight += 20;
+    liftTargetHeight += 15;
 }
 
 void Lift::stepStageDown() {
-    liftTargetHeight -= 20;
+    liftTargetHeight -= 15;
 }
 
 void Lift::goToLowest() { 

@@ -63,8 +63,8 @@ void Bar::moveToFront() {
         //move for time
         
         motor.move(127);
-        pros::delay(650);
-        motor.move(20);
+        pros::delay(750);
+        motor.move(60);
         pros::delay(100);
 
         motor.tare_position();
@@ -81,9 +81,9 @@ void Bar::moveToFront() {
 void Bar::moveToBack() {
     motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
     motor.move(-127);
-    pros::delay(400);
+    pros::delay(600);
     motor.move(-90);
-    pros::delay(100);
+    pros::delay(500);
     motor.move(-20);
 
     int stableTime = 0;
