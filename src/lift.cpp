@@ -61,39 +61,7 @@ void Lift::reset() {
     //pros::lcd::print(6, "Lift Calibrated");
 }
 
-// Lift controller
-// void Lift::updateLiftController(pros::Controller& controller) {
 
-//     // Move up
-//     if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-//         // Only allow movement if below max height
-//         L_liftMotor.move(127);
-//         R_liftMotor.move(127);
-//     }
-
-
-//     // Move down
-//     else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-//         L_liftMotor.move(-80);
-//         R_liftMotor.move(-80);
-//     }
-
-//         // 2. Toggle DIRECTION (Button A)
-//     else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
-//         L_liftMotor.move(80);
-//         R_liftMotor.move(80);
-//     }
-
-
-//     // Stop when no button pressed
-//     else {
-//         L_liftMotor.move(0);
-//         R_liftMotor.move(0);
-//     } 
-// }
-
-
-// }
 
 void Lift::stepStageUp() {
     liftTargetHeight += 20;
@@ -153,11 +121,9 @@ void Lift::test_lift(){
     R_liftMotor.move(0);
 }
 
-// For intake sequence
-void Lift::adjustHeight(double delta) {
-    liftTargetHeight += delta;
-}
-
-void Lift::setTarget(double target) {
-    liftTargetHeight = target;
+void Lift::setLiftStage(int height) {
+    liftTargetHeight = height;
+    // if (Stage > 0) {
+    //     liftTargetHeight += (Stage * 20);
+    // }
 }

@@ -6,11 +6,11 @@ private:
     pros::Motor motor;
     
     // State variables to track the toggle behavior
-    bool isRunning = false;
-    bool isSpinningInward = true; // True = inward, False = outward
 
 public:
     Intake(int motorPort);
+    bool isRunning = false;
+    bool isSpinningInward = true;
 
     void spinInward();
     void spinOutward();

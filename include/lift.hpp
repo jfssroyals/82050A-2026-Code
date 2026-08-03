@@ -20,7 +20,7 @@ private:
 public:
     Lift(signed char leftPort, signed char rightPort);
 
-   void setLiftStage(int Stage);
+   void setLiftStage(int height);
    void stepStageUp();
    void stepStageDown();
    void updateComplexLift();
@@ -28,10 +28,6 @@ public:
    void goToLowest();
    void reset();
    void test_lift();
-
-   //new one for intake
-   void adjustHeight(double delta);
-   void setTarget(double target);
 
    bool isUp = false; 
 };

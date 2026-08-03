@@ -64,11 +64,11 @@ void Control::drop() {
 }
 
 // Intkae sequence function
-void Control::startIntakeSequence() {
-    state = INTAKE_SEQUENCE;
-    step = 0;
-    stepStartTime = pros::millis();
-}
+// void Control::startIntakeSequence() {
+//     state = INTAKE_SEQUENCE;
+//     step = 0;
+//     stepStartTime = pros::millis();
+// }
 
 // Runs continuously in opcontrol
 // Checks when bar reaches position
@@ -106,67 +106,67 @@ void Control::update() {
             }
             break;
 
-        case INTAKE_SEQUENCE:
+        // case INTAKE_SEQUENCE:
 
-            switch(step) {
+        //     switch(step) {
 
-                case 0:
-                    lift.adjustHeight(700);
-                    intake.stop();
-                    intakePiston.set_value(true);
-                    step++;
-                    stepStartTime = pros::millis();
-                    break;
+        //         case 0:
+        //             lift.adjustHeight(700);
+        //             intake.stop();
+        //             intakePiston.set_value(true);
+        //             step++;
+        //             stepStartTime = pros::millis();
+        //             break;
 
-                case 1:
-                    if (lift.isUp) {
-                        bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-                        bar.motor.move(0); // freefall
-                        step++;
-                        stepStartTime = pros::millis();
-                    }
-                    break;
+        //         case 1:
+        //             if (lift.isUp) {
+        //                 bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+        //                 bar.motor.move(0); // freefall
+        //                 step++;
+        //                 stepStartTime = pros::millis();
+        //             }
+        //             break;
 
-                case 2:
-                    if (pros::millis() - stepStartTime > 500) {
-                        lift.adjustHeight(-418);
-                        step++;
-                        stepStartTime = pros::millis();
-                    }
-                    break;
+        //         case 2:
+        //             if (pros::millis() - stepStartTime > 500) {
+        //                 lift.adjustHeight(-418);
+        //                 step++;
+        //                 stepStartTime = pros::millis();
+        //             }
+        //             break;
 
-                case 3:
-                    if (!lift.isUp) {
-                        claw.close();
-                        step++;
-                        stepStartTime = pros::millis();
-                    }
-                    break;
+        //         case 3:
+        //             if (!lift.isUp) {
+        //                 claw.close();
+        //                 step++;
+        //                 stepStartTime = pros::millis();
+        //             }
+        //             break;
 
-                case 4:
-                    lift.adjustHeight(200);
-                    step++;
-                    stepStartTime = pros::millis();
-                    break;
+        //         case 4:
+        //             lift.adjustHeight(200);
+        //             step++;
+        //             stepStartTime = pros::millis();
+        //             break;
 
-                case 5:
-                    bar.moveToAngle(120);
-                    step++;
-                    stepStartTime = pros::millis();
-                    break;
+        //         case 5:
+        //             bar.moveToAngle(120);
+        //             step++;
+        //             stepStartTime = pros::millis();
+        //             break;
 
-                case 6:
-                    lift.setTarget(0);
-                    step++;
-                    stepStartTime = pros::millis();
-                    break;
+        //         case 6:
+        //             lift.setTarget(0);
+        //             step++;
+        //             stepStartTime = pros::millis();
+        //             break;
 
-                case 7:
-                    state = IDLE;
-                    break;
-            }
+        //         case 7:
+        //             state = IDLE;
+        //             break;
+        //     }
 
-            break;
+        //     break;
 
         case IDLE:
             break;

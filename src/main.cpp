@@ -126,6 +126,7 @@ void initialize() {
     // bar.reset();
     lift.reset();
     claw.open();
+    intakePiston.set_value(true);
 }
 
 /**
@@ -164,16 +165,11 @@ void opcontrol() {
         // move the chassis with curvature drive
         chassis.arcade(leftY, rightX);
 
-        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
-        //     claw.toggle();
-        // }
 
         lift.updateComplexLift();
-        control.update();
+
           
         if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-            // lift.test_lift();
-            // controller.rumble(".");
             lift.stepStageUp();
             controller.rumble(".");
         } 
@@ -218,20 +214,52 @@ void opcontrol() {
             }
         }
 
-        // FOR INTAKE SEQUENCE
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) {
-            control.startIntakeSequence();
-        }
 
         //FOR NORMAL INTAKE
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
-            intake.toggle_direction(); // turn intake ON/OFF
+            if (intake.isRunning == true) {
+                intake.stop();
+                intake.isRunning = false;
+            }
+            else if (intake.isRunning == false) {
+                intake.spinInward();
+                intake.isRunning = true;
+            }
         }
 
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
-            intake.toggle_direction(); // change direction
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
+            if (intake.isRunning == true && intake.isSpinningInward == false) {
+                intake.stop();
+                intake.isRunning = false;
+            }
+            else if (intake.isRunning == false) {
+                lift.setLiftStage(5);
+                intake.spinOutward();
+                intake.isRunning = true;
+            }
+            else if (intake.isSpinningInward == true) {
+                intake.spinOutward();
+                intake.isSpinningInward = false;
+                intake.isRunning = true;
+            }
         }
-        pros::delay(5);
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)){
+            pros::Task xTask([]() {
+                intake.stop();
+                lift.setLiftStage(800);
+                pros::delay(500);
+                intakePiston.set_value(false);
+                pros::delay(200);
+                intake.stop();
+                bar.comeToIntake();
+                pros::delay(200);
+                lift.setLiftStage(550);
+                pros::delay(500);
+                claw.close();
+                lift.setLiftStage(800);
+                bar.moveToFront();
+            });
+        }
     
     }
 }

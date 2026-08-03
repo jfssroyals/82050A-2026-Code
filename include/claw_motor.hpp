@@ -19,8 +19,10 @@ public:
     void moveToFront();
     void moveToBack();
     void reset();
+    void comeToIntake();
     bool isAtBack();
     bool isAtFront();
+
 };
 
 extern Bar bar;
