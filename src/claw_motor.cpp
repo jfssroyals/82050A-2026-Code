@@ -126,7 +126,7 @@ bool Bar::isAtFront() {
 }
 
 void Bar::comeToIntake() {
-    motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    //motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
     motor.move(100);
     pros::delay(800);
     motor.move(0);

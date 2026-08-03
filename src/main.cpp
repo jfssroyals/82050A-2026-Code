@@ -243,21 +243,22 @@ void opcontrol() {
                 intake.isRunning = true;
             }
         }
+        // CODE FOR THE CLAW
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)){
             pros::Task xTask([]() {
-                intake.stop();
-                lift.setLiftStage(800);
-                pros::delay(500);
+                // intake.stop();
+                lift.setLiftStage(750);
+                // pros::delay(500);
                 intakePiston.set_value(false);
-                pros::delay(200);
-                intake.stop();
+                //pros::delay(200);
+
                 bar.comeToIntake();
                 pros::delay(200);
-                lift.setLiftStage(550);
-                pros::delay(500);
+                lift.setLiftStage(350);
+                pros::delay(600);
                 claw.close();
                 lift.setLiftStage(800);
-                bar.moveToFront();
+                // bar.moveToFront(); 
             });
         }
     
