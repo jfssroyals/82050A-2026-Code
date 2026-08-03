@@ -153,13 +153,13 @@ void competition_initialize() {}
 // get a path used for pure pursuit
 ASSET(mtest_txt);
 void autonomous() {
-    // fivePin_red1();
+    fivePin_red1();
     // pros::delay(100000);
 
         // set chassis pose
     //chassis.setPose(0, 0, 0);
-    skillsAuton();
-    pros::delay(1000000);
+    // skillsAuton();
+    // pros::delay(1000000);
     //printf("X: %.2f Y: %.2f\n", chassis.getPose().x, chassis.getPose().y);
     // pros::lcd::print(0, "X = %.2f", chassis.getPose().x);
     // pros::lcd::print(1, "Y = %.2f", chassis.getPose().y);
@@ -179,7 +179,7 @@ void autonomous() {
 }
 
 void opcontrol() {
-    autonomous(); //comment when running driver
+    // autonomous(); //comment when running driver
     while (true) {
         // get joystick positions
         int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
@@ -271,10 +271,10 @@ void opcontrol() {
         }
 
         // if the lift is at the lowest and the claw is not holding anything, just let go of the bar
-        if(lift.isUp == false && claw.isExtended == true) { // claw is open
-            bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-            bar.motor.brake();
-        }
+        // if(lift.isUp == false && bar.isAtBack() == false) { // claw is open
+        //     bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+        //     bar.motor.brake();
+        // }
 
         
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) {
@@ -282,7 +282,7 @@ void opcontrol() {
             pros::delay(500);
             bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
             bar.motor.brake();
-            }
+        }
         // delay to save resources
         pros::delay(5);
     

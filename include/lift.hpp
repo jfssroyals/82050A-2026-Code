@@ -30,5 +30,8 @@ public:
    void test_lift();
    void setTargetHeight(double height);
 
-   bool isUp = false; 
+   bool isUp = false;
+   
+//    double global_error = 0; //margin used only in comp lift
+//    bool setGlobalErrorCounter=0;
 };

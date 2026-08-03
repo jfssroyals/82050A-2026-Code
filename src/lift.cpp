@@ -123,6 +123,13 @@ void Lift::updateComplexLift() {
 
     // PID to target
     double error = liftTargetHeight - currentPosition;
+
+    if (abs(error) < 3){
+        L_liftMotor.brake();
+        R_liftMotor.brake();
+        return;
+    }
+    
     double motorPower = liftPID.update(error);
 
 
