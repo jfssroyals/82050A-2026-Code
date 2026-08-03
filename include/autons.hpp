@@ -13,3 +13,4 @@ void fivePin_blue1();
 void fivePin_blue2();
 void test();
 void skillsAuton();
+void align_pose(double straight);

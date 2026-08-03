@@ -118,12 +118,12 @@ lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband out of 127
 lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors, &throttleCurve, &steerCurve);
 void screenTask(void*) {
     while (true) {
-        // pros::lcd::print(0, "X: %.2f", chassis.getPose().x);
-        // pros::lcd::print(1, "Y: %.2f", chassis.getPose().y);
-        // pros::lcd::print(2, "Theta: %.2f", chassis.getPose().theta);
+        pros::lcd::print(0, "X: %.2f", chassis.getPose().x);
+        pros::lcd::print(1, "Y: %.2f", chassis.getPose().y);
+        pros::lcd::print(2, "Theta: %.2f", chassis.getPose().theta);
 
-        printf("X: %.2f Y: %.2f\n", chassis.getPose().x, chassis.getPose().y);
-        printf("Theta: %.2f\n", chassis.getPose().theta);
+        // printf("X: %.2f Y: %.2f\n", chassis.getPose().x, chassis.getPose().y);
+        // printf("Theta: %.2f\n", chassis.getPose().theta);
         pros::delay(50);
     }
 }
@@ -137,7 +137,7 @@ void initialize() {
     claw.open();
     pros::delay(1000);
     claw.close();
-    //static pros::Task screen_task(screenTask);
+    static pros::Task screen_task(screenTask);
 }
 
 /**
@@ -159,7 +159,7 @@ void autonomous() {
         // set chassis pose
     //chassis.setPose(0, 0, 0);
     skillsAuton();
-    pros::delay(100000);
+    pros::delay(1000000);
     //printf("X: %.2f Y: %.2f\n", chassis.getPose().x, chassis.getPose().y);
     // pros::lcd::print(0, "X = %.2f", chassis.getPose().x);
     // pros::lcd::print(1, "Y = %.2f", chassis.getPose().y);
