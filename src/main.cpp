@@ -180,7 +180,7 @@ void autonomous() {
 }
 
 void opcontrol() {
-    autonomous(); //comment when running driver
+    // autonomous(); //comment when running driver
     while (true) {
         // get joystick positions
         int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
@@ -293,6 +293,8 @@ void opcontrol() {
                 intakePiston.set_value(true);
             });
         }
+
+        pros::delay(5);
     
     }
 }

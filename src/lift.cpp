@@ -56,8 +56,8 @@ void Lift::reset() {
     isUp = false;
 
     // Return to hold mode after calibration
-    L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-    R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 
     //pros::lcd::print(6, "Lift Calibrated");
 }
@@ -99,8 +99,10 @@ void Lift::updateComplexLift() {
     double error = liftTargetHeight - currentPosition;
 
     if (abs(error) < 3){
-        //L_liftMotor.brake();
-        //R_liftMotor.brake();
+        L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+        R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+        L_liftMotor.brake();
+        R_liftMotor.brake();
         // L_liftMotor.move_voltage(0);
         // R_liftMotor.move_voltage(0);
         return;
@@ -126,16 +128,16 @@ void Lift::updateComplexLift() {
         isUp = false;
     }
     
-    if (isUp){
-        // L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-        // R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-        L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
-        R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
-    } 
-    if (isUp == false) {
-        L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-        R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-    }
+    // if (isUp){
+    //     // L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    //     // R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    //     L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+    //     R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+    // } 
+    // if (isUp == false) {
+    //     L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    //     R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    // }
 }
 
 

@@ -27,7 +27,7 @@ public:
    void updateLiftController();
    void goToLowest();
    void reset();
-   void test_lift();
+   void test_lift(); 
    void setTargetHeight(double height);
    void LiftVoltage();
    bool isUp = false;
