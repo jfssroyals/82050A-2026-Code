@@ -132,7 +132,7 @@ void initialize() {
     controller.rumble(".."); // rumble to indicate that the robot is initializing
     pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
-    bar.reset();
+    // bar.reset();
     lift.reset();
     claw.open();
     pros::delay(1000);
@@ -153,9 +153,9 @@ void competition_initialize() {}
 // get a path used for pure pursuit
 ASSET(mtest_txt);
 void autonomous() {
-    fivePin_red1();
+    // test();
     // pros::delay(100000);
-
+    fivePin_red1();
         // set chassis pose
     //chassis.setPose(0, 0, 0);
     // skillsAuton();
@@ -179,7 +179,7 @@ void autonomous() {
 }
 
 void opcontrol() {
-    // autonomous(); //comment when running driver
+    autonomous(); //comment when running driver
     while (true) {
         // get joystick positions
         int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);

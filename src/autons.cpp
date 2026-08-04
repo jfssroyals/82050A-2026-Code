@@ -38,73 +38,100 @@ void align_pose(double straight){
 
 void fivePin_red1() {
     
-    // pros::Task liftTask([&] { // lift.updateComplexLift will run independently every 20 ms
-    //     while (true) {
-    //         lift.updateComplexLift();
-    //         pros::delay(20);
-    //     }
-    // });
+    pros::Task liftTask([&] { // lift.updateComplexLift will run independently every 20 ms
+        while (true) {
+            lift.updateComplexLift();
+            pros::delay(20);
+        }
+    });
 
-    // pros::delay(2000);
+    // set first chassis pose with a slight offset to the right
+    chassis.setPose(0, 0, 350);
 
-    // chassis.setPose(0, 0, 350);
+    // Toggle Action: Speed up if needed
+    chassis.arcade(127, 127);
+    pros::delay(700);
+    chassis.arcade(-80, -127);
+    pros::delay(200);
+    chassis.arcade(127, 127);
+    pros::delay(500);
 
-    // // Open-loop movements (continuous motion)
-    // chassis.arcade(127, 127);
-    // pros::delay(700);
-    // chassis.arcade(-80, -127);
-    // pros::delay(200);
-    // chassis.arcade(127, 127);
-    // pros::delay(500);
-    // chassis.arcade(-100, 0);
-    // pros::delay(300);
+    //go back for little bit of time and chain to the next swing to use the aligner to align to the goal
+    chassis.arcade(-100, 0);
+    pros::delay(300);
 
-    // chassis.swingToHeading(270, DriveSide::RIGHT, 2000,{
-    //     .minSpeed = 127,
-    //     .earlyExitRange = 20
-    // });
+    chassis.swingToHeading(270, DriveSide::RIGHT, 2000,{
+        .minSpeed = 127,
+        .earlyExitRange = 20
+    });
 
-    // // Subsystem motion while moving
-    // bar.motor.move(60);
-    // pros::delay(200);
-    // bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-    // bar.motor.brake();
+    // Subsystem motion during the chained movement
+    bar.motor.move(60);
+    pros::delay(200);
+    bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    bar.motor.brake();
 
-    // chassis.waitUntilDone();
-
-    // chassis.arcade(-100, 0);
-    // pros::delay(1000);
-    // bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-    // pros::delay(600);
-    // claw.open();
-    // chassis.arcade(0, 0);
-    // // finished first pin
-    
-    // align_pose(270);
-
-    // pros::delay(200);
-    
-    // controller.rumble(".");
-
-    //starting from aligner
-    chassis.setPose(0, 0, 0);
-
-    // next movement setting up to pickup first pin cup stack
-    chassis.moveToPose(0, 9, 0, 2000); //-20, -10
     chassis.waitUntilDone();
 
-    chassis.turnToHeading(119, 1000);
+    chassis.arcade(-100, 0);
+    pros::delay(500);
+    bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    pros::delay(600);
+    claw.open();
+    chassis.arcade(0, 0);
+    // finished first pin
+    
+    // align on the goal and reset pose
+    align_pose(270);
+
+    pros::delay(20);
+
+    // next movement setting up to pickup first pin cup stack, dont go too fast
+    chassis.moveToPose(0, 9, 0, 900); //-20, -10
+    chassis.waitUntilDone();
+
+    // create a task to parrelly move the bar to the front 
     pros::Task barTask([&]{
         bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
         bar.motor.move(127);
         pros::delay(800);
         bar.motor.brake();
     });;
+    
+    // turn to pick up the first cup to throw away
+    chassis.turnToHeading(118, 800);
     chassis.waitUntilDone();
-    chassis.moveToPose(17.5, -4.25, 119, 4000);
+
+    // move to the cup
+    chassis.moveToPose(18, -4.5, 118, 1250);
     claw.open();
     chassis.waitUntilDone();
 
+    // pick the cup
+    claw.close();
+    pros::delay(100);
+
+    // while going backwards throw the cup away 
+    chassis.moveToPoint(11, 0, 4000, {.forwards = false, .minSpeed = 100});
+    bar.motor.move(-127);
+    pros::delay(600);
+    claw.open();
+    bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    bar.motor.brake();
+    chassis.waitUntilDone();
+
+    // turn to face the stack (CHANGE LATER)
+    chassis.turnToHeading(129, 1000);
+    pros::Task barTask1([&]{
+        bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+        bar.motor.move(127);
+        pros::delay(800);
+        bar.motor.brake();
+    });;
+    chassis.waitUntilDone();
+
+    chassis.moveToPose(18, -6.5, 129, 1500);
+    chassis.waitUntilDone();
     claw.close();
     pros::delay(100);
     bar.motor.move(-60);
@@ -112,90 +139,47 @@ void fivePin_red1() {
     bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
     bar.motor.brake();
 
-    chassis.moveToPoint(5, 2.5, 4000, {.forwards = false});
+    // score it
+    chassis.moveToPose(8, 1, 129, 2000, {.forwards = false});
+    // chassis.waitUntilDone();
+    lift.setTargetHeight(700);
+    chassis.turnToHeading(202, 1000);
     chassis.waitUntilDone();
-    // backwards, swing, score
-    
-    chassis.turnToHeading(185, 2000);
-    chassis.waitUntilDone();  
-    
-    chassis.moveToPose(0, -4, 185, 3000);
+    chassis.moveToPose(2.5, -5, 202, 3000);
     chassis.waitUntilDone();
-    claw.open();
+    lift.setTargetHeight(400);
 
-    // pick next
-
-    // chassis.moveToPose(2, 1, 191, 2000, {.forwards = false});
-    
-
-    //2,1,191
-    //133
-    //15, -6, 133, 
-    
-
-
-    
-
+    // // go backwards, turn to face the standalone pin, cup
+    // chassis.moveToPose(5, 3, 199, 800, {.forwards = false});
+    // lift.setTargetHeight(175);
+    // chassis.waitUntilDone();
+    // chassis.turnToHeading(238, 600);
+    // bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
     // chassis.waitUntilDone();
 
-    // // // chassis.arcade(0, 0);
-    // chassis.moveToPose(14, -5.25, 125, 4000, {.lead = 0.3, .maxSpeed = 30}); //-20, -10
-    // // claw.open();
+    // // go forward and pick
+    // chassis.moveToPose(-19, -8, 236, 1250);
     // chassis.waitUntilDone();
-    // claw.open();
-
-    // chassis.arcade(55, 0);
-    // pros::delay(400);
-    // chassis.arcade(0, 0);
-    
     // claw.close();
     // pros::delay(100);
-
-    
-
-    // turn while lifting lift
-    // chassis.turnToHeading(227, 1000, {.maxSpeed = 60});
-    // lift.setTargetHeight(400);
-    // // Subsystem motion while moving
-    // bar.motor.move(-60);
-    // pros::delay(100);
-    // bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-    // bar.motor.brake();
-    // chassis.waitUntilDone();
-    // //
-    // claw.open();
-    // pros::delay(200);
-    // // pick second pin cup
-    // chassis.turnToHeading(290, 800);
-    // chassis.waitUntilDone();
-
-    // chassis.moveToPoint(-4, 3, 800);
-    // chassis.waitUntilDone();
-    // chassis.swingToHeading(233, DriveSide::LEFT, 2000);
-    // chassis.waitUntilDone();
-    // chassis.moveToPoint(-18, -9, 4000, {.maxSpeed = 60});
-    // chassis.waitUntilDone(); // grabs the pin and cup and lift it up after this
-    // chassis.turnToHeading(378, 800);
-    // chassis.waitUntilDone();
-    // chassis.moveToPoint(-5, 31, 7000);
-    // chassis.waitUntilDone();
-
-    // 378, x -5, y 31
-    // -3.7, 3.24, 286
-    // -8.2, -2.3
-    // -15.2, -7.3, 233
-    // chassis.moveToPose(-18, -10, 240, 4000, {.lead = 0.8});
-    // chassis.waitUntilDone();
-
-    // claw.close();
-    
-    // 
-    // // Start bar movement in the background 
     // bar.motor.move(-60);
     // pros::delay(200);
     // bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
     // bar.motor.brake();
+
+    // //lift the lift, go backwards, turn to face the goal, go forward and score
+    // lift.setTargetHeight(1200);
+    // chassis.moveToPose(-13, -4, 236, 800); //min = 100
+    // // chassis.waitUntilDone();
+    // chassis.turnToHeading(129, 600); //min speed = 100
+    // chassis.waitUntilDone();
+    // chassis.moveToPose(-0.5, -6, 129, 800);
+    // chassis.waitUntilDone();
+    // lift.setTargetHeight(800);
+    // claw.open();
+
 }
+
 
 void fivePin_red2() {
 
@@ -485,6 +469,30 @@ void skillsScore() {
 
 
 void test() {
-    
+    //starting from aligner
+    chassis.setPose(0, 0, 0);
+
+    // next movement setting up to pickup first pin cup stack
+    chassis.moveToPose(0, 9, 0, 2000); //-20, -10
+    chassis.waitUntilDone();
+
+    chassis.turnToHeading(126.5, 1000);
+    pros::Task barTask([&]{
+        bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+        bar.motor.move(127);
+        pros::delay(800);
+        bar.motor.brake();
+    });;
+    chassis.waitUntilDone(); 
+
+    chassis.moveToPose(17.5, -6.25, 126.5, 4000);
+    claw.open();
+    chassis.waitUntilDone();
+    claw.close();
+    pros::delay(100);
+    bar.motor.move(-60);
+    pros::delay(200);
+    bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    bar.motor.brake();
 }
 
