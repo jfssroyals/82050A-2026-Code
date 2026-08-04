@@ -16,6 +16,9 @@ pros::Controller controller(pros::E_CONTROLLER_MASTER);
 // claw
 Claw claw('A');
 
+//Bellcrank Piston
+pros::adi::DigitalOut intakePiston('H');
+
 // bar
 Bar bar(-3); 
 
@@ -135,9 +138,7 @@ void initialize() {
     // bar.reset();
     lift.reset();
     claw.open();
-    pros::delay(1000);
-    claw.close();
-    static pros::Task screen_task(screenTask);
+    intakePiston.set_value(true);
 }
 
 /**
@@ -187,61 +188,27 @@ void opcontrol() {
         // move the chassis with curvature drive
         chassis.arcade(leftY, rightX);
 
-        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
-        //     claw.toggle();
-        // }
 
         lift.updateComplexLift();
+
           
         if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-            // lift.test_lift();
-            // controller.rumble(".");
             lift.stepStageUp();
             controller.rumble(".");
         } 
         
-        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) 
+        {
             controller.rumble(".");
             lift.stepStageDown();
             controller.rumble(".");
-            }
-           
-
-
-        // else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_UP)) 
-        // {
-        //     if (lift.isUp){
-        //         controller.rumble(".");
-        //     }else{
-        //         controller.rumble("-");
-        //     }
-        // }  
+        }   
         
-        // for testing
+        // For Claw Control
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
             claw.toggle();
             pros::delay(450);
-            
-            // if (claw.isExtended == false) {
-            //     leftMotors.move(-25);  // Power range: -127 to 127
-            //     rightMotors.move(-25);
-            //     pros::delay(10);
-
-            // }
-    
-            // leftMotors.move(-25);  // Power range: -127 to 127
-            // rightMotors.move(-25);
-            // pros::delay(10);
-            // pros::lcd::print(5,  "Boolean: %.2f", claw.isExtended());
-
-            // if (claw.isExtended() == true){
-            //     if (lift.isUp == true) {
-            //     bar.motor.move(-60);
-            //     pros::delay(200);
-            //     bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-            //     bar.motor.brake();
-            //     }
-            // }
+          
             //to handle loader - move back a little and lift the cup          
             if (claw.isExtended == false){ //means claw is closed
                 leftMotors.move(-25);  // Power range: -127 to 127
@@ -270,21 +237,62 @@ void opcontrol() {
             }
         }
 
-        // if the lift is at the lowest and the claw is not holding anything, just let go of the bar
-        // if(lift.isUp == false && bar.isAtBack() == false) { // claw is open
-        //     bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-        //     bar.motor.brake();
-        // }
 
-        
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) {
-            bar.motor.move(-108);
-            pros::delay(500);
-            bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-            bar.motor.brake();
+        //FOR NORMAL INTAKE
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
+            if (intake.isRunning == true) {
+                intake.stop();
+                intake.isRunning = false;
+            }
+            else if (intake.isRunning == false) {
+                intake.spinInward();
+                intake.isRunning = true;
+            }
         }
-        // delay to save resources
-        pros::delay(5);
+
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
+            if (intake.isRunning == true && intake.isSpinningInward == false) {
+                intake.stop();
+                intake.isRunning = false;
+            }
+            else if (intake.isRunning == false) {
+                lift.setLiftStage(5);
+                intake.spinOutward();
+                intake.isRunning = true;
+            }
+            else if (intake.isSpinningInward == true) {
+                intake.spinOutward();
+                intake.isSpinningInward = false;
+                intake.isRunning = true;
+            }
+        }
+        // CODE FOR THE CLAW
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)){
+            pros::Task xTask([]() {
+                // intake.stop();
+                lift.setLiftStage(720);
+                // pros::delay(500);
+
+                //bell crank piston up
+                intakePiston.set_value(false);
+                //pros::delay(200);
+
+                bar.comeToIntake();
+                pros::delay(150);
+
+                lift.setLiftStage(280);
+                pros::delay(400);
+               
+                claw.close();
+                pros::delay(400);
+                lift.setLiftStage(1000);
+                bar.moveToAngle(410);
+
+                bar.isBack = false;
+                claw.isExtended = true;
+                intakePiston.set_value(true);
+            });
+        }
     
     }
 }

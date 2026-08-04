@@ -20,7 +20,7 @@ private:
 public:
     Lift(signed char leftPort, signed char rightPort);
 
-   void setLiftStage(int Stage);
+   void setLiftStage(int height);
    void stepStageUp();
    void stepStageDown();
    void updateComplexLift();
@@ -29,7 +29,7 @@ public:
    void reset();
    void test_lift();
    void setTargetHeight(double height);
-    void LiftVoltage();
+   void LiftVoltage();
    bool isUp = false;
    
    double global_error = 0; //margin used only in comp lift
