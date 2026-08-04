@@ -215,12 +215,12 @@ ASSET(mtest_txt);
 
 void skillsAuton() {
     
-    // pros::Task liftTask([&] { // lift.updateComplexLift will run independently every 20 ms
-    //     while (true) {
-    //         lift.updateComplexLift();
-    //         pros::delay(20);
-    //     }
-    // });
+    pros::Task liftTask([&] { // lift.updateComplexLift will run independently every 20 ms
+        while (true) {
+            lift.updateComplexLift();
+            pros::delay(20);
+        }
+    });
 
     // pros::delay(2000);
 
@@ -334,23 +334,13 @@ void skillsAuton() {
     chassis.turnToHeading(350, 1500);
     chassis.waitUntilDone();
 
-    // Back up while lowering the bar and opening the claw
-    chassis.arcade(-60, 0);
-    pros::delay(3000);
-    chassis.arcade(0, 0);
-    // Stop drivetrain
-    bar.motor.move(-115);
-    pros::delay(600);
-    // Let the bar coast
-    bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-    bar.motor.brake();
+    skillsScore();
 
-    pros::delay(200);
+    lift.setTargetHeight(0);
 
-    claw.open();
-    pros::delay(150);
+    
 
-    align_pose(0);
+
 
     // chassis.moveToPose(-2.5, 75, 0, 3000);
     // chassis.waitUntilDone();
@@ -461,6 +451,38 @@ void skillsAuton() {
     // chassis.waitUntilDone();
 
 }
+
+void skillsScore() {
+
+//  / ------------------ Scoring Function ------------------- /
+  
+// Back up while lowering the bar and opening the claw
+    chassis.arcade(-60, 0);
+    pros::delay(3000);
+    chassis.arcade(0, 0);
+    // Stop drivetrain
+    bar.motor.move(-115);
+    pros::delay(600);
+    // Let the bar coast
+    bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    bar.motor.brake();
+
+    pros::delay(200);
+
+    claw.open();
+    pros::delay(150);
+
+    align_pose(0);
+
+    chassis.arcade(60, 0);
+    pros::delay(3000);
+    chassis.arcade(0, 0);
+
+}
+
+
+
+
 
 void test() {
     

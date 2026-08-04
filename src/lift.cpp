@@ -140,12 +140,12 @@ void Lift::updateComplexLift() {
     L_liftMotor.move(motorPower);
     R_liftMotor.move(motorPower);
 
-    if (currentPosition > 200)
+    if (currentPosition > 400)
     {
         isUp  = true;
     }
 
-    if (currentPosition < 200)
+    if (currentPosition < 400)
     {
         isUp = false;
     }
