@@ -29,9 +29,9 @@ public:
    void reset();
    void test_lift();
    void setTargetHeight(double height);
-
+    void LiftVoltage();
    bool isUp = false;
    
-//    double global_error = 0; //margin used only in comp lift
-//    bool setGlobalErrorCounter=0;
+   double global_error = 0; //margin used only in comp lift
+   //bool setGlobalErrorCounter=0;
 };

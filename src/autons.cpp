@@ -318,7 +318,7 @@ void skillsAuton() {
     chassis.turnToHeading(350, 1500);
     chassis.waitUntilDone();
 
-    skillsScore();
+    skillsScore_L();
 
     lift.setTargetHeight(0);
 
@@ -436,31 +436,33 @@ void skillsAuton() {
 
 }
 
-void skillsScore() {
+void skillsScore_L() {
 
 //  / ------------------ Scoring Function ------------------- /
   
 // Back up while lowering the bar and opening the claw
-    chassis.arcade(-60, 0);
-    pros::delay(3000);
-    chassis.arcade(0, 0);
-    // Stop drivetrain
-    bar.motor.move(-115);
-    pros::delay(600);
-    // Let the bar coast
-    bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-    bar.motor.brake();
+    // chassis.arcade(-60, 0);
+    // pros::delay(3000);
+    // chassis.arcade(0, 0);
+    // // Stop drivetrain
+    // bar.motor.move(-115);
+    // pros::delay(600);
+    // // Let the bar coast
+    // bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    // bar.motor.brake();
 
-    pros::delay(200);
+    // pros::delay(200);
 
-    claw.open();
-    pros::delay(150);
+    // claw.open();
+    // pros::delay(150);
 
-    align_pose(0);
+    // align_pose(0);
 
-    chassis.arcade(60, 0);
-    pros::delay(3000);
-    chassis.arcade(0, 0);
+    // chassis.arcade(60, 0);
+    // pros::delay(3000);
+    // chassis.arcade(0, 0);
+
+
 
 }
 
@@ -471,28 +473,29 @@ void skillsScore() {
 void test() {
     //starting from aligner
     chassis.setPose(0, 0, 0);
-
-    // next movement setting up to pickup first pin cup stack
-    chassis.moveToPose(0, 9, 0, 2000); //-20, -10
+    chassis.moveToPose(0, 29, 0, 2000);
     chassis.waitUntilDone();
-
-    chassis.turnToHeading(126.5, 1000);
-    pros::Task barTask([&]{
-        bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-        bar.motor.move(127);
-        pros::delay(800);
-        bar.motor.brake();
-    });;
-    chassis.waitUntilDone(); 
-
-    chassis.moveToPose(17.5, -6.25, 126.5, 4000);
+    chassis.turnToHeading(90, 1500,{
+        .maxSpeed = 50
+        });
+    
+    
+    chassis.waitUntilDone();
+    chassis.moveToPoint(15, 29, 1000,{.maxSpeed=20} );
     claw.open();
     chassis.waitUntilDone();
-    claw.close();
-    pros::delay(100);
-    bar.motor.move(-60);
-    pros::delay(200);
-    bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-    bar.motor.brake();
+    // claw.close();
+    // bar.motor.move(-60);
+    // pros::delay(100);
+    // bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    // bar.motor.brake();
+    // chassis.moveToPoint(5,25,1000);
+    // chassis.waitUntilDone();
+    // chassis.turnToHeading(0, 1000);
+    // chassis.waitUntilDone();
+    //chassis.moveToPoint(0, 0, 1000);
+    //chassis.waitUntilDone();
+    
+    
 }
 

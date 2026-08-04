@@ -121,7 +121,7 @@ void screenTask(void*) {
         pros::lcd::print(0, "X: %.2f", chassis.getPose().x);
         pros::lcd::print(1, "Y: %.2f", chassis.getPose().y);
         pros::lcd::print(2, "Theta: %.2f", chassis.getPose().theta);
-
+        lift.LiftVoltage();
         // printf("X: %.2f Y: %.2f\n", chassis.getPose().x, chassis.getPose().y);
         // printf("Theta: %.2f\n", chassis.getPose().theta);
         pros::delay(50);
@@ -153,9 +153,9 @@ void competition_initialize() {}
 // get a path used for pure pursuit
 ASSET(mtest_txt);
 void autonomous() {
-    // test();
+    test();
     // pros::delay(100000);
-    fivePin_red1();
+    // fivePin_red1();
         // set chassis pose
     //chassis.setPose(0, 0, 0);
     // skillsAuton();

@@ -109,7 +109,13 @@ void Lift::goToLowest() {
     isUp = false;
 }
 
+void Lift::LiftVoltage(){
+    pros::lcd::print(5, "motor: %.2f", L_liftMotor.get_current_draw());
+    pros::lcd::print(6, "motor: %.2f", R_liftMotor.get_current_draw());
+}
+
 void Lift::updateComplexLift() {
+    
     // Prevent going past limits
     liftTargetHeight = std::clamp(liftTargetHeight, 0.0, 2000.0);
 
@@ -125,8 +131,10 @@ void Lift::updateComplexLift() {
     double error = liftTargetHeight - currentPosition;
 
     if (abs(error) < 3){
-        L_liftMotor.brake();
-        R_liftMotor.brake();
+        //L_liftMotor.brake();
+        //R_liftMotor.brake();
+        // L_liftMotor.move_voltage(0);
+        // R_liftMotor.move_voltage(0);
         return;
     }
     
