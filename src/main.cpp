@@ -247,18 +247,27 @@ void opcontrol() {
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)){
             pros::Task xTask([]() {
                 // intake.stop();
-                lift.setLiftStage(750);
+                lift.setLiftStage(720);
                 // pros::delay(500);
+
+                //bell crank piston up
                 intakePiston.set_value(false);
                 //pros::delay(200);
 
                 bar.comeToIntake();
-                pros::delay(200);
-                lift.setLiftStage(350);
-                pros::delay(600);
+                pros::delay(150);
+
+                lift.setLiftStage(280);
+                pros::delay(400);
+               
                 claw.close();
-                lift.setLiftStage(800);
-                // bar.moveToFront(); 
+                pros::delay(400);
+                lift.setLiftStage(1000);
+                bar.moveToAngle(410);
+
+                bar.isBack = false;
+                claw.isExtended = true;
+                intakePiston.set_value(true);
             });
         }
     
