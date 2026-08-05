@@ -58,10 +58,12 @@ pros::Imu imu(6);
 
 // horizontal tracking wheel encoder Rotation sensor, port 20
 pros::Rotation horizontalEnc(-12);
-
+// vertical tracking wheel 
+//pros::Rotation verticalEnc(-19);
 // horizontal tracking wheel. 2.75" diameter, 5.75" offset, back of the robot (negative)
 lemlib::TrackingWheel horizontal(&horizontalEnc, lemlib::Omniwheel::NEW_2, -4.917);
 
+//lemlib::TrackingWheel vertical(&verticalEnc, lemlib::Omniwheel::NEW_2, -5.25);
 // ------------------------------ //
 
 // drivetrain settings
@@ -119,17 +121,17 @@ lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband out of 127
 
 // create the chassis
 lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors, &throttleCurve, &steerCurve);
-void screenTask(void*) {
-    while (true) {
-        pros::lcd::print(0, "X: %.2f", chassis.getPose().x);
-        pros::lcd::print(1, "Y: %.2f", chassis.getPose().y);
-        pros::lcd::print(2, "Theta: %.2f", chassis.getPose().theta);
-        lift.LiftVoltage();
-        // printf("X: %.2f Y: %.2f\n", chassis.getPose().x, chassis.getPose().y);
-        // printf("Theta: %.2f\n", chassis.getPose().theta);
-        pros::delay(50);
-    }
-}
+// void screenTask(void*) {
+//     while (true) {
+//         pros::lcd::print(0, "X: %.2f", chassis.getPose().x);
+//         pros::lcd::print(1, "Y: %.2f", chassis.getPose().y);
+//         pros::lcd::print(2, "Theta: %.2f", chassis.getPose().theta);
+//         lift.LiftVoltage();
+//         // printf("X: %.2f Y: %.2f\n", chassis.getPose().x, chassis.getPose().y);
+//         // printf("Theta: %.2f\n", chassis.getPose().theta);
+//         pros::delay(50);
+//     }
+// }
 
 void initialize() {
     controller.rumble(".."); // rumble to indicate that the robot is initializing
@@ -138,7 +140,19 @@ void initialize() {
     // bar.reset();
     lift.reset();
     claw.open();
+    pros::delay(1000);
+    claw.close();
     intakePiston.set_value(true);
+    pros::Task screen_task([&]() {
+        while (true) {
+            // print robot location to the brain screen
+            pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
+            pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
+            pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
+            // delay to save resources
+            pros::delay(100);
+        }
+    });
 }
 
 /**
@@ -154,13 +168,15 @@ void competition_initialize() {}
 // get a path used for pure pursuit
 ASSET(mtest_txt);
 void autonomous() {
-    test();
+    // test();
     // pros::delay(100000);
-    // fivePin_red1();
+    test();
+
         // set chassis pose
     //chassis.setPose(0, 0, 0);
-    // skillsAuton();
-    // pros::delay(1000000);
+    // PostFourPin();
+    // PostFourPin();
+    pros::delay(1000000);
     //printf("X: %.2f Y: %.2f\n", chassis.getPose().x, chassis.getPose().y);
     // pros::lcd::print(0, "X = %.2f", chassis.getPose().x);
     // pros::lcd::print(1, "Y = %.2f", chassis.getPose().y);
@@ -180,7 +196,7 @@ void autonomous() {
 }
 
 void opcontrol() {
-    // autonomous(); //comment when running driver
+    autonomous(); //comment when running driver
     while (true) {
         // get joystick positions
         int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
