@@ -15,7 +15,7 @@ void fourPin_blue1();
 void fourPin_blue2();
 void test();
 void skillsAuton();
+void Post();
 void skillsScore_L();
 void skillsScore_R();
-void PostFourPin();
 void align_pose(double straight);

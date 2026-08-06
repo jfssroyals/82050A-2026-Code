@@ -165,34 +165,40 @@ void disabled() {}
  */
 void competition_initialize() {}
 
-// get a path used for pure pursuit
-ASSET(mtest_txt);
 void autonomous() {
-    // test();
-    // pros::delay(100000);
-    test();
+        pros::Task liftTask([&] { // lift.updateComplexLift will run independently every 20 ms
+        while (true) {
+            lift.updateComplexLift();
+            pros::delay(20);
+        }
+    });
 
-        // set chassis pose
+    // uncomment the auton you want to run
+    // test();
+    fourPin_red1();
+    //fourPin_red2();
+    //fourPin_blue1();
+    //fourPin_blue2();
+    //test();
+    //skillsAuton();
+
+// /-------------------------------------------------------------------/
+    // set chassis pose
     //chassis.setPose(0, 0, 0);
-    // PostFourPin();
-    // PostFourPin();
-    pros::delay(1000000);
-    //printf("X: %.2f Y: %.2f\n", chassis.getPose().x, chassis.getPose().y);
     // pros::lcd::print(0, "X = %.2f", chassis.getPose().x);
     // pros::lcd::print(1, "Y = %.2f", chassis.getPose().y);
     // pros::lcd::print(2, "Theta = %.2f", chassis.getPose().theta);
     // lookahead distance: 15 inches
     // timeout: 2000 ms
     
-    // chassis.follow(mtest_txt, 15, 10000);
-    //printf("X: %.2f Y: %.2f\n", chassis.getPose().x, chassis.getPose().y);
-    //printf("Auton done");
+
     // pros::lcd::print(3, "X = %.2f", chassis.getPose().x);
     // pros::lcd::print(4, "Y = %.2f", chassis.getPose().y);
     // pros::lcd::print(5, "Theta = %.2f", chassis.getPose().theta);
     // pros::lcd::print(6, "Auton done");
+// /-------------------------------------------------------------------/
 
-
+    pros::delay(1000000);
 }
 
 void opcontrol() {

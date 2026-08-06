@@ -16,7 +16,7 @@ namespace constants {
     // angular controller
     constexpr float angular_kP = 5;
     constexpr float angular_kI = 0;
-    constexpr float angular_kD = 40;
+    constexpr float angular_kD = 50; // 40
     constexpr float angular_antiWindup = 0;
     constexpr float angular_smallError = 0;
     constexpr int angular_smallTimeout = 0;
