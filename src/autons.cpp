@@ -143,7 +143,7 @@ void fourPin_red1() {
     lift.setTargetHeight(700);
     chassis.turnToHeading(-252, 1000);
     chassis.waitUntilDone();
-    chassis.moveToPoint(-3.5, -11, 4000);//-5.5, -13.5
+    chassis.moveToPoint(-4, -10.75, 4000);//-5.5, -13.5
     chassis.waitUntilDone();
     lift.setTargetHeight(150);
     pros::delay(50);
@@ -152,12 +152,12 @@ void fourPin_red1() {
 
 
     // Now pick second stack
-    chassis.moveToPoint(-9.34, -11.5, 1200, {
+    chassis.moveToPoint(-10.5, -11.5, 1200, {
         .maxSpeed = 100
     });
     chassis.waitUntilDone();
 
-    chassis.swingToHeading(-216, DriveSide::LEFT, 800);
+    chassis.swingToHeading(-217, DriveSide::LEFT, 1000);
     chassis.waitUntilDone();
 
 
@@ -167,7 +167,6 @@ void fourPin_red1() {
 
     grab_up(); 
     
-    return;
     //theta -205
     // x = -2
     // y =-34
