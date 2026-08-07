@@ -131,3 +131,8 @@ void Bar::comeToIntake() {
     pros::delay(800);
     motor.move(0);
 }
+
+void Bar::move_press(int power) {
+    motor.move(power);
+    motor.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+}

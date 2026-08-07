@@ -1012,6 +1012,106 @@ void Post() {
     chassis.arcade(0, 0);
 }
 
+void threePin_red1() {
+    // set first chassis pose with a slight offset to the right
+    chassis.setPose(0, 0, 350);
+
+    // Toggle Action: Speed up if needed
+    chassis.arcade(127, 127);
+    pros::delay(700);
+    chassis.arcade(-80, -127);
+    pros::delay(200);
+    chassis.arcade(127, 127);
+    pros::delay(500);
+
+    //go back for little bit of time and chain to the next swing to use the aligner to align to the goal
+    chassis.arcade(-100, 0);
+    pros::delay(400);
+
+    chassis.swingToHeading(270, DriveSide::RIGHT, 2000,{
+        .minSpeed = 127,
+        .earlyExitRange = 20
+    });
+
+    // Subsystem motion during the chained movement
+    bar.motor.move(60);
+    pros::delay(200);
+    bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    bar.motor.brake();
+
+    chassis.waitUntilDone();
+
+    chassis.arcade(-100, 0);
+    pros::delay(400);
+    bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    pros::delay(400);
+    claw.open();
+    pros::delay(300);
+    chassis.arcade(0, 0);
+    // finished first pin
+    
+    // // // align on the goal and reset pose
+    align_pose(270); 
+    ////
+
+    // create a task to parrelly move the bar to the front 
+    pros::Task barTask([&]{
+        bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+        bar.motor.move(127);
+        pros::delay(900);
+        bar.motor.brake();
+    });;
+    
+    pros::delay(20);
+    
+    // go forward off aligner
+    chassis.moveToPoint(0, 10, 700, {
+        // .minSpeed = 100
+    });
+    chassis.waitUntilDone();
+
+    // turn to face the stack
+    chassis.turnToHeading(-126, 1000, {
+        // .earlyExitRange = 10
+    });
+    chassis.waitUntilDone();
+
+
+    chassis.moveToPoint(-23, -10, 1000, {
+        // .minSpeed = 100
+    });
+    chassis.waitUntilDone();
+    //-22.6, -11.9, -129
+
+    grab_up();
+
+    // score this one
+ 
+    //lift the lift at the same time, turn, forward and score
+    lift.setTargetHeight(700);
+    chassis.turnToHeading(-252, 1000);
+    chassis.waitUntilDone();
+    chassis.moveToPoint(-4, -10.75, 4000);//-5.5, -13.5
+    chassis.waitUntilDone();
+    lift.setTargetHeight(150);
+    pros::delay(50);
+    claw.open();
+    pros::delay(100);
+
+
+    // Now pick second stack
+    chassis.moveToPoint(-10.5, -11.5, 1200, {
+        .maxSpeed = 100
+    });
+    chassis.waitUntilDone();
+
+    chassis.swingToHeading(-217, DriveSide::LEFT, 1000);
+    chassis.waitUntilDone();
+
+    bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+}
+
+
 void skillsAuton() {
     fourPin_red2();
     Post();

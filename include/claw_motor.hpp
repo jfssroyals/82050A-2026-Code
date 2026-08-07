@@ -22,6 +22,7 @@ public:
     void comeToIntake();
     bool isAtBack();
     bool isAtFront();
+    void move_press(int power);
 
 };
 

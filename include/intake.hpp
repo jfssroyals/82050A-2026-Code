@@ -9,6 +9,14 @@ private:
 
 public:
     Intake(int motorPort);
+
+    // intake mode
+    bool mode = false;
+
+    // intake direction
+    bool direction = true; // true = inward, false = outward
+
+
     bool isRunning = false;
     bool isSpinningInward = true;
 

@@ -211,6 +211,7 @@ void opcontrol() {
         chassis.arcade(leftY, rightX);
 
 
+        //lift code
         lift.updateComplexLift();
 
           
@@ -225,98 +226,187 @@ void opcontrol() {
             lift.stepStageDown();
             controller.rumble(".");
         }   
-        
-        // For Claw Control
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
-            claw.toggle();
-            pros::delay(450);
-          
-            //to handle loader - move back a little and lift the cup          
-            if (claw.isExtended == false){ //means claw is closed
-                leftMotors.move(-25);  // Power range: -127 to 127
-                rightMotors.move(-25);
-                pros::delay(10);
-
-                bar.motor.move(-30);
-                pros::delay(200);
-                bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-                bar.motor.brake();
-            }
-
-        }
-
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) { 
-         
-            if (bar.isAtBack()){
-                controller.rumble("-");
-                pros::Task my_task(barTask_moveFront);
-                //bar.moveToFront();
-            }
-            else {
-                controller.rumble(". . .");
-                pros::Task my_task(barTask_moveBack);
-                //bar.moveToBack();
-            }
-        }
 
 
-        //FOR NORMAL INTAKE
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
-            if (intake.isRunning == true) {
-                intake.stop();
-                intake.isRunning = false;
-            }
-            else if (intake.isRunning == false) {
-                intake.spinInward();
-                intake.isRunning = true;
-            }
-        }
+        // whole thing under intake mode condition
 
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
-            if (intake.isRunning == true && intake.isSpinningInward == false) {
-                intake.stop();
-                intake.isRunning = false;
-            }
-            else if (intake.isRunning == false) {
-                lift.setLiftStage(5);
-                intake.spinOutward();
-                intake.isRunning = true;
-            }
-            else if (intake.isSpinningInward == true) {
-                intake.spinOutward();
-                intake.isSpinningInward = false;
-                intake.isRunning = true;
-            }
-        }
-        // CODE FOR THE CLAW
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)){
-            pros::Task xTask([]() {
-                // intake.stop();
-                lift.setLiftStage(720);
-                // pros::delay(500);
+            intake.mode = !intake.mode;
+            if (intake.mode){
+                bar.reset();
+            }
+        }
 
+        // reg code only runs when intake mode == false
+        if (!intake.mode) 
+        {
+            // For Claw Control
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+                claw.toggle();
+                pros::delay(450);
+            
+                //to handle loader - move back a little and lift the cup          
+                if (claw.isExtended == false){ //means claw is closed
+                    leftMotors.move(-25);  // Power range: -127 to 127
+                    rightMotors.move(-25);
+                    pros::delay(10);
+
+                    bar.motor.move(-30);
+                    pros::delay(200);
+                    bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+                    bar.motor.brake();
+                }
+
+            }
+
+            // Bar control
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) { 
+            
+                if (bar.isAtBack()){
+                    controller.rumble("-");
+                    pros::Task my_task(barTask_moveFront);
+                    //bar.moveToFront();
+                }
+                else {
+                    controller.rumble(". . .");
+                    pros::Task my_task(barTask_moveBack);
+                    //bar.moveToBack();
+                }
+            }
+        }       
+        
+        //intake mode is on
+        else
+        {      
+            //bell crank control      
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
                 //bell crank piston up
                 intakePiston.set_value(false);
-                //pros::delay(200);
-
-                bar.comeToIntake();
-                pros::delay(150);
-
-                lift.setLiftStage(280);
-                pros::delay(400);
-               
-                claw.close();
-                pros::delay(400);
-                lift.setLiftStage(1000);
-                bar.moveToAngle(410);
-
-                bar.isBack = false;
-                claw.isExtended = true;
+            }
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
+                //bell crank piston down
                 intakePiston.set_value(true);
-            });
+            }
+
+            //intake control, button to switch intake outward and inward and turn off intake
+
+            //off button
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
+                intake.stop();
+            }
+            //toggle
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
+                if (intake.direction) {
+                    intake.spinInward();
+                    intake.direction = false;
+                }
+                else {
+                    intake.spinOutward();
+                    intake.direction = true;
+                }
+            }
+            
+            //claw
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+                claw.toggle();
+                pros::delay(450);
+            }
+
+            //bar move function as you hold
+            if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)) {
+                bar.move_press(70);   // move forward while held
+                
+            }
+            else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)) {
+                bar.move_press(-40);  // move backward while held
+            }
+            else {
+                bar.move_press(0);     // stop when released
+            }
         }
 
+        // //FOR NORMAL INTAKE
+        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
+        //     if (intake.isRunning == true) {
+        //         intake.stop();
+        //         intake.isRunning = false;
+        //     }
+        //     else if (intake.isRunning == false) {
+        //         intake.spinInward();
+        //         intake.isRunning = true;
+        //     }
+        // }
+
+        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
+        //     if (intake.isRunning == true && intake.isSpinningInward == false) {
+        //         intake.stop();
+        //         intake.isRunning = false;
+        //     }
+        //     else if (intake.isRunning == false) {
+        //         lift.setLiftStage(5);
+        //         intake.spinOutward();
+        //         intake.isRunning = true;
+        //     }
+        //     else if (intake.isSpinningInward == true) {
+        //         intake.spinOutward();
+        //         intake.isSpinningInward = false;
+        //         intake.isRunning = true;
+        //     }
+        // }
+        // // CODE FOR THE CLAW
+        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)){
+        //     pros::Task xTask([]() {
+
+        //         // claw is open
+        //         claw.open();
+
+        //         // intake.stop();
+        //         lift.setLiftStage(900);
+        //         // pros::delay(500);
+
+        //         //bell crank piston up
+        //         intakePiston.set_value(false);
+        //         //pros::delay(200);
+
+        //         bar.comeToIntake();
+        //         pros::delay(150);
+
+        //         lift.setLiftStage(280);
+        //         pros::delay(400);
+               
+        //         claw.close();
+        //         pros::delay(400);
+        //         lift.setLiftStage(1000);
+        //         bar.moveToAngle(410);
+
+        //         bar.isBack = false;
+        //         claw.isExtended = true;
+        //         intakePiston.set_value(true);
+        //     });
+        // }
+
+        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
+        //         //bell crank piston up
+        //         intakePiston.set_value(false);
+        // }
+        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
+        //         //bell crank piston down
+        //         intakePiston.set_value(true);
+        // }
+        
         pros::delay(5);
     
     }
 }
+
+
+
+
+
+/// Intake Mode Tasks for Chotu and Motu:
+/// toggle using x button for example
+/// when you toggle back to normal mode, somehow reset the bar and the lift
+/// Bar control: 2 buttons to move manually
+/// Bell brank control: 2 buttons to move manually
+/// Lift control: 2 buttons to move manually
+/// Intake motor control: 2 buttons to intake and outake
