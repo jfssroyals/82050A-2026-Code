@@ -175,9 +175,9 @@ void autonomous() {
 
     // uncomment the auton you want to run
     // test();
-    fourPin_red1();
+    //twoPin_blue1();
     //fourPin_red2();
-    //fourPin_blue1();
+    fourPin_red1();
     //fourPin_blue2();
     //test();
     //skillsAuton();

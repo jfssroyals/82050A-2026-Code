@@ -13,6 +13,7 @@ void fourPin_red1();
 void fourPin_red2();
 void fourPin_blue1();
 void fourPin_blue2();
+void twoPin_blue1();
 void test();
 void skillsAuton();
 void Post();

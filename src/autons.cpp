@@ -78,7 +78,7 @@ void fourPin_red1() {
 
     //go back for little bit of time and chain to the next swing to use the aligner to align to the goal
     chassis.arcade(-100, 0);
-    pros::delay(400);
+    pros::delay(350);
 
     chassis.swingToHeading(270, DriveSide::RIGHT, 2000,{
         .minSpeed = 127,
@@ -229,149 +229,149 @@ void fourPin_red2() {
     // // // align on the goal and reset pose
     align_pose(90);
 
-// / -------- the following is the new auton code ------------ /
+// // / -------- the following is the new auton code ------------ /
 
-    // Create a task to parallelly move the bar to the front
-    pros::Task barTask([&] {
-        bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-        bar.motor.move(127);
-        pros::delay(900);
-        bar.motor.brake();
-    });
+//     // Create a task to parallelly move the bar to the front
+//     pros::Task barTask([&] {
+//         bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+//         bar.motor.move(127);
+//         pros::delay(900);
+//         bar.motor.brake();
+//     });
 
-    pros::delay(20);
+//     pros::delay(20);
 
-    // Go forward off aligner
-    // x = 0, so no change
-    chassis.moveToPoint(0, 10, 700, {
-        // .minSpeed = 100
-    });
-    chassis.waitUntilDone();
-
-
-    // Turn to face the stack
-    // MIRRORED: -126 -> 126
-    chassis.turnToHeading(126, 1200, {
-        // .earlyExitRange = 10
-    });
-    chassis.waitUntilDone();
-
-    // MIRRORED:
-    // x: -23 -> +23
-    // y: -10 unchanged
-    chassis.moveToPoint(23, -10, 1000, {
-        // .minSpeed = 100
-    });
-    chassis.waitUntilDone();
+//     // Go forward off aligner
+//     // x = 0, so no change
+//     chassis.moveToPoint(0, 10, 700, {
+//         // .minSpeed = 100
+//     });
+//     chassis.waitUntilDone();
 
 
-    // Original:
-    // -22.6, -11.9, -129
-    //
-    // Mirrored:
-    // +22.6, -11.9, +129
+//     // Turn to face the stack
+//     // MIRRORED: -126 -> 126
+//     chassis.turnToHeading(126, 1200, {
+//         // .earlyExitRange = 10
+//     });
+//     chassis.waitUntilDone();
 
-    grab_up();
-
-
-    // Score this one
-
-    // Lift the lift at the same time, turn, forward and score
-    lift.setTargetHeight(700);
-
-    // MIRRORED: -252 -> 252
-    chassis.turnToHeading(252, 1000);
-    chassis.waitUntilDone();
-
-    return;
+//     // MIRRORED:
+//     // x: -23 -> +23
+//     // y: -10 unchanged
+//     chassis.moveToPoint(23, -10, 1000, {
+//         // .minSpeed = 100
+//     });
+//     chassis.waitUntilDone();
 
 
+//     // Original:
+//     // -22.6, -11.9, -129
+//     //
+//     // Mirrored:
+//     // +22.6, -11.9, +129
 
-    // MIRRORED:
-    // x: -4 -> +4
-    // y unchanged
-    chassis.moveToPoint(4, -10.75, 4000);
-    // Original tuning point: -5.5, -13.5
-    // Mirrored equivalent: +5.5, -13.5
-
-    chassis.waitUntilDone();
-
-    lift.setTargetHeight(150);
-    pros::delay(50);
-
-    claw.open();
-    pros::delay(100);
+//     grab_up();
 
 
-    // Now pick second stack
+//     // Score this one
 
-    // MIRRORED:
-    // x: -10.5 -> +10.5
-    chassis.moveToPoint(10.5, -11.5, 1200, {
-        .maxSpeed = 100
-    });
-    chassis.waitUntilDone();
+//     // Lift the lift at the same time, turn, forward and score
+//     lift.setTargetHeight(700);
 
+//     // MIRRORED: -252 -> 252
+//     chassis.turnToHeading(252, 1000);
+//     chassis.waitUntilDone();
 
-    // MIRRORED:
-    // heading: -217 -> 217
-    // LEFT -> RIGHT
-    chassis.swingToHeading(217, DriveSide::RIGHT, 1000);
-    chassis.waitUntilDone();
+//     return;
 
 
-    // MIRRORED:
-    // x: -2 -> +2
-    chassis.moveToPoint(2, -33, 800);
 
-    bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+//     // MIRRORED:
+//     // x: -4 -> +4
+//     // y unchanged
+//     chassis.moveToPoint(4, -10.75, 4000);
+//     // Original tuning point: -5.5, -13.5
+//     // Mirrored equivalent: +5.5, -13.5
 
-    chassis.waitUntilDone();
+//     chassis.waitUntilDone();
 
-    grab_up();
+//     lift.setTargetHeight(150);
+//     pros::delay(50);
 
-
-    // Original:
-    // theta = -205
-    // x = -2
-    // y = -34
-    //
-    // Mirrored:
-    // theta = 205
-    // x = +2
-    // y = -34
+//     claw.open();
+//     pros::delay(100);
 
 
-    // Score this
+//     // Now pick second stack
 
-    // Original:
-    // heading = -216
-    // x = -2
-    // y = -33
-    //
-    // Mirrored:
-    // heading = 216
-    // x = +2
-    // y = -33
-
-    lift.setTargetHeight(1000);
-
-    // MIRRORED: -341 -> 341
-    chassis.turnToHeading(341, 1000);
-    chassis.waitUntilDone();
+//     // MIRRORED:
+//     // x: -10.5 -> +10.5
+//     chassis.moveToPoint(10.5, -11.5, 1200, {
+//         .maxSpeed = 100
+//     });
+//     chassis.waitUntilDone();
 
 
-    // MIRRORED:
-    // x: +1.5 -> -1.5
-    // y unchanged
-    chassis.moveToPoint(-1.5, -15.5, 1000, {
-        // .minSpeed = 100
-    });
-    chassis.waitUntilDone();
+//     // MIRRORED:
+//     // heading: -217 -> 217
+//     // LEFT -> RIGHT
+//     chassis.swingToHeading(217, DriveSide::RIGHT, 1000);
+//     chassis.waitUntilDone();
 
-    lift.setTargetHeight(700);
 
-    claw.open();
+//     // MIRRORED:
+//     // x: -2 -> +2
+//     chassis.moveToPoint(2, -33, 800);
+
+//     bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+
+//     chassis.waitUntilDone();
+
+//     grab_up();
+
+
+//     // Original:
+//     // theta = -205
+//     // x = -2
+//     // y = -34
+//     //
+//     // Mirrored:
+//     // theta = 205
+//     // x = +2
+//     // y = -34
+
+
+//     // Score this
+
+//     // Original:
+//     // heading = -216
+//     // x = -2
+//     // y = -33
+//     //
+//     // Mirrored:
+//     // heading = 216
+//     // x = +2
+//     // y = -33
+
+//     lift.setTargetHeight(1000);
+
+//     // MIRRORED: -341 -> 341
+//     chassis.turnToHeading(341, 1000);
+//     chassis.waitUntilDone();
+
+
+//     // MIRRORED:
+//     // x: +1.5 -> -1.5
+//     // y unchanged
+//     chassis.moveToPoint(-1.5, -15.5, 1000, {
+//         // .minSpeed = 100
+//     });
+//     chassis.waitUntilDone();
+
+//     lift.setTargetHeight(700);
+
+//     claw.open();
 
 // / ---------- below is the old auton code ---------- /
 
