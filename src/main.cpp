@@ -59,17 +59,17 @@ pros::Imu imu(6);
 // horizontal tracking wheel encoder Rotation sensor, port 20
 pros::Rotation horizontalEnc(-12);
 // vertical tracking wheel 
-//pros::Rotation verticalEnc(-19);
+pros::Rotation verticalEnc(-19);
 // horizontal tracking wheel. 2.75" diameter, 5.75" offset, back of the robot (negative)
 lemlib::TrackingWheel horizontal(&horizontalEnc, lemlib::Omniwheel::NEW_2, -4.917);
 
-//lemlib::TrackingWheel vertical(&verticalEnc, lemlib::Omniwheel::NEW_2, -5.25);
+lemlib::TrackingWheel vertical(&verticalEnc, lemlib::Omniwheel::NEW_2, -1);
 // ------------------------------ //
 
 // drivetrain settings
 lemlib::Drivetrain drivetrain(&leftMotors, // left motor group
                               &rightMotors, // right motor group
-                              12.1, // 12.1 inch track width
+                              10.06, // UPDATED
                               lemlib::Omniwheel::NEW_275, // using new 2.75" omnis
                               450, // drivetrain rpm is 450
                               8 // horizontal drift is 2. If we had traction wheels, it would have been 8
@@ -101,7 +101,7 @@ lemlib::ControllerSettings angularController(
 
 // sensors for odometry
 lemlib::OdomSensors sensors(nullptr, // we do not have vertical tracking wheel
-                            nullptr, // vertical tracking wheel 2, set to nullptr as we don't have a second one
+                            &vertical, // vertical tracking wheel 2, set to nullptr as we don't have a second one
                             &horizontal, // horizontal tracking wheel
                             nullptr, // horizontal tracking wheel 2, set to nullptr as we don't have a second one
                             &imu // inertial sensor
@@ -165,19 +165,32 @@ void disabled() {}
  */
 void competition_initialize() {}
 
+ASSET(test_path_txt);
+
 void autonomous() {
-        pros::Task liftTask([&] { // lift.updateComplexLift will run independently every 20 ms
-        while (true) {
-            lift.updateComplexLift();
-            pros::delay(20);
-        }
-    });
+    chassis.setPose(0, -70, 0);
+
+    // Execute the Pure Pursuit path
+    chassis.follow(test_path_txt, 15, 4000);
+
+    // Wait until the path movement finishes
+    chassis.waitUntilDone();
+   
+   
+   
+    //     pros::Task liftTask([&] { // lift.updateComplexLift will run independently every 20 ms
+    //     while (true) {
+    //         lift.updateComplexLift();
+    //         pros::delay(20);
+    //     }
+    // });
+
 
     // uncomment the auton you want to run
     // test();
     //twoPin_blue1();
     //fourPin_red2();
-    fourPin_red1();
+    //fourPin_red1();
     //fourPin_blue2();
     //test();
     //skillsAuton();
