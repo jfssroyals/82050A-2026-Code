@@ -7,6 +7,7 @@
 #include "claw_motor.hpp"
 #include "intake.hpp"
 #include "control.hpp"
+#include "wrist.hpp"
 
 
 // controller
@@ -18,6 +19,9 @@ Claw claw('A');
 
 //Bellcrank Piston
 pros::adi::DigitalOut intakePiston('H');
+
+//Wrist Piston
+Wrist wrist('G');
 
 // bar
 Bar bar(-3); 
@@ -137,12 +141,12 @@ void initialize() {
     controller.rumble(".."); // rumble to indicate that the robot is initializing
     pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
-    // bar.reset();
-    lift.reset();
-    claw.open();
-    pros::delay(1000);
-    claw.close();
-    intakePiston.set_value(true);
+    // // bar.reset();
+    // lift.reset();
+    // claw.open();
+    // pros::delay(1000);
+    // claw.close();
+    // intakePiston.set_value(true);
     pros::Task screen_task([&]() {
         while (true) {
             // print robot location to the brain screen
@@ -210,120 +214,139 @@ void opcontrol() {
         // move the chassis with curvature drive
         chassis.arcade(leftY, rightX);
 
+        // Intake test
+        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+            intake.spinInward();
+            controller.rumble(".");
+        } else {
+            intake.stop();
+        }
 
-        //lift code
-        lift.updateComplexLift();
+        pros::delay(20);
+    }  
+
+    // Wrist control
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+    wrist.toggle();
+    }
+
+    // Claw control
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+        claw.toggle();
+    }
+
+        // //lift code
+        // lift.updateComplexLift();
 
           
-        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-            lift.stepStageUp();
-            controller.rumble(".");
-        } 
+        // if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+        //     lift.stepStageUp();
+        //     controller.rumble(".");
+        // } 
         
-        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) 
-        {
-            controller.rumble(".");
-            lift.stepStageDown();
-            controller.rumble(".");
-        }   
+        // else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) 
+        // {
+        //     controller.rumble(".");
+        //     lift.stepStageDown();
+        //     controller.rumble(".");
+        // }   
 
 
-        // whole thing under intake mode condition
+        // // whole thing under intake mode condition
 
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)){
-            intake.mode = !intake.mode;
-            if (intake.mode){
-                bar.reset();
-            }
-        }
+        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)){
+        //     intake.mode = !intake.mode;
+        //     if (intake.mode){
+        //         bar.reset();
+        //     }
+        // }
 
-        // reg code only runs when intake mode == false
-        if (!intake.mode) 
-        {
-            // For Claw Control
-            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
-                claw.toggle();
-                pros::delay(450);
+        // // reg code only runs when intake mode == false
+        // if (!intake.mode) 
+        // {
+        //     // For Claw Control
+        //     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+        //         claw.toggle();
+        //         pros::delay(450);
             
-                //to handle loader - move back a little and lift the cup          
-                if (claw.isExtended == false){ //means claw is closed
-                    leftMotors.move(-25);  // Power range: -127 to 127
-                    rightMotors.move(-25);
-                    pros::delay(10);
+        //         //to handle loader - move back a little and lift the cup          
+        //         if (claw.isExtended == false){ //means claw is closed
+        //             leftMotors.move(-25);  // Power range: -127 to 127
+        //             rightMotors.move(-25);
+        //             pros::delay(10);
 
-                    bar.motor.move(-30);
-                    pros::delay(200);
-                    bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-                    bar.motor.brake();
-                }
+        //             bar.motor.move(-30);
+        //             pros::delay(200);
+        //             bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+        //             bar.motor.brake();
+        //         }
 
-            }
+        //     }
 
-            // Bar control
-            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) { 
+        //     // Bar control
+        //     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) { 
             
-                if (bar.isAtBack()){
-                    controller.rumble("-");
-                    pros::Task my_task(barTask_moveFront);
-                    //bar.moveToFront();
-                }
-                else {
-                    controller.rumble(". . .");
-                    pros::Task my_task(barTask_moveBack);
-                    //bar.moveToBack();
-                }
-            }
-        }       
+        //         if (bar.isAtBack()){
+        //             controller.rumble("-");
+        //             pros::Task my_task(barTask_moveFront);
+        //             //bar.moveToFront();
+        //         }
+        //         else {
+        //             controller.rumble(". . .");
+        //             pros::Task my_task(barTask_moveBack);
+        //             //bar.moveToBack();
+        //         }
+        //     }
+        // }       
         
-        //intake mode is on
-        else
-        {      
-            //bell crank control      
-            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
-                //bell crank piston up
-                intakePiston.set_value(false);
-            }
-            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
-                //bell crank piston down
-                intakePiston.set_value(true);
-            }
+        // //intake mode is on
+        // else
+        // {      
+        //     //bell crank control      
+        //     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
+        //         //bell crank piston up
+        //         intakePiston.set_value(false);
+        //     }
+        //     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
+        //         //bell crank piston down
+        //         intakePiston.set_value(true);
+        //     }
 
-            //intake control, button to switch intake outward and inward and turn off intake
+        //     //intake control, button to switch intake outward and inward and turn off intake
 
-            //off button
-            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
-                intake.stop();
-            }
-            //toggle
-            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
-                if (intake.direction) {
-                    intake.spinInward();
-                    intake.direction = false;
-                }
-                else {
-                    intake.spinOutward();
-                    intake.direction = true;
-                }
-            }
+        //     //off button
+        //     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
+        //         intake.stop();
+        //     }
+        //     //toggle
+        //     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
+        //         if (intake.direction) {
+        //             intake.spinInward();
+        //             intake.direction = false;
+        //         }
+        //         else {
+        //             intake.spinOutward();
+        //             intake.direction = true;
+        //         }
+        //     }
             
-            //claw
-            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
-                claw.toggle();
-                pros::delay(450);
-            }
+        //     //claw
+        //     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+        //         claw.toggle();
+        //         pros::delay(450);
+        //     }
 
-            //bar move function as you hold
-            if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)) {
-                bar.move_press(70);   // move forward while held
+        //     //bar move function as you hold
+        //     if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)) {
+        //         bar.move_press(70);   // move forward while held
                 
-            }
-            else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)) {
-                bar.move_press(-40);  // move backward while held
-            }
-            else {
-                bar.move_press(0);     // stop when released
-            }
-        }
+        //     }
+        //     else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)) {
+        //         bar.move_press(-40);  // move backward while held
+        //     }
+        //     else {
+        //         bar.move_press(0);     // stop when released
+        //     }
 
         // //FOR NORMAL INTAKE
         // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
@@ -394,9 +417,9 @@ void opcontrol() {
         //         intakePiston.set_value(true);
         // }
         
-        pros::delay(5);
+    //     pros::delay(5);
     
-    }
+    // }
 }
 
 
