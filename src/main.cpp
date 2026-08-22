@@ -8,7 +8,7 @@
 #include "intake.hpp"
 #include "control.hpp"
 
-ASSET(test2jerryio_txt);
+ASSET(jerry6_txt);
 
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
@@ -58,13 +58,13 @@ pros::MotorGroup leftMotors({-20, -5, -4}); // right motor group - ports 6, 7, 9
 pros::Imu imu(6);
 
 // horizontal tracking wheel encoder Rotation sensor, port 20
-pros::Rotation horizontalEnc(12);
+//pros::Rotation horizontalEnc(12);
 // vertical tracking wheel 
-pros::Rotation verticalEnc(19);
+//pros::Rotation verticalEnc(19);
 // horizontal tracking wheel. 2.75" diameter, 5.75" offset, back of the robot (negative)
-lemlib::TrackingWheel horizontal(&horizontalEnc, lemlib::Omniwheel::NEW_2, -4.917);
+// lemlib::TrackingWheel horizontal(&horizontalEnc, lemlib::Omniwheel::NEW_2, -4.917);
 
-lemlib::TrackingWheel vertical(&verticalEnc, lemlib::Omniwheel::NEW_2, 1);
+// lemlib::TrackingWheel vertical(&verticalEnc, lemlib::Omniwheel::NEW_2, 1);
 // ------------------------------ //
 
 // drivetrain settings
@@ -101,9 +101,9 @@ lemlib::ControllerSettings angularController(
 );
 
 // sensors for odometry
-lemlib::OdomSensors sensors(&vertical, // we do not have vertical tracking wheel
+lemlib::OdomSensors sensors(nullptr, // we do not have vertical tracking wheel
                             nullptr, // vertical tracking wheel 2, set to nullptr as we don't have a second one
-                            &horizontal, // horizontal tracking wheel
+                            nullptr, // horizontal tracking wheel
                             nullptr, // horizontal tracking wheel 2, set to nullptr as we don't have a second one
                             &imu // inertial sensor
 );
@@ -170,13 +170,18 @@ void competition_initialize() {}
 
 void autonomous() {
 
-    chassis.setPose(0, -70, -360);
+   // 1. Set pose to match the actual starting point of test2jerryio.txt
+    // Replace X and Y with the exact coordinates of your path's start point in jerryio
+    chassis.setPose(-66, 0, 90); 
 
-    // Follow path with a strict 5000ms timeout
-    chassis.follow(test2jerryio_txt, 10, 5000);
+    // 2. Short delay to allow odometry to settle
+    pros::delay(50);
 
-    // Wait until 5 inches from the end OR until timeout hits
-    chassis.waitUntil(5);
+    // 3. Follow the path
+    chassis.follow(jerry6_txt, 10, 5000);
+
+    // 4. Wait for completion
+    chassis.waitUntilDone();
 
    
    
