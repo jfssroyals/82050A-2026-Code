@@ -7,6 +7,7 @@
 #include "claw_motor.hpp"
 #include "intake.hpp"
 #include "control.hpp"
+#include "pros/misc.h"
 
 
 // controller
@@ -228,24 +229,25 @@ void opcontrol() {
         lift.updateComplexLift();
 
           
-        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-            lift.stepStageUp();
-            controller.rumble(".");
-        } 
+        // if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+        //     lift.stepStageUp();
+        //     controller.rumble(".");
+        // } 
         
-        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) 
-        {
-            controller.rumble(".");
-            lift.stepStageDown();
-            controller.rumble(".");
-        }   
+        // else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) 
+        // {
+        //     controller.rumble(".");
+        //     lift.stepStageDown();
+        //     controller.rumble(".");
+        // }   
 
 
-        // whole thing under intake mode condition
+        // // whole thing under intake mode condition
 
+        // toggles whether intake mode is either on or off 
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)){
             intake.mode = !intake.mode;
-            if (intake.mode){
+            if (intake.mode) {
                 bar.reset();
             }
         }
@@ -264,6 +266,7 @@ void opcontrol() {
                     rightMotors.move(-25);
                     pros::delay(10);
 
+                    //adjusts the claw bar up
                     bar.motor.move(-30);
                     pros::delay(200);
                     bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
@@ -309,6 +312,8 @@ void opcontrol() {
             }
             //toggle
             if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
+
+                // if the intake is set to spin inwards, spin inwards
                 if (intake.direction) {
                     intake.spinInward();
                     intake.direction = false;
@@ -337,6 +342,10 @@ void opcontrol() {
                 bar.move_press(0);     // stop when released
             }
         }
+
+
+        
+
 
         // //FOR NORMAL INTAKE
         // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
@@ -420,6 +429,6 @@ void opcontrol() {
 /// toggle using x button for example
 /// when you toggle back to normal mode, somehow reset the bar and the lift
 /// Bar control: 2 buttons to move manually
-/// Bell brank control: 2 buttons to move manually
+/// Bell crank control: 2 buttons to move manually
 /// Lift control: 2 buttons to move manually
 /// Intake motor control: 2 buttons to intake and outake

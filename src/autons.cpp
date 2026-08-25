@@ -12,7 +12,7 @@ extern Bar bar;
 extern Claw claw;
 extern Lift lift;
 
-void score_back (){
+void score_back(){
     bar.motor.move(-90);
     pros::delay(600);
     bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);

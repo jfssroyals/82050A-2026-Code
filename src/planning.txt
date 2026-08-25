@@ -1,0 +1,18 @@
+First Screen:
+- Skills vs competition
+Half-half split on screen
+
+Secon
+
+
+
+
+important reusable components:
+- draw_section 
+    this would draw the section or the rectangle
+
+- 
+
+
+
+I need several buttons and componentns like a menu
