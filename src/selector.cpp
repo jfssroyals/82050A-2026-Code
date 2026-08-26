@@ -1,274 +1,840 @@
-#include "main.h"
-#include "autons.hpp"
-#include "pros/colors.hpp"
-#include "pros/screen.hpp"
 #include "selector.hpp"
 
-// draw boxes and colours on the screen
-// map out where each auton is supposed to go 
-//  make it responsive to touchscreen 
-// 
+#include "pros/colors.hpp"
+#include "pros/screen.hpp"
+
+// ============================================================
+// GEOMETRY
+// ============================================================
+
+bool AutonSelector::isInside(
+    int x,
+    int y,
+    const Button& button
+) {
+
+    /*
+        Mathematical button boundary:
+
+            left <= x < right
+            top  <= y < bottom
+
+        This gives every button a clear area
+        and prevents overlapping boundaries.
+    */
+
+    return (
+        x >= button.left &&
+        x < button.right &&
+        y >= button.top &&
+        y < button.bottom
+    );
+}
 
 
-// Add the other functions
+// ============================================================
+// CENTER X
+// ============================================================
+
+int AutonSelector::getCenterX(
+    const Button& button
+) {
+
+    return (
+        button.left +
+        (button.right - button.left) / 2
+    );
+}
+
+
+// ============================================================
+// CENTER Y
+// ============================================================
+
+int AutonSelector::getCenterY(
+    const Button& button
+) {
+
+    return (
+        button.top +
+        (button.bottom - button.top) / 2
+    );
+}
+
+
+// ============================================================
+// INITIALIZE
+// ============================================================
 
 void AutonSelector::initialize() {
-    // Start from a known state
-    screen_number = 0; // Main menu
-    auton_number = 0;  // Skills selected
+
+    screen_number = SCREEN_MODE;
+
+    auton_number = AUTON_BLUE_1;
+
+    touch_was_pressed = false;
 
     render();
 }
 
+
+// ============================================================
+// RENDER
+// ============================================================
+
 void AutonSelector::render() {
-    // Clear the screen before drawing
+
     pros::screen::erase();
 
-    // =========================
-    // MAIN MENU
-    // =========================
-    if (screen_number == 0) {
 
-        // Title
-        pros::screen::set_pen(pros::Color::white);
+    // ========================================================
+    // MODE SCREEN
+    // ========================================================
+
+    if (screen_number == SCREEN_MODE) {
+
+        // ----------------------------------------------------
+        // TITLE
+        // ----------------------------------------------------
+
+        pros::screen::set_pen(
+            pros::Color::white
+        );
+
         pros::screen::print(
             pros::E_TEXT_LARGE,
-            180,
-            20,
-            "Select Auton"
+            175,
+            10,
+            "SELECT MODE"
         );
 
-        // =========================
-        // SKILLS BUTTON
-        // =========================
-
-        if (auton_number == 0) {
-            // Selected
-            pros::screen::set_pen(pros::Color::green);
-        } else {
-            // Not selected
-            pros::screen::set_pen(pros::Color::blue);
-        }
-
-        pros::screen::fill_rect(
-            50,   // x1
-            70,   // y1
-            250,  // x2
-            140   // y2
-        );
-
-        pros::screen::set_pen(pros::Color::white);
-
-        pros::screen::print(
-            pros::E_TEXT_MEDIUM,
-            115,
-            95,
-            "Skills"
-        );
-
-        // =========================
-        // COMPETITION BUTTON
-        // =========================
-
-        if (auton_number == 1) {
-            // Selected
-            pros::screen::set_pen(pros::Color::green);
-        } else {
-            // Not selected
-            pros::screen::set_pen(pros::Color::blue);
-        }
-
-        pros::screen::fill_rect(
-            300,
-            70,
-            500,
-            140
-        );
-
-        pros::screen::set_pen(pros::Color::white);
-
-        pros::screen::print(
-            pros::E_TEXT_MEDIUM,
-            345,
-            95,
-            "Competition"
-        );
-
-        // Instructions
         pros::screen::print(
             pros::E_TEXT_SMALL,
-            270,
-            160,
-            "Touch an option"
+            125,
+            38,
+            "Choose your autonomous type"
         );
-    }
 
-    // =========================
-    // SKILLS SCREEN
-    // =========================
-    else if (screen_number == 1) {
 
-        pros::screen::set_pen(pros::Color::white);
+        // ----------------------------------------------------
+        // COMPETITION AUTON
+        // ----------------------------------------------------
+
+        pros::screen::set_pen(
+            pros::Color::blue
+        );
+
+        pros::screen::fill_rect(
+            MODE_AUTON.left,
+            MODE_AUTON.top,
+            MODE_AUTON.right - 1,
+            MODE_AUTON.bottom - 1
+        );
+
+
+        pros::screen::set_pen(
+            pros::Color::white
+        );
 
         pros::screen::print(
             pros::E_TEXT_LARGE,
-            220,
-            30,
-            "Skills"
+            getCenterX(MODE_AUTON) - 35,
+            100,
+            "AUTON"
         );
 
         pros::screen::print(
             pros::E_TEXT_MEDIUM,
-            170,
-            80,
-            "Skills Autonomous"
+            getCenterX(MODE_AUTON) - 65,
+            140,
+            "COMPETITION"
         );
 
-        // Back button
-        pros::screen::set_pen(pros::Color::red);
+        pros::screen::print(
+            pros::E_TEXT_SMALL,
+            getCenterX(MODE_AUTON) - 45,
+            175,
+            "Tap to select"
+        );
+
+
+        // ----------------------------------------------------
+        // DIVIDER
+        // ----------------------------------------------------
+
+        pros::screen::set_pen(
+            pros::Color::white
+        );
 
         pros::screen::fill_rect(
-            20,
-            180,
-            150,
-            220
+            238,
+            65,
+            241,
+            239
         );
 
-        pros::screen::set_pen(pros::Color::white);
 
-        pros::screen::print(
-            pros::E_TEXT_MEDIUM,
-            55,
-            195,
-            "Back"
+        // ----------------------------------------------------
+        // SKILLS
+        // ----------------------------------------------------
+
+        pros::screen::set_pen(
+            pros::Color::green
         );
-    }
 
-    // =========================
-    // COMPETITION SCREEN
-    // =========================
-    else if (screen_number == 2) {
+        pros::screen::fill_rect(
+            MODE_SKILLS.left,
+            MODE_SKILLS.top,
+            MODE_SKILLS.right - 1,
+            MODE_SKILLS.bottom - 1
+        );
 
-        pros::screen::set_pen(pros::Color::white);
+
+        pros::screen::set_pen(
+            pros::Color::white
+        );
 
         pros::screen::print(
             pros::E_TEXT_LARGE,
-            160,
-            30,
-            "Competition"
+            getCenterX(MODE_SKILLS) - 65,
+            100,
+            "AUTON SKILLS"
         );
 
         pros::screen::print(
             pros::E_TEXT_MEDIUM,
-            160,
-            80,
-            "Competition Autonomous"
+            getCenterX(MODE_SKILLS) - 65,
+            140,
+            "SKILLS CHALLENGE"
         );
-
-        // Back button
-        pros::screen::set_pen(pros::Color::red);
-
-        pros::screen::fill_rect(
-            20,
-            180,
-            150,
-            220
-        );
-
-        pros::screen::set_pen(pros::Color::white);
 
         pros::screen::print(
-            pros::E_TEXT_MEDIUM,
-            55,
-            195,
-            "Back"
+            pros::E_TEXT_SMALL,
+            getCenterX(MODE_SKILLS) - 45,
+            175,
+            "Tap to select"
         );
-    }
-}
 
-void AutonSelector::update() {
-    // Get touchscreen information
-    pros::screen_touch_status_s_t touch = pros::screen::touch_status();
-
-    // Nothing is being touched
-    if (!touch.touch_status) {
         return;
     }
 
-    int x = touch.x;
-    int y = touch.y;
 
-    // =========================
-    // MAIN MENU
-    // =========================
-    if (screen_number == 0) {
+    // ========================================================
+    // COMPETITION AUTON SCREEN
+    // ========================================================
 
-        // Skills button
-        if (x >= 50 && x <= 250 &&
-            y >= 70 && y <= 140) {
+    if (screen_number == SCREEN_AUTON) {
 
-            auton_number = 0;
-            screen_number = 1;
+        // ----------------------------------------------------
+        // TITLE
+        // ----------------------------------------------------
 
-            render();
+        pros::screen::set_pen(
+            pros::Color::white
+        );
 
-            // Prevent multiple inputs
-            pros::delay(200);
+        pros::screen::print(
+            pros::E_TEXT_LARGE,
+            145,
+            8,
+            "COMPETITION AUTON"
+        );
+
+        pros::screen::print(
+            pros::E_TEXT_SMALL,
+            185,
+            35,
+            "Select a routine"
+        );
+
+
+        // ====================================================
+        // BLUE 1
+        // ====================================================
+
+        if (auton_number == AUTON_BLUE_1) {
+
+            pros::screen::set_pen(
+                pros::Color::green
+            );
+
+        } else {
+
+            pros::screen::set_pen(
+                pros::Color::blue
+            );
         }
 
-        // Competition button
-        else if (x >= 300 && x <= 500 &&
-                 y >= 70 && y <= 140) {
+        pros::screen::fill_rect(
+            BLUE_1.left,
+            BLUE_1.top,
+            BLUE_1.right - 1,
+            BLUE_1.bottom - 1
+        );
 
-            auton_number = 1;
-            screen_number = 2;
+        pros::screen::set_pen(
+            pros::Color::white
+        );
 
-            render();
+        pros::screen::print(
+            pros::E_TEXT_MEDIUM,
+            getCenterX(BLUE_1) - 30,
+            75,
+            "BLUE 1"
+        );
 
-            // Prevent multiple inputs
-            pros::delay(200);
+
+        // ====================================================
+        // BLUE 2
+        // ====================================================
+
+        if (auton_number == AUTON_BLUE_2) {
+
+            pros::screen::set_pen(
+                pros::Color::green
+            );
+
+        } else {
+
+            pros::screen::set_pen(
+                pros::Color::blue
+            );
         }
+
+        pros::screen::fill_rect(
+            BLUE_2.left,
+            BLUE_2.top,
+            BLUE_2.right - 1,
+            BLUE_2.bottom - 1
+        );
+
+        pros::screen::set_pen(
+            pros::Color::white
+        );
+
+        pros::screen::print(
+            pros::E_TEXT_MEDIUM,
+            getCenterX(BLUE_2) - 30,
+            75,
+            "BLUE 2"
+        );
+
+
+        // ====================================================
+        // RED 1
+        // ====================================================
+
+        if (auton_number == AUTON_RED_1) {
+
+            pros::screen::set_pen(
+                pros::Color::green
+            );
+
+        } else {
+
+            pros::screen::set_pen(
+                pros::Color::red
+            );
+        }
+
+        pros::screen::fill_rect(
+            RED_1.left,
+            RED_1.top,
+            RED_1.right - 1,
+            RED_1.bottom - 1
+        );
+
+        pros::screen::set_pen(
+            pros::Color::white
+        );
+
+        pros::screen::print(
+            pros::E_TEXT_MEDIUM,
+            getCenterX(RED_1) - 30,
+            145,
+            "RED 1"
+        );
+
+
+        // ====================================================
+        // RED 2
+        // ====================================================
+
+        if (auton_number == AUTON_RED_2) {
+
+            pros::screen::set_pen(
+                pros::Color::green
+            );
+
+        } else {
+
+            pros::screen::set_pen(
+                pros::Color::red
+            );
+        }
+
+        pros::screen::fill_rect(
+            RED_2.left,
+            RED_2.top,
+            RED_2.right - 1,
+            RED_2.bottom - 1
+        );
+
+        pros::screen::set_pen(
+            pros::Color::white
+        );
+
+        pros::screen::print(
+            pros::E_TEXT_MEDIUM,
+            getCenterX(RED_2) - 30,
+            145,
+            "RED 2"
+        );
+
+
+        // ====================================================
+        // BACK
+        // ====================================================
+
+        pros::screen::set_pen(
+            pros::Color::grey
+        );
+
+        pros::screen::fill_rect(
+            BACK.left,
+            BACK.top,
+            BACK.right - 1,
+            BACK.bottom - 1
+        );
+
+        pros::screen::set_pen(
+            pros::Color::white
+        );
+
+        pros::screen::print(
+            pros::E_TEXT_SMALL,
+            getCenterX(BACK) - 18,
+            202,
+            "BACK"
+        );
+
+        return;
     }
 
-    // =========================
+
+    // ========================================================
     // SKILLS SCREEN
-    // =========================
-    else if (screen_number == 1) {
+    // ========================================================
 
-        // Back button
-        if (x >= 20 && x <= 150 &&
-            y >= 180 && y <= 220) {
+    if (screen_number == SCREEN_SKILLS) {
 
-            screen_number = 0;
+        // ----------------------------------------------------
+        // TITLE
+        // ----------------------------------------------------
 
-            render();
+        pros::screen::set_pen(
+            pros::Color::white
+        );
 
-            pros::delay(200);
+        pros::screen::print(
+            pros::E_TEXT_LARGE,
+            160,
+            8,
+            "AUTON SKILLS"
+        );
+
+        pros::screen::print(
+            pros::E_TEXT_SMALL,
+            150,
+            35,
+            "Skills Challenge"
+        );
+
+
+        // ====================================================
+        // SKILLS BUTTON
+        // ====================================================
+
+        if (auton_number == AUTON_SKILLS) {
+
+            pros::screen::set_pen(
+                pros::Color::green
+            );
+
+        } else {
+
+            pros::screen::set_pen(
+                pros::Color::blue
+            );
         }
-    }
 
-    // =========================
-    // COMPETITION SCREEN
-    // =========================
-    else if (screen_number == 2) {
+        pros::screen::fill_rect(
+            SKILLS.left,
+            SKILLS.top,
+            SKILLS.right - 1,
+            SKILLS.bottom - 1
+        );
 
-        // Back button
-        if (x >= 20 && x <= 150 &&
-            y >= 180 && y <= 220) {
+        pros::screen::set_pen(
+            pros::Color::white
+        );
 
-            screen_number = 0;
+        pros::screen::print(
+            pros::E_TEXT_LARGE,
+            getCenterX(SKILLS) - 35,
+            85,
+            "SKILLS"
+        );
 
-            render();
+        pros::screen::print(
+            pros::E_TEXT_MEDIUM,
+            getCenterX(SKILLS) - 80,
+            125,
+            "SKILLS AUTONOMOUS"
+        );
 
-            pros::delay(200);
-        }
+        pros::screen::print(
+            pros::E_TEXT_SMALL,
+            getCenterX(SKILLS) - 30,
+            155,
+            "SELECTED"
+        );
+
+
+        // ====================================================
+        // BACK
+        // ====================================================
+
+        pros::screen::set_pen(
+            pros::Color::grey
+        );
+
+        pros::screen::fill_rect(
+            BACK.left,
+            BACK.top,
+            BACK.right - 1,
+            BACK.bottom - 1
+        );
+
+        pros::screen::set_pen(
+            pros::Color::white
+        );
+
+        pros::screen::print(
+            pros::E_TEXT_SMALL,
+            getCenterX(BACK) - 18,
+            202,
+            "BACK"
+        );
+
+        return;
     }
 }
 
+
+// ============================================================
+// UPDATE
+// ============================================================
+
+void AutonSelector::update() {
+
+    // ========================================================
+    // ROBOT MUST BE DISABLED
+    // ========================================================
+
+    if (!pros::competition::is_disabled()) {
+
+        touch_was_pressed = false;
+
+        return;
+    }
+
+
+    // ========================================================
+    // GET TOUCH
+    // ========================================================
+
+    auto touch = pros::screen::touch_status();
+
+
+    // ========================================================
+    // NO TOUCH
+    // ========================================================
+
+    if (!touch.touch_status) {
+
+        touch_was_pressed = false;
+
+        return;
+    }
+
+
+    // ========================================================
+    // IGNORE HELD TOUCH
+    // ========================================================
+
+    /*
+        This makes one physical press count as ONE press.
+
+        Without this:
+
+            finger down
+                  ↓
+            update()
+                  ↓
+            update()
+                  ↓
+            update()
+
+        could potentially trigger the button multiple times.
+    */
+
+    if (touch_was_pressed) {
+        return;
+    }
+
+
+    // ========================================================
+    // NEW PRESS
+    // ========================================================
+
+    touch_was_pressed = true;
+
+
+    const int x = touch.x;
+    const int y = touch.y;
+
+
+    // ========================================================
+    // MODE SCREEN
+    // ========================================================
+
+    if (screen_number == SCREEN_MODE) {
+
+        // ----------------------------------------------------
+        // COMPETITION
+        // ----------------------------------------------------
+
+        if (
+            isInside(
+                x,
+                y,
+                MODE_AUTON
+            )
+        ) {
+
+            screen_number = SCREEN_AUTON;
+
+            auton_number = AUTON_BLUE_1;
+
+            render();
+
+            return;
+        }
+
+
+        // ----------------------------------------------------
+        // SKILLS
+        // ----------------------------------------------------
+
+        if (
+            isInside(
+                x,
+                y,
+                MODE_SKILLS
+            )
+        ) {
+
+            screen_number = SCREEN_SKILLS;
+
+            auton_number = AUTON_SKILLS;
+
+            render();
+
+            return;
+        }
+
+
+        return;
+    }
+
+
+    // ========================================================
+    // COMPETITION AUTON
+    // ========================================================
+
+    if (screen_number == SCREEN_AUTON) {
+
+        // ----------------------------------------------------
+        // BLUE 1
+        // ----------------------------------------------------
+
+        if (
+            isInside(
+                x,
+                y,
+                BLUE_1
+            )
+        ) {
+
+            auton_number = AUTON_BLUE_1;
+
+            render();
+
+            return;
+        }
+
+
+        // ----------------------------------------------------
+        // BLUE 2
+        // ----------------------------------------------------
+
+        if (
+            isInside(
+                x,
+                y,
+                BLUE_2
+            )
+        ) {
+
+            auton_number = AUTON_BLUE_2;
+
+            render();
+
+            return;
+        }
+
+
+        // ----------------------------------------------------
+        // RED 1
+        // ----------------------------------------------------
+
+        if (
+            isInside(
+                x,
+                y,
+                RED_1
+            )
+        ) {
+
+            auton_number = AUTON_RED_1;
+
+            render();
+
+            return;
+        }
+
+
+        // ----------------------------------------------------
+        // RED 2
+        // ----------------------------------------------------
+
+        if (
+            isInside(
+                x,
+                y,
+                RED_2
+            )
+        ) {
+
+            auton_number = AUTON_RED_2;
+
+            render();
+
+            return;
+        }
+
+
+        // ----------------------------------------------------
+        // BACK
+        // ----------------------------------------------------
+
+        if (
+            isInside(
+                x,
+                y,
+                BACK
+            )
+        ) {
+
+            screen_number = SCREEN_MODE;
+
+            render();
+
+            return;
+        }
+
+
+        return;
+    }
+
+
+    // ========================================================
+    // SKILLS
+    // ========================================================
+
+    if (screen_number == SCREEN_SKILLS) {
+
+        // ----------------------------------------------------
+        // SKILLS
+        // ----------------------------------------------------
+
+        if (
+            isInside(
+                x,
+                y,
+                SKILLS
+            )
+        ) {
+
+            auton_number = AUTON_SKILLS;
+
+            render();
+
+            return;
+        }
+
+
+        // ----------------------------------------------------
+        // BACK
+        // ----------------------------------------------------
+
+        if (
+            isInside(
+                x,
+                y,
+                BACK
+            )
+        ) {
+
+            screen_number = SCREEN_MODE;
+
+            render();
+
+            return;
+        }
+
+
+        return;
+    }
+}
+
+
+// ============================================================
+// GET SELECTED AUTON
+// ============================================================
+
 int AutonSelector::getSelectedAuton() {
+
     return auton_number;
 }
 
+
+// ============================================================
+// GET CURRENT SCREEN
+// ============================================================
+
 int AutonSelector::getScreen() {
+
     return screen_number;
-}
+};

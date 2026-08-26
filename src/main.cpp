@@ -7,11 +7,14 @@
 #include "claw_motor.hpp"
 #include "intake.hpp"
 #include "control.hpp"
+#include "selector.hpp"
 #include "pros/misc.h"
 
 
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
+
+AutonSelector selector;
 
 // subsystems ports
 // claw
@@ -139,6 +142,7 @@ void initialize() {
     pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
     // bar.reset();
+    selector.initialize();
     lift.reset();
     claw.open();
     pros::delay(1000);
