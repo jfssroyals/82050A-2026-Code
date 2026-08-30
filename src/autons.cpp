@@ -49,7 +49,7 @@ void align_pose(double straight){
     while (offsetTheta > 180) offsetTheta -= 360;
     while (offsetTheta < -180) offsetTheta += 360;
 
-    // Calculate offset around goal using degrees
+    // Calculate offset around goal using x`degrees
     double offsetX = sin(offsetTheta * M_PI / 180.0) * goalRadius;
     double offsetY = (-cos(offsetTheta * M_PI / 180.0) * goalRadius) + goalRadius;
 
