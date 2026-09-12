@@ -1,0 +1,19 @@
+in selector.cpp select the autons rather than running them
+
+treat every auton like an object function that can be called if its true 
+
+confirm buttons-> set an object to be true 
+
+object returned or called in autons.cpp as a runtime variable
+
+autons.cpp runs the object during runtime
+
+
+
+
+PENDING:
+- make selection feature as above
+- ensure that it will display dynamically
+
+
+Later: ensure the text is centred

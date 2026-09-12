@@ -1,63 +1,24 @@
 #pragma once
 
-#include "main.h"
-
-// ============================================================
-// AUTONOMOUS SELECTOR
-// ============================================================
-//
-// MODE
-// ├── COMPETITION
-// │   └── SIDE
-// │       ├── LOADER
-// │       │   └── COMPETITION LOADER AUTONS
-// │       └── NON-LOADER
-// │           └── COMPETITION NON-LOADER AUTONS
-// │
-// └── SKILLS
-//     └── SKILLS AUTONS
-//
-// ============================================================
+#include "api.h"
+#include "pros/colors.hpp"
+#include "pros/screen.hpp"
 
 class AutonSelector {
 
 public:
 
     // ========================================================
-    // SCREEN STATES
-    // ========================================================
-
-    static constexpr int SCREEN_MODE = 0;
-
-    static constexpr int SCREEN_COMPETITION_SIDE = 1;
-
-    static constexpr int SCREEN_COMPETITION_AUTONS = 2;
-
-    static constexpr int SCREEN_SKILLS_AUTONS = 3;
-
-    static constexpr int SCREEN_CONFIRM = 4;
-
-
-    // ========================================================
-    // AUTON MODE
+    // ENUMS
     // ========================================================
 
     enum class AutonMode {
-
         Competition,
-
         Skills
     };
 
-
-    // ========================================================
-    // AUTON SIDE
-    // ========================================================
-
     enum class AutonSide {
-
         Loader,
-
         NonLoader
     };
 
@@ -86,7 +47,7 @@ public:
 
 
     // ========================================================
-    // LIFECYCLE
+    // PUBLIC CONTROL
     // ========================================================
 
     void initialize();
@@ -108,96 +69,49 @@ public:
 
     AutonSide getSelectedSide() const;
 
+    bool isAutonConfirmed() const;
+
+
+    // ========================================================
+    // CONFIRMATION
+    // ========================================================
+
+    void clearConfirmation();
+
+    const std::vector<AutonDefinition>& autons_public() 
+    {   
+        return AUTONS;
+    }
 
 private:
 
     // ========================================================
-    // AUTON DEFINITIONS
+    // AUTON DATA
     // ========================================================
     //
-    // Replace these with your actual autonomous routines.
+    // The array itself is defined in selector.cpp.
     //
-    // The important part is:
-    //
-    // Competition + Loader
-    // Competition + NonLoader
-    // Skills
+    // AUTON_COUNT is NOT manually defined.
+    // It is calculated automatically in selector.cpp.
     //
     // ========================================================
 
-    static const AutonDefinition AUTONS[];
-
-    static constexpr int AUTON_COUNT = 5;
+    static const std::vector<AutonDefinition> AUTONS;
 
 
     // ========================================================
-    // AUTON IDs
+    // SCREEN STATES
     // ========================================================
 
-    static constexpr int AUTON_BLUE_1 = 0;
+    static constexpr int SCREEN_MODE = 0;
 
-    static constexpr int AUTON_BLUE_2 = 1;
+    static constexpr int SCREEN_COMPETITION_SIDE = 1;
 
-    static constexpr int AUTON_RED_1 = 2;
+    static constexpr int SCREEN_COMPETITION_AUTONS = 2;
 
-    static constexpr int AUTON_RED_2 = 3;
+    static constexpr int SCREEN_SKILLS_AUTONS = 3;
 
-    static constexpr int AUTON_SKILLS = 4;
-
-
-    // ========================================================
-    // BUTTON
-    // ========================================================
-
-    struct Button {
-
-        int left;
-
-        int top;
-
-        int right;
-
-        int bottom;
-    };
-
-
-    // ========================================================
-    // SCREEN STATE
-    // ========================================================
-
-    int screen_number;
-
-
-    // ========================================================
-    // SELECTION STATE
-    // ========================================================
-
-    AutonMode selected_mode;
-
-    AutonSide selected_side;
-
-    int auton_number;
-
-
-    // ========================================================
-    // TOUCH STATE
-    // ========================================================
-
-    bool touch_was_pressed;
-
-
-    // ========================================================
-    // TOUCH TASK
-    // ========================================================
-
-    pros::Task* touch_task;
-
-
-    // ========================================================
-    // SCROLL
-    // ========================================================
-
-    int scroll_offset;
+    static constexpr int SCREEN_CONFIRM = 4;
 
 
     // ========================================================
@@ -210,44 +124,29 @@ private:
 
 
     // ========================================================
-    // AUTON LIST GEOMETRY
-    // ========================================================
-
-    static constexpr int LIST_LEFT = 20;
-
-    static constexpr int LIST_RIGHT = 460;
-
-    static constexpr int LIST_TOP = 60;
-
-    static constexpr int LIST_BOTTOM = 185;
-
-    static constexpr int AUTON_ROW_HEIGHT = 50;
-
-    static constexpr int AUTON_ROW_GAP = 10;
-
-    static constexpr int AUTON_ROW_STEP =
-        AUTON_ROW_HEIGHT + AUTON_ROW_GAP;
-
-
-    // ========================================================
     // MODE BUTTONS
     // ========================================================
 
-    static constexpr Button MODE_COMPETITION = {
+    static constexpr struct Button {
 
-        0,
+        int left;
+        int top;
+        int right;
+        int bottom;
+
+    } MODE_COMPETITION = {
+        10,
         65,
-        240,
-        240
+        235,
+        230
     };
 
 
     static constexpr Button MODE_SKILLS = {
-
-        240,
+        245,
         65,
-        480,
-        240
+        470,
+        230
     };
 
 
@@ -256,43 +155,137 @@ private:
     // ========================================================
 
     static constexpr Button SIDE_LOADER = {
-
-        20,
+        40,
         70,
-        225,
-        170
+        220,
+        135
     };
 
 
     static constexpr Button SIDE_NON_LOADER = {
-
-        255,
+        260,
         70,
-        460,
-        170
+        440,
+        135
     };
 
 
     // ========================================================
-    // NAVIGATION BUTTONS
+    // GENERAL BUTTONS
     // ========================================================
 
     static constexpr Button BACK = {
-
         20,
         195,
         140,
-        225
+        230
     };
 
 
     static constexpr Button CONFIRM = {
-
-        255,
+        340,
         195,
         460,
-        225
+        230
     };
+
+
+    // ========================================================
+    // LIST BUTTONS
+    // ========================================================
+
+    static constexpr int LIST_LEFT = 30;
+
+    static constexpr int LIST_RIGHT = 450;
+
+    static constexpr int LIST_TOP = 55;
+
+    static constexpr int LIST_BOTTOM = 185;
+
+    static constexpr int AUTON_ROW_HEIGHT = 35;
+
+    static constexpr int AUTON_ROW_STEP = 42;
+
+
+    // ========================================================
+    // SCROLL BUTTONS
+    // ========================================================
+
+    static constexpr Button SCROLL_UP = {
+        440,
+        55,
+        475,
+        105
+    };
+
+
+    static constexpr Button SCROLL_DOWN = {
+        440,
+        135,
+        475,
+        185
+    };
+
+
+    // ========================================================
+    // SCROLLING
+    // ========================================================
+
+    int scroll_offset;
+
+    int getMaxScrollOffset() const;
+
+    void scrollUp();
+
+    void scrollDown();
+
+    void scrollBy(int amount);
+
+    void clampScroll();
+
+
+    // ========================================================
+    // TOUCH / GESTURE STATE
+    // ========================================================
+
+    bool touch_was_pressed;
+
+    int touch_start_x;
+
+    int touch_start_y;
+
+    int touch_current_x;
+
+    int touch_current_y;
+
+
+    static constexpr int SWIPE_THRESHOLD = 20;
+
+
+    // ========================================================
+    // TOUCH TASK
+    // ========================================================
+
+    pros::Task* touch_task;
+
+    void touchTaskLoop();
+
+
+    // ========================================================
+    // CURRENT STATE
+    // ========================================================
+
+    int screen_number;
+
+    AutonMode selected_mode;
+
+    AutonSide selected_side;
+
+    // Current selection waiting for confirmation.
+    int auton_number;
+
+    // True only after CONFIRM has been pressed.
+    bool auton_confirmed;
 
 
     // ========================================================
@@ -305,11 +298,9 @@ private:
         const Button& button
     );
 
-
     static int getCenterX(
         const Button& button
     );
-
 
     static int getCenterY(
         const Button& button
@@ -320,13 +311,12 @@ private:
     // DRAWING
     // ========================================================
 
-    static void drawButton(
+    void drawButton(
         const Button& button,
         const char* text,
         pros::Color color,
-        bool selected
+        bool selected = false
     );
-
 
     void drawModeScreen();
 
@@ -338,28 +328,18 @@ private:
 
     void drawConfirmScreen();
 
-
-    // ========================================================
-    // AUTON LIST
-    // ========================================================
-
-    void drawAutonList(
-        AutonMode mode,
-        AutonSide side
-    );
+    void drawAutonList();
 
 
     // ========================================================
-    // FILTERING
+    // AUTON FILTERING
     // ========================================================
 
     bool autonMatchesSelection(
         const AutonDefinition& auton
     ) const;
 
-
     int getFilteredAutonCount() const;
-
 
     const AutonDefinition* getFilteredAuton(
         int filteredIndex
@@ -367,31 +347,18 @@ private:
 
 
     // ========================================================
-    // MODE SELECTION
+    // AUTON SELECTION
     // ========================================================
 
     void selectCompetition();
 
     void selectSkills();
 
-
-    // ========================================================
-    // SIDE SELECTION
-    // ========================================================
-
     void selectLoader();
 
     void selectNonLoader();
 
-
-    // ========================================================
-    // AUTON SELECTION
-    // ========================================================
-
-    void selectAuton(
-        int auton
-    );
-
+    void selectAuton(int auton);
 
     bool selectAutonAt(
         int x,
@@ -415,40 +382,28 @@ private:
         int y
     );
 
-
     bool handleModeTouch(
         int x,
         int y
     );
-
 
     bool handleCompetitionSideTouch(
         int x,
         int y
     );
 
-
     bool handleCompetitionAutonTouch(
         int x,
         int y
     );
-
 
     bool handleSkillsAutonTouch(
         int x,
         int y
     );
 
-
     bool handleConfirmTouch(
         int x,
         int y
     );
-
-
-    // ========================================================
-    // TOUCH TASK
-    // ========================================================
-
-    void touchTaskLoop();
 };
