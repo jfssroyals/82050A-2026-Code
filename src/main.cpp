@@ -177,6 +177,12 @@ void autonomous() {
 
     // Execute the Pure Pursuit path
     chassis.follow(test_path_txt, 15, 4000);
+    
+    switch (selector.getSelectedAuton())
+    {
+        case 1:
+            fourPin_red1();
+    }
 
     // Wait until the path movement finishes
     chassis.waitUntilDone();

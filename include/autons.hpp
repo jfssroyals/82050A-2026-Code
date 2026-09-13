@@ -8,7 +8,6 @@ extern lemlib::Chassis chassis;
 
 // auton routines
 
-class Auton {
 void score_back();
 void grab_up();
 void fourPin_red1();
@@ -22,4 +21,3 @@ void Post();
 void skillsScore_L();
 void skillsScore_R();
 void align_pose(double straight);
-};

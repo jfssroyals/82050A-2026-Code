@@ -196,7 +196,7 @@ private:
 
     static constexpr int LIST_LEFT = 30;
 
-    static constexpr int LIST_RIGHT = 450;
+    static constexpr int LIST_RIGHT = 435;
 
     static constexpr int LIST_TOP = 55;
 

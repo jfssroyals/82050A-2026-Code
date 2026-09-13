@@ -28,6 +28,16 @@
 //
 // ============================================================
 
+namespace {
+
+constexpr int FOURPIN_RED1 = 0;
+constexpr int AUTON_BLUE_2 = 1;
+constexpr int AUTON_RED_1 = 2;
+constexpr int AUTON_RED_2 = 3;
+constexpr int AUTON_SKILLS = 4;
+
+}
+
 // List of the Autons
 // do this later
 const std::vector<AutonSelector::AutonDefinition> AutonSelector::AUTONS = {
@@ -902,9 +912,7 @@ void AutonSelector::drawConfirmScreen() {
 // AUTON MATCHING
 // ============================================================
 
-bool AutonSelector::autonMatchesSelection(
-    const AutonDefinition& auton
-) const {
+bool AutonSelector::autonMatchesSelection(const AutonDefinition& auton) const {
 
     // --------------------------------------------------------
     // MODE
@@ -972,7 +980,7 @@ int AutonSelector::getFilteredAutonCount() const {
     return count;
 }
 
-
+ 
 // ============================================================
 // GET FILTERED AUTON
 // ============================================================
@@ -2001,13 +2009,7 @@ bool AutonSelector::handleConfirmTouch(
     // BACK
     // --------------------------------------------------------
 
-    if (
-        isInside(
-            x,
-            y,
-            BACK
-        )
-    ) {
+    if (isInside(x, y, BACK)) {
 
         goBack();
 
