@@ -35,7 +35,12 @@ constexpr int AUTON_BLUE_2 = 1;
 constexpr int AUTON_RED_1 = 2;
 constexpr int AUTON_RED_2 = 3;
 constexpr int AUTON_SKILLS = 4;
-
+constexpr int BRRR = 5;
+constexpr int CHOTTU = 6;
+constexpr int FILLER = 7;
+constexpr int lebron = 8;
+constexpr int dingalinga = 9;
+constexpr int imcracked = 10;
 }
 
 // List of the Autons
@@ -75,7 +80,48 @@ const std::vector<AutonSelector::AutonDefinition> AutonSelector::AUTONS = {
         "SKILLS",
         AutonSelector::AutonMode::Skills,
         AutonSelector::AutonSide::Loader
-    }
+    },
+     {
+        BRRR,
+        "BRRR",
+        AutonSelector::AutonMode::Competition,
+        AutonSelector::AutonSide::NonLoader
+     },
+
+     {
+        CHOTTU,
+        "CHOTTU",
+        AutonSelector::AutonMode::Competition,
+        AutonSelector::AutonSide::NonLoader
+     },
+
+     {
+        FILLER,
+        "FILLER",
+        AutonSelector::AutonMode::Competition,
+        AutonSelector::AutonSide::NonLoader
+     },
+
+     {
+        lebron,
+        "lebron",
+        AutonSelector::AutonMode::Competition,
+        AutonSelector::AutonSide::NonLoader
+     },
+
+     {
+        dingalinga,
+        "dingalinga",
+        AutonSelector::AutonMode::Competition,
+        AutonSelector::AutonSide::NonLoader
+     },
+
+     {
+        imcracked,
+        "imcracked",
+        AutonSelector::AutonMode::Competition,
+        AutonSelector::AutonSide::Loader
+     }
 };
 
 
