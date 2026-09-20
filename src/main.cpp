@@ -137,13 +137,13 @@ lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors
 void initialize() {
     controller.rumble(".."); // rumble to indicate that the robot is initializing
     pros::lcd::initialize(); // initialize brain screen
-    chassis.calibrate(); // calibrate sensors
+    //chassis.calibrate(); // calibrate sensors
     // bar.reset();
-    lift.reset();
-    claw.open();
-    pros::delay(1000);
-    claw.close();
-    intakePiston.set_value(true);
+    //lift.reset();
+    //claw.open();
+    //pros::delay(1000);
+    //claw.close();
+    //intakePiston.set_value(true);
     pros::Task screen_task([&]() {
         while (true) {
             // print robot location to the brain screen
@@ -166,16 +166,16 @@ void disabled() {}
  */
 void competition_initialize() {}
 
-ASSET(test_path_txt);
+//ASSET(test_path_txt);
 
-void autonomous() {
-    chassis.setPose(0, -70, 0);
+// void autonomous() {
+//     chassis.setPose(0, -70, 0);
 
-    // Execute the Pure Pursuit path
-    chassis.follow(test_path_txt, 15, 4000);
+//     // Execute the Pure Pursuit path
+//     chassis.follow(test_path_txt, 15, 4000);
 
-    // Wait until the path movement finishes
-    chassis.waitUntilDone();
+//     // Wait until the path movement finishes
+//     chassis.waitUntilDone();
    
    
    
@@ -212,21 +212,21 @@ void autonomous() {
     // pros::lcd::print(6, "Auton done");
 // /-------------------------------------------------------------------/
 
-    pros::delay(1000000);
-}
+//     pros::delay(1000000);
+// }
 
 void opcontrol() {
     // autonomous(); //comment when running driver
     while (true) {
         // get joystick positions
-        int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-        int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
-        // move the chassis with curvature drive
-        chassis.arcade(leftY, rightX);
+        // int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+        // int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
+        // // move the chassis with curvature drive
+        // chassis.arcade(leftY, rightX);
 
 
         //lift code
-        lift.updateComplexLift();
+        // lift.updateComplexLift();
 
           
         // if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
@@ -245,106 +245,108 @@ void opcontrol() {
         // // whole thing under intake mode condition
 
         // toggles whether intake mode is either on or off 
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)){
-            intake.mode = !intake.mode;
-            if (intake.mode) {
-                bar.reset();
-            }
-        }
+        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)){
+        //     intake.mode = !intake.mode;
+        //     if (intake.mode) {
+        //         bar.reset();
+        //     }
+        // }
 
         // reg code only runs when intake mode == false
-        if (!intake.mode) 
-        {
-            // For Claw Control
-            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
-                claw.toggle();
-                pros::delay(450);
+        // if (!intake.mode) 
+        // {
+        //     // For Claw Control
+        //     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+        //         claw.toggle();
+        //         pros::delay(450);
             
-                //to handle loader - move back a little and lift the cup          
-                if (claw.isExtended == false){ //means claw is closed
-                    leftMotors.move(-25);  // Power range: -127 to 127
-                    rightMotors.move(-25);
-                    pros::delay(10);
+        //         //to handle loader - move back a little and lift the cup          
+        //         if (claw.isExtended == false){ //means claw is closed
+        //             leftMotors.move(-25);  // Power range: -127 to 127
+        //             rightMotors.move(-25);
+        //             pros::delay(10);
 
-                    //adjusts the claw bar up
-                    bar.motor.move(-30);
-                    pros::delay(200);
-                    bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-                    bar.motor.brake();
-                }
+        //             //adjusts the claw bar up
+        //             bar.motor.move(-30);
+        //             pros::delay(200);
+        //             bar.motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+        //             bar.motor.brake();
+        //         }
 
-            }
+        //     }
 
-            // Bar control
-            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) { 
+        //     // Bar control
+        //     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) { 
             
-                if (bar.isAtBack()){
-                    controller.rumble("-");
-                    pros::Task my_task(barTask_moveFront);
-                    //bar.moveToFront();
-                }
-                else {
-                    controller.rumble(". . .");
-                    pros::Task my_task(barTask_moveBack);
-                    //bar.moveToBack();
-                }
-            }
-        }       
+        //         if (bar.isAtBack()){
+        //             controller.rumble("-");
+        //             pros::Task my_task(barTask_moveFront);
+        //             //bar.moveToFront();
+        //         }
+        //         else {
+        //             controller.rumble(". . .");
+        //             pros::Task my_task(barTask_moveBack);
+        //             //bar.moveToBack();
+        //         }
+        //     }
+        // }       
         
-        //intake mode is on
-        else
-        {      
-            //bell crank control      
-            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
-                //bell crank piston up
-                intakePiston.set_value(false);
-            }
-            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
-                //bell crank piston down
-                intakePiston.set_value(true);
-            }
+        // //intake mode is on
+        // else
+        // {      
+        //     //bell crank control      
+        //     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
+        //         //bell crank piston up
+        //         intakePiston.set_value(false);
+        //     }
+        //     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
+        //         //bell crank piston down
+        //         intakePiston.set_value(true);
+        //     }
 
-            //intake control, button to switch intake outward and inward and turn off intake
+        //     //intake control, button to switch intake outward and inward and turn off intake
 
-            //off button
-            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
-                intake.stop();
-            }
-            //toggle
-            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
+        //     //off button
+        //     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
+        //         intake.stop();
+        //     }
+        //     //toggle
+        //     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
 
-                // if the intake is set to spin inwards, spin inwards
-                if (intake.direction) {
-                    intake.spinInward();
-                    intake.direction = false;
-                }
-                else {
-                    intake.spinOutward();
-                    intake.direction = true;
-                }
-            }
+        //         // if the intake is set to spin inwards, spin inwards
+        //         if (intake.direction) {
+        //             intake.spinInward();
+        //             intake.direction = false;
+        //         }
+        //         else {
+        //             intake.spinOutward();
+        //             intake.direction = true;
+        //         }
+        //     }
             
-            //claw
-            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
-                claw.toggle();
-                pros::delay(450);
-            }
+        //     //claw
+        //     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+        //         claw.toggle();
+        //         pros::delay(450);
+        //     }
 
-            //bar move function as you hold
-            if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)) {
-                bar.move_press(70);   // move forward while held
+        //     //bar move function as you hold
+        //     if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)) {
+        //         bar.move_press(70);   // move forward while held
                 
-            }
-            else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)) {
-                bar.move_press(-40);  // move backward while held
-            }
-            else {
-                bar.move_press(0);     // stop when released
-            }
+        //     }
+        //     else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)) {
+        //         bar.move_press(-40);  // move backward while held
+        //     }
+        //     else {
+        //         bar.move_press(0);     // stop when released
+        //     }
+        // }
+
+
+        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
+            intake.spinInward();
         }
-
-
-        
 
 
         // //FOR NORMAL INTAKE
