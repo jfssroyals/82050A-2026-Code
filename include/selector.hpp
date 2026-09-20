@@ -122,6 +122,9 @@ private:
 
     static constexpr int SCREEN_HEIGHT = 240;
 
+    static constexpr int TILTED_WIDTH  = 240;
+
+    static constexpr int TILED_WIDTH = 480;
 
     // ========================================================
     // MODE BUTTONS

@@ -145,15 +145,9 @@ const std::vector<AutonSelector::AutonDefinition> AutonSelector::AUTONS = {
 // GEOMETRY
 // ============================================================
 
-bool AutonSelector::isInside(
-    int x,
-    int y,
-    const Button& button
-) {
+bool AutonSelector::isInside(int x, int y, const Button& button) {
 
-    return (
-        x >= button.left && x < button.right && y >= button.top && y < button.bottom
-    );
+    return (x >= button.left && x < button.right && y >= button.top && y < button.bottom);
 }
 
 
@@ -369,8 +363,7 @@ void AutonSelector::touchTaskLoop() {
 
 void AutonSelector::update() {
 
-    pros::screen_touch_status_s touch =
-        pros::screen::touch_status();
+    pros::screen_touch_status_s touch =  pros::screen::touch_status();
 
 
     // ========================================================
@@ -400,11 +393,9 @@ void AutonSelector::update() {
         // SAVE CURRENT POSITION
         // ----------------------------------------------------
 
-        touch_current_x =
-            touch.x;
+        touch_current_x = touch.x;
 
-        touch_current_y =
-            touch.y;
+        touch_current_y = touch.y;
 
 
         return;
@@ -446,27 +437,22 @@ void AutonSelector::update() {
     // SWIPE DETECTION
     // ========================================================
 
-    if (
-        screen_number == SCREEN_COMPETITION_AUTONS ||
-        screen_number == SCREEN_SKILLS_AUTONS
-    ) {
+    if (screen_number == SCREEN_COMPETITION_AUTONS || screen_number == SCREEN_SKILLS_AUTONS) 
+    
+    {
 
         // ----------------------------------------------------
         // VERTICAL SWIPE
         // ----------------------------------------------------
 
-        if (
-            deltaY <= -SWIPE_THRESHOLD
-        ) {
+        if (deltaY <= -SWIPE_THRESHOLD) {
 
             // Finger moved upward.
             //
             // Content should move upward,
             // therefore scroll downward.
 
-            scrollBy(
-                AUTON_ROW_STEP * 2
-            );
+            scrollBy(AUTON_ROW_STEP * 2);
 
             render();
 
@@ -474,18 +460,14 @@ void AutonSelector::update() {
         }
 
 
-        if (
-            deltaY >= SWIPE_THRESHOLD
-        ) {
+        if (deltaY >= SWIPE_THRESHOLD) {
 
             // Finger moved downward.
             //
             // Content should move downward,
             // therefore scroll upward.
 
-            scrollBy(
-                -AUTON_ROW_STEP * 2
-            );
+            scrollBy(-AUTON_ROW_STEP * 2);
 
             render();
 

@@ -17,3 +17,33 @@ PENDING:
 
 
 Later: ensure the text is centred
+
+
+
+
+
+To change the orientation of the screen
+
+map out the pixels
+
+pseudocode:
+change the size of the text and the code using some scaling function 
+-  y value -> x-value
+
+maxYflipped = 480
+maxXflipped = 240
+
+set a wrapping length to go to the next line,
+ - check distance from the end of the screen 
+
+ 
+
+create a mapping from  
+
+
+rotate each button 90 degrees left from the center of the button
+ - use a transformation 
+ - use a scalar that considers the ratio from the amount of space
+
+ scale things down in size according to that ratio 
+  - change the minimums and maximums according to the measurements
