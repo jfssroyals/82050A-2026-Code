@@ -4,9 +4,9 @@
 #include "constants.hpp"
 #include "lift.hpp"
 #include "claw.hpp"
-#include "claw_motor.hpp"
+#include "wrist.hpp"
 #include "intake.hpp"
-#include "control.hpp"
+// #include "control.hpp"
 #include "pros/misc.h"
 
 
@@ -16,6 +16,7 @@ pros::Controller controller(pros::E_CONTROLLER_MASTER);
 // subsystems ports
 // claw
 Claw claw('A');
+Wrist wrist('B');
 
 //Bellcrank Piston
 pros::adi::DigitalOut intakePiston('H');
@@ -173,6 +174,28 @@ void opcontrol() {
             intake.spinOutward();
         }
   
+// --------------------------------------------------------
+// Wrist Code
+
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)){
+            if (wrist.isUp) {
+                wrist.moveDOWN();
+            } else {
+                wrist.moveUP();
+            }
+        }
+// -----------------------------------------------------------------------------
+
+// ---------------------------------------- CLAW CODE --------------------------
+// Claw Code
+        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
+            if (claw.isExtended) {
+                claw.close();
+            } else{
+                claw.open();
+            }
+        }
+// -----------------------------------------------------------------------------
 
         // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
         //         //bell crank piston up
