@@ -1,52 +1,44 @@
 #include "main.h"
-#include "lemlib/api.hpp" // IWYU pragma: keep
+#include "lemlib/api.hpp" =
 #include "autons.hpp"
 #include "constants.hpp"
 #include "lift.hpp"
 #include "claw.hpp"
 #include "wrist.hpp"
 #include "intake.hpp"
-// #include "control.hpp"
 #include "pros/misc.h"
 
 
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
-// subsystems ports
 // claw
 Claw claw('A');
+// wrist
 Wrist wrist('B');
-
-//Bellcrank Piston
-pros::adi::DigitalOut intakePiston('H');
 
 // create lift
 Lift lift(-9, 2);
 
-
 // Intake 
 Intake intake(1);
 
-// ------------------------------ //
+// Distance Sensor
+pros::Distance distanceSensor(3);
 
 // motor groups
 pros::MotorGroup leftMotors({-10, -8, -7}); // left motor group - ports 3 (reversed), 4, 5 (reversed)
 pros::MotorGroup rightMotors({20, 5, 4}); // right motor group - ports 6, 7, 9 (reversed)
 
-
 // Inertial Sensor on port 6
 pros::Imu imu(6);
-
 // horizontal tracking wheel encoder Rotation sensor, port 20
 pros::Rotation horizontalEnc(-12);
 // vertical tracking wheel 
 pros::Rotation verticalEnc(-19);
 // horizontal tracking wheel. 2.75" diameter, 5.75" offset, back of the robot (negative)
 lemlib::TrackingWheel horizontal(&horizontalEnc, lemlib::Omniwheel::NEW_2, -4.917);
-
 lemlib::TrackingWheel vertical(&verticalEnc, lemlib::Omniwheel::NEW_2, -1);
-// ------------------------------ //
 
 // drivetrain settings
 lemlib::Drivetrain drivetrain(&leftMotors, // left motor group
@@ -119,9 +111,7 @@ void initialize() {
     controller.rumble(".."); // rumble to indicate that the robot is initializing
     pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
-    // bar.reset();
     lift.reset();
-    claw.open();
 
     pros::Task screen_task([&]() {
         while (true) {
@@ -129,20 +119,47 @@ void initialize() {
             pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
             pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
             pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
+
+            // Read distance in millimeters
+            int dist_mm = distanceSensor.get(); // returns distance in mm
+            
+            // Print chassis pose
+            pros::lcd::print(0, "X: %.2f Y: %.2f", chassis.getPose().x, chassis.getPose().y);
+            pros::lcd::print(1, "Theta: %.2f", chassis.getPose().theta);
+            
+            // Print Distance Sensor Reading
+            pros::lcd::print(2, "Intake Dist: %d mm", dist_mm);
+
+            // Optional: Print whether an object is detected within range
+            if (dist_mm > 0 && dist_mm < 150) { // Adjust 150mm threshold based on intake width
+                pros::lcd::print(3, "Object: DETECTED");
+            } else {
+                pros::lcd::print(3, "Object: NONE");
+            }
             // delay to save resources
             pros::delay(100);
         }
     });
 }
 
-/**
- * Runs while the robot is disabled
- */
+// runs if robot disabled
 void disabled() {}
 
-/**
- * runs after initialize if the robot is connected to field control
- */
+// for distance sewnsor testing:
+void checkIntakeAndDropLift() {
+    // Check if distance sensor detects an object within 150mm
+    if (distanceSensor.get() > 0 && distanceSensor.get() < 80) {
+
+        // 2. Drive lift down for 1 second (1000 ms)
+        lift.New_LiftControl(40);
+        pros::delay(350);
+
+        // 3. Stop lift motors and restore HOLD brake mode
+        lift.New_LiftControl(0);
+    }
+}
+
+// runs after initialize if the robot is connected to field control
 void competition_initialize() {}
 
 
@@ -159,8 +176,11 @@ void opcontrol() {
         if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
             lift.New_LiftControl(80);
         }
-        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
+        else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
             lift.New_LiftControl(-80);
+        }
+        else {
+            lift.New_LiftControl(0);    // STOP when neither button is held
         }
         // lift.updateComplexLift();
         // --------------------------------------------------------------
@@ -195,17 +215,12 @@ void opcontrol() {
                 claw.open();
             }
         }
-// -----------------------------------------------------------------------------
 
-        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
-        //         //bell crank piston up
-        //         intakePiston.set_value(false);
-        // }
-        // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
-        //         //bell crank piston down
-        //         intakePiston.set_value(true);
-        // }
-        
+// TEST DISTANCE SENSORE CODE
+        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
+            checkIntakeAndDropLift();
+        }
+
         pros::delay(5);
     
     }

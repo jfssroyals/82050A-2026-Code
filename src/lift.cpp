@@ -26,8 +26,8 @@ void Lift::reset() {
     L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
     R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 
-    L_liftMotor.move(-80);
-    R_liftMotor.move(-80);
+    L_liftMotor.move(80);
+    R_liftMotor.move(80);
 
     int stableTime = 0;
 
