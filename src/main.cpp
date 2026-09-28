@@ -27,8 +27,8 @@ Intake intake(1);
 pros::Distance distanceSensor(3);
 
 // motor groups
-pros::MotorGroup leftMotors({-10, -8, -7}); // left motor group - ports 3 (reversed), 4, 5 (reversed)
-pros::MotorGroup rightMotors({20, 5, 4}); // right motor group - ports 6, 7, 9 (reversed)
+pros::MotorGroup leftMotors({-13, -11, -14}); // left motor group - ports 3 (reversed), 4, 5 (reversed)
+pros::MotorGroup rightMotors({16, 12, 15}); // right motor group - ports 6, 7, 9 (reversed)
 
 // Inertial Sensor on port 6
 pros::Imu imu(6);
