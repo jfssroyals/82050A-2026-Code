@@ -6,7 +6,28 @@
 
 #include "autons.hpp"
 
+// width is double the height
+float xtoy_scalar = SCREEN_WIDTH / TILTED_WIDTH;
+int ytox_scalar = SCREEN_HEIGHT / TILTED_HEIGHT;
 
+orientation
+
+(0,1) -> ()
+
+
+
+/*
+calculate the orientation of the screen and its components
+
+fix the issues where necessary
+
+
+*/
+
+int rotation()
+{
+    switch(orientation)
+}
 // ============================================================
 // AUTON DEFINITIONS
 // ============================================================
@@ -165,14 +186,9 @@ int AutonSelector::getCenterX(const Button& button) {
 // CENTER Y
 // ============================================================
 
-int AutonSelector::getCenterY(
-    const Button& button
-) {
+int AutonSelector::getCenterY(const Button& button) {
 
-    return (
-        button.top +
-        (button.bottom - button.top) / 2
-    );
+    return (button.top + (button.bottom - button.top) / 2);
 }
 
 

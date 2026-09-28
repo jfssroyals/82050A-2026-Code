@@ -22,6 +22,16 @@ public:
         NonLoader
     };
 
+    enum Scaling
+    {
+        power_right,
+        powerbutton_up,
+        powerbutton_left,
+        powerbutton_down
+    };
+
+    // one variable keeps track o
+
 
     // ========================================================
     // AUTON DEFINITION
@@ -71,7 +81,8 @@ public:
 
     bool isAutonConfirmed() const;
 
-
+    Scaling getCurrentOrientation();
+    
     // ========================================================
     // CONFIRMATION
     // ========================================================
@@ -82,6 +93,8 @@ public:
     {   
         return AUTONS;
     }
+
+    void rotation();
 
 private:
 
@@ -124,7 +137,7 @@ private:
 
     static constexpr int TILTED_WIDTH  = 240;
 
-    static constexpr int TILED_WIDTH = 480;
+    static constexpr int TILTED_HEIGHT = 480;
 
     // ========================================================
     // MODE BUTTONS
