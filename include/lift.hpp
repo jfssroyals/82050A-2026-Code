@@ -23,9 +23,10 @@ public:
 
    void updateComplexLift();
    void reset();
-
+   void tare();
+   void moveToAngle(double targetAngle, int timeout_ms = 3000);
    void New_LiftControl(double speed);
-  
+   void stop();
    
    bool isUp = false;
 

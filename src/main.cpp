@@ -26,6 +26,8 @@ Intake intake(1);
 // Distance Sensor
 pros::Distance distanceSensor(3);
 
+pros::Rotation rotationSensor(10);
+
 // motor groups
 pros::MotorGroup leftMotors({-13, -11, -14}); // left motor group - ports 3 (reversed), 4, 5 (reversed)
 pros::MotorGroup rightMotors({16, 12, 15}); // right motor group - ports 6, 7, 9 (reversed)
@@ -106,13 +108,22 @@ lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors
 //         pros::delay(50);
 //     }
 // }
+void rotation(double speed){
+    // 1. Get position in centidegrees (1/100th of a degree, tracks multi-turn rotations)
+    int raw_position = rotationSensor.get_position(); 
 
+    // Convert centidegrees to standard degrees
+    double position_deg = raw_position / 100.0;
+
+    // 2. Alternatively, get angle strictly within 0 to 36000 centidegrees (0 to 360 degrees)
+    double angle_deg = rotationSensor.get_angle() / 100.0;
+}
 void initialize() {
     controller.rumble(".."); // rumble to indicate that the robot is initializing
     pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
     lift.reset();
-
+    lift.tare();
     pros::Task screen_task([&]() {
         while (true) {
             // print robot location to the brain screen
@@ -145,6 +156,7 @@ void initialize() {
 // runs if robot disabled
 void disabled() {}
 
+
 // for distance sewnsor testing:
 void checkIntakeAndDropLift() {
     // Check if distance sensor detects an object within 150mm
@@ -162,6 +174,16 @@ void checkIntakeAndDropLift() {
 // runs after initialize if the robot is connected to field control
 void competition_initialize() {}
 
+// void rotation(double speed){
+//     // 1. Get position in centidegrees (1/100th of a degree, tracks multi-turn rotations)
+//     int raw_position = rotationSensor.get_position(); 
+
+//     // Convert centidegrees to standard degrees
+//     double position_deg = raw_position / 100.0;
+
+//     // 2. Alternatively, get angle strictly within 0 to 36000 centidegrees (0 to 360 degrees)
+//     double angle_deg = rotationSensor.get_angle() / 100.0;
+// }
 
 void opcontrol() {
     while (true) {
@@ -174,13 +196,13 @@ void opcontrol() {
         // -------------------------------------------------------------
         //LIFT CODE
         if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
-            lift.New_LiftControl(80);
+            lift.New_LiftControl(120);
         }
         else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
-            lift.New_LiftControl(-80);
+            lift.New_LiftControl(-40);
         }
         else {
-            lift.New_LiftControl(0);    // STOP when neither button is held
+            lift.stop();    
         }
         // lift.updateComplexLift();
         // --------------------------------------------------------------
@@ -220,8 +242,8 @@ void opcontrol() {
         if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
             checkIntakeAndDropLift();
         }
-
         pros::delay(5);
+    pros::delay(5);
     
     }
 }

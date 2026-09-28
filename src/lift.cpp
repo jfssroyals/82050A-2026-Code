@@ -3,6 +3,7 @@
 #include <cmath>
 
 extern pros::Controller controller;
+extern pros::Rotation rotationSensor;
 
 // Constructor
 Lift::Lift(signed char leftPort, signed char rightPort)
@@ -18,6 +19,52 @@ void Lift::New_LiftControl(double speed) {
     L_liftMotor.move(speed);
     R_liftMotor.move(speed);
 }
+
+// ----------------------- ROTATION SENSOR -------------
+void Lift::moveToAngle(double targetAngle, int timeout_ms) {
+    int elapsedTime = 0;
+
+    while (elapsedTime < timeout_ms) {
+        // Read current angle in degrees (get_position returns centidegrees)
+        double currentAngle = rotationSensor.get_position() / 100.0;
+
+        // Calculate how far we are from the target
+        double error = targetAngle - currentAngle;
+
+        // If we are within 1 degree of the target, stop the loop
+        if (std::abs(error) < 1.0) {
+            break;
+        }
+
+        // Proportional control: power scales with the error
+        // Note: Increase 2.5 to move faster, decrease if it overshoots
+        double motorSpeed = error * 2.5;
+
+        // Cap the speed to PROS motor limits (-127 to 127)
+        motorSpeed = std::clamp(motorSpeed, -127.0, 127.0);
+
+        // Move the motors
+        New_LiftControl(motorSpeed);
+
+        // Required PROS delay to prevent task starvation
+        pros::delay(20);
+        elapsedTime += 20;
+    }
+
+    // Stop and hold when target is reached or timeout expires
+    stop();
+}
+
+void Lift::stop(){
+    L_liftMotor.brake();
+    R_liftMotor.brake();
+}
+
+void Lift::tare() {
+    // This resets the continuous position tracker to 0
+    rotationSensor.reset_position();
+}
+
 // moe stuff now -------------------------
 
 void Lift::reset() {
@@ -26,8 +73,8 @@ void Lift::reset() {
     L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
     R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 
-    L_liftMotor.move(80);
-    R_liftMotor.move(80);
+    L_liftMotor.move(-80);
+    R_liftMotor.move(-80);
 
     int stableTime = 0;
 
