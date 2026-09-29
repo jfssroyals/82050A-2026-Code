@@ -7,30 +7,37 @@ private:
     // Motor group for lift
     pros::Motor L_liftMotor;
     pros::Motor R_liftMotor;
+
+    // Rotation sensor for lift position
+    pros::Rotation rotationSensor;
+
+    double targetAngle = 0;
     
-    double liftTargetHeight = 0;
-    int currentStage = 0;
-    const int totalStages = 5;
-    const double stageGap = 725.0;
+    double margin = 0.5; // margin of error for lift position
 
-
-    // PID controller (kP, kI, kD, anti-windup, derivative filter)
-    lemlib::PID liftPID{0.7, 0.0, 0.0, 0, false};
+    double kp = 2.5; // Proportional gain for lift control
 
 public:
-    Lift(signed char leftPort, signed char rightPort);
+    Lift(signed char leftPort, signed char rightPort, signed char rotationPort);
 
+    // manual motor control
+    void manual(double speed);
 
-   void updateComplexLift();
-   void reset();
-   void tare();
-   void moveToAngle(double targetAngle, int timeout_ms = 3000);
-   void New_LiftControl(double speed);
-   void stop();
-   
-   bool isUp = false;
+    // Tell the lift where we want it to go according to rotation sensor 
+    void moveAngle(double angle);
 
-   
-   double global_error = 0; //margin used only in comp lift
+    // Call this repeatedly from opcontrol()
+    void update();
 
+    // Get current physical lift angle
+    double getAngle();
+
+    // Stop lift motors
+    void stop();
+
+    // Zero rotation sensor
+    void tare();
+
+    // Mechanical hard-stop calibration
+    void reset();
 };

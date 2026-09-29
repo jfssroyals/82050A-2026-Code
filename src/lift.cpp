@@ -1,174 +1,118 @@
 #include "lift.hpp"
+
 #include <algorithm>
 #include <cmath>
 
-extern pros::Controller controller;
-extern pros::Rotation rotationSensor;
 
-// Constructor
-Lift::Lift(signed char leftPort, signed char rightPort)
-    :  L_liftMotor(leftPort, pros::MotorGearset::green),
-       R_liftMotor(rightPort, pros::MotorGearset::green)
-{
+// constructor
+
+Lift::Lift(signed char leftPort, signed char rightPort, signed char rotationPort)
+    : L_liftMotor(leftPort, pros::MotorGearset::green), R_liftMotor(rightPort, pros::MotorGearset::green), rotationSensor(rotationPort) {
+
+    // When stopped, actively hold the lift position.
     L_liftMotor.set_brake_mode(pros::MotorBrake::hold);
     R_liftMotor.set_brake_mode(pros::MotorBrake::hold);
 }
 
-// ACTUAL CODE _________________ SIMPLE ---------
-void Lift::New_LiftControl(double speed) {
+// manual motor control
+
+void Lift::manual(double speed) {
+
     L_liftMotor.move(speed);
     R_liftMotor.move(speed);
+
+    // Update target angle to current angle to prevent sudden jumps when switching back to automatic control
+    targetAngle = getAngle();
 }
 
-// ----------------------- ROTATION SENSOR -------------
-void Lift::moveToAngle(double targetAngle, int timeout_ms) {
-    int elapsedTime = 0;
 
-    while (elapsedTime < timeout_ms) {
-        // Read current angle in degrees (get_position returns centidegrees)
-        double currentAngle = rotationSensor.get_position() / 100.0;
+// get current angle of lift according to rotation sensor
 
-        // Calculate how far we are from the target
-        double error = targetAngle - currentAngle;
+double Lift::getAngle() {
 
-        // If we are within 1 degree of the target, stop the loop
-        if (std::abs(error) < 1.0) {
-            break;
-        }
+    // Rotation sensor reports centidegrees, divide by 100 to get degrees
+   
+    return rotationSensor.get_position() / 100.0;
+}
 
-        // Proportional control: power scales with the error
-        // Note: Increase 2.5 to move faster, decrease if it overshoots
-        double motorSpeed = error * 2.5;
 
-        // Cap the speed to PROS motor limits (-127 to 127)
-        motorSpeed = std::clamp(motorSpeed, -127.0, 127.0);
+// set target height
 
-        // Move the motors
-        New_LiftControl(motorSpeed);
+void Lift::moveAngle(double angle) {
 
-        // Required PROS delay to prevent task starvation
-        pros::delay(20);
-        elapsedTime += 20;
+    // only changes where we WANT the lift to go.
+
+    targetAngle = angle;
+}
+
+void Lift::update() {
+
+    // Get current angle of lift
+    double currentAngle = getAngle();
+
+    // Calculate error between target and current angle
+    double error = targetAngle - currentAngle;
+
+    // If the error is within the margin, stop the motors
+    if (std::abs(error) < margin) {
+        stop(); // brake both motors
+        return;
     }
 
-    // Stop and hold when target is reached or timeout expires
-    stop();
+    // Calculate motor speed using proportional control
+    double speed = kp * error;
+
+    // Limit speed to [-127, 127]
+    speed = std::clamp(speed, -127.0, 127.0);
+
+    // Move lift motors
+    manual(speed);
 }
 
-void Lift::stop(){
-    L_liftMotor.brake();
-    R_liftMotor.brake();
-}
-
-void Lift::tare() {
-    // This resets the continuous position tracker to 0
-    rotationSensor.reset_position();
-}
-
-// moe stuff now -------------------------
-
-void Lift::reset() {
-
-    // Let lift fall toward the hard stop
-    L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-    R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-
-    L_liftMotor.move(-80);
-    R_liftMotor.move(-80);
-
-    int stableTime = 0;
-
-    double lastPosition = 
-        (L_liftMotor.get_position() + R_liftMotor.get_position()) / 2;
-
-    while (stableTime < 500) {
-
-        pros::delay(20);
-
-        double currentPosition =
-            (L_liftMotor.get_position() + R_liftMotor.get_position()) / 2;
-
+void Lift::reset() {  
+  
+    // Let lift fall toward the hard stop  
+    L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);  
+    R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);  
+  
+    L_liftMotor.move(-80);  
+    R_liftMotor.move(-80);  
+  
+    int stableTime = 0;  
+  
+    double lastPosition =   
+        (L_liftMotor.get_position() + R_liftMotor.get_position()) / 2.0;  
+  
+    while (stableTime < 500) {  
+  
+        pros::delay(20);  
+  
+        double currentPosition =  
+            (L_liftMotor.get_position() + R_liftMotor.get_position()) / 2.0;  
+  
         // Lift is no longer moving
-        if (std::fabs(currentPosition - lastPosition) < 0.5) {
-            stableTime += 20;
+        if (std::fabs(currentPosition - lastPosition) < 0.5) {  
+            stableTime += 20;  
         } 
-        else {
-            stableTime = 0;
-        }
+        else {  
+            stableTime = 0;  
+        }  
+  
+        lastPosition = currentPosition;  
+    }  
+  
+    // Stop motors  
+    L_liftMotor.move(0);  
+    R_liftMotor.move(0);  
 
-        lastPosition = currentPosition;
-    }
+    // Make position 0 degrees.
+    rotationSensor.reset_position();
 
-    // Stop motors
-    L_liftMotor.move(0);
-    R_liftMotor.move(0);
-
-    // Set hard stop as zero
-    L_liftMotor.tare_position();
-    R_liftMotor.tare_position();
-
-    isUp = false;
-
-    // Return to hold mode after calibration
-    L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-    R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    // Controller's desired position should also be 0.
+    targetAngle = 0.0;
+  
+  
+    // Return to hold mode after calibration  
+    L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);  
+    R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);  
 }
-
-
-// ---------------UPDATE CODE -------------------------------------------------------
-// void Lift::updateComplexLift() {
-    
-//     // Prevent going past limits
-//     liftTargetHeight = std::clamp(liftTargetHeight, 0.0, 2000.0);
-
-//     // Get current lift position
-//     double leftPosition = L_liftMotor.get_position();
-//     double rightPosition = R_liftMotor.get_position();
-
-//     double currentPosition = (leftPosition + rightPosition) / 2.0;
-
-//     // PID to target
-//     double error = liftTargetHeight - currentPosition;
-
-//     if (abs(error) < 3){
-//         L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-//         R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-//         L_liftMotor.brake();
-//         R_liftMotor.brake();
-//         // L_liftMotor.move_voltage(0);
-//         // R_liftMotor.move_voltage(0);
-//         return;
-//     }
-    
-//     double motorPower = liftPID.update(error);
-
-
-//     // Limit power
-//     motorPower = std::clamp(motorPower, -70.0, 127.0);
-
-
-//     L_liftMotor.move(motorPower);
-//     R_liftMotor.move(motorPower);
-
-//     if (currentPosition > 400)
-//     {
-//         isUp  = true;
-//     }
-
-//     if (currentPosition < 400)
-//     {
-//         isUp = false;
-//     }
-    
-//     // if (isUp){
-//     //     // L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-//     //     // R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-//     //     L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
-//     //     R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
-//     // } 
-//     // if (isUp == false) {
-//     //     L_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-//     //     R_liftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-//     // }
-// }
-// -----------------------------------------------------------------------------

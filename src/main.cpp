@@ -18,7 +18,7 @@ Claw claw('A');
 Wrist wrist('B');
 
 // create lift
-Lift lift(-9, 2);
+Lift lift(-9, 2, 10); // left motor port, right motor port, rotation sensor port
 
 // Intake 
 Intake intake(1);
@@ -26,7 +26,6 @@ Intake intake(1);
 // Distance Sensor
 pros::Distance distanceSensor(3);
 
-pros::Rotation rotationSensor(10);
 
 // motor groups
 pros::MotorGroup leftMotors({-13, -11, -14}); // left motor group - ports 3 (reversed), 4, 5 (reversed)
@@ -108,22 +107,12 @@ lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors
 //         pros::delay(50);
 //     }
 // }
-void rotation(double speed){
-    // 1. Get position in centidegrees (1/100th of a degree, tracks multi-turn rotations)
-    int raw_position = rotationSensor.get_position(); 
 
-    // Convert centidegrees to standard degrees
-    double position_deg = raw_position / 100.0;
-
-    // 2. Alternatively, get angle strictly within 0 to 36000 centidegrees (0 to 360 degrees)
-    double angle_deg = rotationSensor.get_angle() / 100.0;
-}
 void initialize() {
     controller.rumble(".."); // rumble to indicate that the robot is initializing
     pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
     lift.reset();
-    lift.tare();
     pros::Task screen_task([&]() {
         while (true) {
             // print robot location to the brain screen
@@ -158,18 +147,18 @@ void disabled() {}
 
 
 // for distance sewnsor testing:
-void checkIntakeAndDropLift() {
-    // Check if distance sensor detects an object within 150mm
-    if (distanceSensor.get() > 0 && distanceSensor.get() < 80) {
+// void checkIntakeAndDropLift() {
+//     // Check if distance sensor detects an object within 150mm
+//     if (distanceSensor.get() > 0 && distanceSensor.get() < 80) {
 
-        // 2. Drive lift down for 1 second (1000 ms)
-        lift.New_LiftControl(40);
-        pros::delay(350);
+//         // 2. Drive lift down for 1 second (1000 ms)
+//         lift.New_LiftControl(40);
+//         pros::delay(350);
 
-        // 3. Stop lift motors and restore HOLD brake mode
-        lift.New_LiftControl(0);
-    }
-}
+//         // 3. Stop lift motors and restore HOLD brake mode
+//         lift.New_LiftControl(0);
+//     }
+// }
 
 // runs after initialize if the robot is connected to field control
 void competition_initialize() {}
@@ -185,6 +174,8 @@ void competition_initialize() {}
 //     double angle_deg = rotationSensor.get_angle() / 100.0;
 // }
 
+
+
 void opcontrol() {
     while (true) {
         // get joystick positions
@@ -192,20 +183,30 @@ void opcontrol() {
         int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
         // move the chassis with curvature drive
         chassis.arcade(leftY, rightX);
-    
-        // -------------------------------------------------------------
-        //LIFT CODE
-        if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
-            lift.New_LiftControl(120);
+        
+        // =====================================================
+        // LIFT CONTROL
+        // =====================================================
+
+        // Manual UP
+        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+
+            lift.manual(120);
         }
-        else if(controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
-            lift.New_LiftControl(-40);
+
+        // Manual DOWN
+        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+
+            lift.manual(-40);
         }
-        else {
-            lift.stop();    
+
+        // Pickup position
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)) {
+            lift.moveAngle(15);
         }
-        // lift.updateComplexLift();
-        // --------------------------------------------------------------
+
+        // ALWAYS update the lift controller
+        lift.update();
 
         // --------------------------------------------------------
         // Intake Code
@@ -216,8 +217,8 @@ void opcontrol() {
             intake.spinOutward();
         }
   
-// --------------------------------------------------------
-// Wrist Code
+        // --------------------------------------------------------
+        // Wrist Code
 
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)){
             if (wrist.isUp) {
@@ -226,10 +227,10 @@ void opcontrol() {
                 wrist.moveUP();
             }
         }
-// -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
-// ---------------------------------------- CLAW CODE --------------------------
-// Claw Code
+        // ---------------------------------------- CLAW CODE --------------------------
+        // Claw Code
         if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
             if (claw.isExtended) {
                 claw.close();
@@ -238,12 +239,12 @@ void opcontrol() {
             }
         }
 
-// TEST DISTANCE SENSORE CODE
-        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
-            checkIntakeAndDropLift();
-        }
-        pros::delay(5);
-    pros::delay(5);
-    
+        // // TEST DISTANCE SENSOR CODE
+        // if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
+        //     checkIntakeAndDropLift();
+        // }
+                
+        pros::delay(10);
+            
     }
 }
