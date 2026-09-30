@@ -331,6 +331,8 @@ void updateLiftAutomation() {
     }
 }
 
+bool waitingForClear = false;
+
 void opcontrol() {
     while (true) {
         // get joystick positions
@@ -377,10 +379,24 @@ void opcontrol() {
         // INTAKE
         // =====================================================
 
-        if (controller.get_digital_new_press(
-                pros::E_CONTROLLER_DIGITAL_A)) {
 
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
             intake.spinInward();
+            lift.moveAngle(LIFT_UP_ANGLE);
+            wrist.moveDOWN();
+            int dist_mm = distanceSensor.get();
+            if (dist_mm > 0 && dist_mm < 150) {
+                lift.moveAngle(LIFT_DOWN_ANGLE);
+                claw.close();
+                wrist.moveUP();
+                lift.manual(100);
+                pros::delay(50);
+                lift.manual(0);
+                waitingForClear = true;
+
+            if (distanceSensor.get() >= 150) {
+                waitingForClear = false;
+}
         }
 
         if (controller.get_digital_new_press(
@@ -404,7 +420,7 @@ void opcontrol() {
                 wrist.moveUP();
             }
         }
-
+        
 
         // =====================================================
         // CLAW
