@@ -77,6 +77,10 @@ void Lift::update() {
     R_liftMotor.move(speed);
 }
 
+void Lift::cancelAuto() {
+    autoMode = false;
+    stop();
+}
 
 void Lift::reset() {
 

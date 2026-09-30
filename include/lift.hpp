@@ -42,4 +42,6 @@ public:
 
     // Mechanical hard-stop calibration
     void reset();
+
+    void cancelAuto();
 };

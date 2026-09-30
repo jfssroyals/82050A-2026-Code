@@ -1,5 +1,5 @@
 #include "main.h"
-#include "lemlib/api.hpp" =
+#include "lemlib/api.hpp"
 #include "autons.hpp"
 #include "constants.hpp"
 #include "lift.hpp"
@@ -7,6 +7,8 @@
 #include "wrist.hpp"
 #include "intake.hpp"
 #include "pros/misc.h"
+#include <cmath>
+
 
 
 // controller
@@ -25,6 +27,31 @@ Intake intake(1);
 
 // Distance Sensor
 pros::Distance distanceSensor(3);
+
+// =====================================================
+// AUTOMATIC INTAKE / LIFT SYSTEM
+// =====================================================
+
+const double LIFT_UP_ANGLE = 15;
+const double LIFT_DOWN_ANGLE = 12;
+
+const int DISTANCE_THRESHOLD = 80; // mm
+
+const int CLAW_CLOSE_DELAY = 300; // ms
+
+enum class LiftAutoState {
+    OFF,
+    MOVING_UP,
+    WAITING_FOR_OBJECT,
+    MOVING_DOWN,
+    WAITING_TO_CLOSE,
+    MOVING_BACK_UP,
+    WAITING_FOR_CLEAR
+};
+
+LiftAutoState liftAutoState = LiftAutoState::OFF;
+
+uint32_t clawCloseTimer = 0;
 
 
 // motor groups
@@ -96,17 +123,6 @@ lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband out of 127
 
 // create the chassis
 lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors, &throttleCurve, &steerCurve);
-// void screenTask(void*) {
-//     while (true) {
-//         pros::lcd::print(0, "X: %.2f", chassis.getPose().x);
-//         pros::lcd::print(1, "Y: %.2f", chassis.getPose().y);
-//         pros::lcd::print(2, "Theta: %.2f", chassis.getPose().theta);
-//         lift.LiftVoltage();
-//         // printf("X: %.2f Y: %.2f\n", chassis.getPose().x, chassis.getPose().y);
-//         // printf("Theta: %.2f\n", chassis.getPose().theta);
-//         pros::delay(50);
-//     }
-// }
 
 void initialize() {
     controller.rumble(".."); // rumble to indicate that the robot is initializing
@@ -174,7 +190,146 @@ void competition_initialize() {}
 //     double angle_deg = rotationSensor.get_angle() / 100.0;
 // }
 
+void updateLiftAutomation() {
 
+    // =====================================================
+    // INTAKE NOT RUNNING
+    // =====================================================
+
+    if (!intake.isRunning || !intake.isSpinningInward) {
+        liftAutoState = LiftAutoState::OFF;
+        lift.cancelAuto();
+        return;
+    }
+
+
+    // =====================================================
+    // DISTANCE SENSOR
+    // =====================================================
+
+    int distance = distanceSensor.get();
+
+    bool objectDetected =
+        distance > 0 && distance < DISTANCE_THRESHOLD;
+
+
+    // =====================================================
+    // STATE MACHINE
+    // =====================================================
+
+    switch (liftAutoState) {
+
+        // -------------------------------------------------
+        // INTAKE JUST STARTED
+        // -------------------------------------------------
+
+        case LiftAutoState::OFF:
+
+            lift.moveAngle(LIFT_UP_ANGLE);
+
+            liftAutoState = LiftAutoState::MOVING_UP;
+
+            break;
+
+
+        // -------------------------------------------------
+        // LIFT IS MOVING UP
+        // -------------------------------------------------
+
+        case LiftAutoState::MOVING_UP:
+
+            if (std::abs(lift.getAngle() - LIFT_UP_ANGLE) < 0.5) {
+
+                liftAutoState =
+                    LiftAutoState::WAITING_FOR_OBJECT;
+            }
+
+            break;
+
+
+        // -------------------------------------------------
+        // WAITING FOR OBJECT
+        // -------------------------------------------------
+
+        case LiftAutoState::WAITING_FOR_OBJECT:
+
+            if (objectDetected) {
+
+                lift.moveAngle(LIFT_DOWN_ANGLE);
+
+                liftAutoState =
+                    LiftAutoState::MOVING_DOWN;
+            }
+
+            break;
+
+
+        // -------------------------------------------------
+        // LIFT IS MOVING DOWN
+        // -------------------------------------------------
+
+        case LiftAutoState::MOVING_DOWN:
+
+            if (std::abs(lift.getAngle() - LIFT_DOWN_ANGLE) < 0.5) {
+
+                clawCloseTimer = pros::millis();
+
+                liftAutoState =
+                    LiftAutoState::WAITING_TO_CLOSE;
+            }
+
+            break;
+
+
+        // -------------------------------------------------
+        // WAITING BEFORE CLOSING CLAW
+        // -------------------------------------------------
+
+        case LiftAutoState::WAITING_TO_CLOSE:
+
+            if (pros::millis() - clawCloseTimer >= CLAW_CLOSE_DELAY) {
+
+                claw.close();
+
+                lift.moveAngle(LIFT_UP_ANGLE);
+
+                liftAutoState =
+                    LiftAutoState::MOVING_BACK_UP;
+            }
+
+            break;
+
+
+        // -------------------------------------------------
+        // LIFT IS MOVING BACK UP
+        // -------------------------------------------------
+
+        case LiftAutoState::MOVING_BACK_UP:
+
+            if (std::abs(lift.getAngle() - LIFT_UP_ANGLE) < 0.5) {
+
+                liftAutoState =
+                    LiftAutoState::WAITING_FOR_CLEAR;
+            }
+
+            break;
+
+
+        // -------------------------------------------------
+        // WAIT FOR OBJECT TO LEAVE SENSOR
+        // -------------------------------------------------
+
+        case LiftAutoState::WAITING_FOR_CLEAR:
+
+            if (!objectDetected) {
+
+                liftAutoState =
+                    LiftAutoState::WAITING_FOR_OBJECT;
+            }
+
+            break;
+    }
+}
 
 void opcontrol() {
     while (true) {
@@ -184,35 +339,36 @@ void opcontrol() {
         // move the chassis with curvature drive
         chassis.arcade(leftY, rightX);
         
-        // =====================================================
-        // LIFT CONTROL
-        // =====================================================
+// =====================================================
+// LIFT CONTROL
+// =====================================================
 
-        // Automatic pickup position
-        if (controller.get_digital_new_press(
-                pros::E_CONTROLLER_DIGITAL_B)) {
-
-            lift.moveAngle(15);
-        }
-
-
-        // Manual UP
+// Manual UP
         if (controller.get_digital(
                 pros::E_CONTROLLER_DIGITAL_R1)) {
 
             lift.manual(120);
+
+            // Manual control takes priority
+            liftAutoState = LiftAutoState::OFF;
         }
 
         // Manual DOWN
         else if (controller.get_digital(
-                     pros::E_CONTROLLER_DIGITAL_R2)) {
+                    pros::E_CONTROLLER_DIGITAL_R2)) {
 
             lift.manual(-40);
+
+            // Manual control takes priority
+            liftAutoState = LiftAutoState::OFF;
         }
 
-        // No manual input
+        // Automatic lift
         else {
 
+            updateLiftAutomation();
+
+            // Actually move the lift toward its target angle
             lift.update();
         }
 
