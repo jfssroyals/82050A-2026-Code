@@ -188,63 +188,85 @@ void opcontrol() {
         // LIFT CONTROL
         // =====================================================
 
+        // Automatic pickup position
+        if (controller.get_digital_new_press(
+                pros::E_CONTROLLER_DIGITAL_B)) {
+
+            lift.moveAngle(15);
+        }
+
+
         // Manual UP
-        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+        if (controller.get_digital(
+                pros::E_CONTROLLER_DIGITAL_R1)) {
 
             lift.manual(120);
         }
 
         // Manual DOWN
-        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+        else if (controller.get_digital(
+                     pros::E_CONTROLLER_DIGITAL_R2)) {
 
             lift.manual(-40);
         }
 
-        // Pickup position
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)) {
-            lift.moveAngle(15);
+        // No manual input
+        else {
+
+            lift.update();
         }
 
-        // ALWAYS update the lift controller
-        lift.update();
 
-        // --------------------------------------------------------
-        // Intake Code
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
+        // =====================================================
+        // INTAKE
+        // =====================================================
+
+        if (controller.get_digital_new_press(
+                pros::E_CONTROLLER_DIGITAL_A)) {
+
             intake.spinInward();
         }
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)){
+
+        if (controller.get_digital_new_press(
+                pros::E_CONTROLLER_DIGITAL_Y)) {
+
             intake.spinOutward();
         }
-  
-        // --------------------------------------------------------
-        // Wrist Code
 
-        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)){
+
+        // =====================================================
+        // WRIST
+        // =====================================================
+
+        if (controller.get_digital_new_press(
+                pros::E_CONTROLLER_DIGITAL_L1)) {
+
             if (wrist.isUp) {
                 wrist.moveDOWN();
-            } else {
+            }
+            else {
                 wrist.moveUP();
             }
         }
-        // -----------------------------------------------------------------------------
 
-        // ---------------------------------------- CLAW CODE --------------------------
-        // Claw Code
-        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
+
+        // =====================================================
+        // CLAW
+        // =====================================================
+
+        if (controller.get_digital_new_press(
+                pros::E_CONTROLLER_DIGITAL_L2)) {
+
             if (claw.isExtended) {
                 claw.close();
-            } else{
+            }
+            else {
                 claw.open();
             }
         }
 
-        // // TEST DISTANCE SENSOR CODE
-        // if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
-        //     checkIntakeAndDropLift();
-        // }
-                
         pros::delay(10);
+
+    }             
             
-    }
 }

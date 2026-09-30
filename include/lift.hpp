@@ -17,6 +17,8 @@ private:
 
     double kp = 2.5; // Proportional gain for lift control
 
+    bool autoMode = false; // flag to indicate if the lift is in automatic mode
+
 public:
     Lift(signed char leftPort, signed char rightPort, signed char rotationPort);
 
