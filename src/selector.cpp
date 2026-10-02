@@ -1,4 +1,5 @@
 #include "selector.hpp"
+#include <cstdio>
 #include <exception>
 #include <vector>
 #include "pros/colors.hpp"
@@ -14,6 +15,10 @@ orientation
 
 (0,1) -> ()
 
+int rotation(x, y)
+{
+    (x,y)
+}
 
 
 /*
