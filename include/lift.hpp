@@ -1,47 +1,42 @@
 #pragma once
+
 #include "main.h"
-#include "lemlib/api.hpp"
 
 class Lift {
 private:
-    // Motor group for lift
     pros::Motor L_liftMotor;
     pros::Motor R_liftMotor;
-
-    // Rotation sensor for lift position
     pros::Rotation rotationSensor;
 
-    double targetAngle = 0;
-    
-    double margin = 0.5; // margin of error for lift position
+    double targetAngle = 0.0;
 
-    double kp = 2.5; // Proportional gain for lift control
+    bool autoMode = false;
 
-    bool autoMode = false; // flag to indicate if the lift is in automatic mode
+    double kp = 5.0;
+    double margin = 0.5;
 
 public:
-    Lift(signed char leftPort, signed char rightPort, signed char rotationPort);
+    Lift(
+        signed char leftPort,
+        signed char rightPort,
+        signed char rotationPort
+    );
 
-    // manual motor control
+    // Motor control
+    void stop();
     void manual(double speed);
 
-    // Tell the lift where we want it to go according to rotation sensor 
-    void moveAngle(double angle);
-
-    // Call this repeatedly from opcontrol()
-    void update();
-
-    // Get current physical lift angle
+    // Sensor
     double getAngle();
 
-    // Stop lift motors
-    void stop();
+    // Automatic movement
+    void moveAngle(double angle);
+    void update();
+    void cancelAuto();
 
-    // Zero rotation sensor
-    void tare();
-
-    // Mechanical hard-stop calibration
+    // Reset / calibration
     void reset();
 
-    void cancelAuto();
+    // Check whether automatic move is finished
+    bool atTarget();
 };
