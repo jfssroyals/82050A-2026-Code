@@ -125,9 +125,17 @@ void Lift::update() {
 
 
     // Limit motor power
+    if (std::abs(error) > margin) {
+        if (speed > 0){
+            speed = std::max(speed, 8.0);
+        }
+        else{
+            speed = std::min(speed, -8.0);
+        }
+    }
     speed = std::clamp(
         speed,
-        -127.0,
+        -80.0,
         127.0
     );
 

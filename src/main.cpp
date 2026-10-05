@@ -313,7 +313,8 @@ void opcontrol() {
 
             if (pickupState == PickupState::READY) {
 
-                lift.moveAngle(11);
+                lift.moveAngle(12);
+
 
                 pickupState = PickupState::LOWERING;
             }
@@ -364,10 +365,10 @@ void opcontrol() {
             case PickupState::LOWERING:
 
                 if (lift.atTarget()) {
-
-                    intake.stop();
+                    lift.moveAngle(12);
 
                     claw.close();
+                    pros::delay(200);
 
                     wrist.moveUP();
 

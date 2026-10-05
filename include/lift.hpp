@@ -12,7 +12,7 @@ private:
 
     bool autoMode = false;
 
-    double kp = 10.0;
+    double kp = 5.69;
     // Allow for sensor noise and the lift settling short under load (degrees).
     double margin = 1.0;
 
