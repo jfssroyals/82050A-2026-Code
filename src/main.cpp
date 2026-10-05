@@ -11,8 +11,8 @@
 
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
-Claw claw('A');
-Wrist wrist('B');
+Claw claw('B');
+Wrist wrist('A');
 
 Lift lift(-9, 2, 10);
 
@@ -118,6 +118,7 @@ lemlib::Chassis chassis(
 );
 
 
+// initialize function. Runs on program startup
 void initialize() {
 
     pros::lcd::initialize();
@@ -125,6 +126,40 @@ void initialize() {
     chassis.calibrate();
 
     lift.reset();
+
+    pros::Task screen_task([&]() {
+
+        while (true) {
+
+            // robot position
+            pros::lcd::print(
+                0,
+                "X: %.2f",
+                chassis.getPose().x
+            );
+
+            pros::lcd::print(
+                1,
+                "Y: %.2f",
+                chassis.getPose().y
+            );
+
+            pros::lcd::print(
+                2,
+                "Theta: %.2f",
+                chassis.getPose().theta
+            );
+
+            // lift rotation sensor angle
+            pros::lcd::print(
+                3,
+                "Lift Angle: %.2f",
+                lift.getAngle()
+            );
+
+            pros::delay(100);
+        }
+    });
 }
 
 
@@ -139,6 +174,104 @@ void competition_initialize() {
 void autonomous() {
 }
 
+
+// void opcontrol() {
+
+//     while (true) {
+
+//         // DRIVE
+//         int leftY = controller.get_analog(
+//             pros::E_CONTROLLER_ANALOG_LEFT_Y
+//         );
+
+//         int rightX = controller.get_analog(
+//             pros::E_CONTROLLER_ANALOG_RIGHT_X
+//         );
+
+//         chassis.arcade(leftY, rightX);
+
+
+//         // INTAKE
+//         // A = inward
+//         if (controller.get_digital_new_press(
+//                 pros::E_CONTROLLER_DIGITAL_A)) {
+
+//             intake.spinInward();
+//         }
+
+
+//         // Y = outward
+//         if (controller.get_digital_new_press(
+//                 pros::E_CONTROLLER_DIGITAL_Y)) {
+
+//             intake.stop();
+//         }
+
+
+
+//         // WRIST
+//         // L1 = toggle up/down
+//         if (controller.get_digital_new_press(
+//                 pros::E_CONTROLLER_DIGITAL_L1)) {
+
+//             if (wrist.isUp) {
+//                 wrist.moveDOWN();
+//             }
+//             else {
+//                 wrist.moveUP();
+//             }
+//         }
+
+
+//         // CLAW
+//         // L2 = toggle open/close
+//         if (controller.get_digital_new_press(
+//                 pros::E_CONTROLLER_DIGITAL_L2)) {
+
+//             if (claw.isExtended) {
+//                 claw.close();
+//             }
+//             else {
+//                 claw.open();
+//             }
+//         }
+
+
+//         // LIFT
+//         // R1 = up
+//         if (controller.get_digital(
+//                 pros::E_CONTROLLER_DIGITAL_R1)) {
+
+//             lift.manual(120);
+//         }
+
+//         // R2 = down
+//         else if (controller.get_digital(
+//                      pros::E_CONTROLLER_DIGITAL_R2)) {
+
+//             lift.manual(-40);
+//         }
+
+//         // neither pressed = stop
+//         else {
+
+//             lift.stop();
+//         }
+
+
+//         pros::delay(10);
+//     }
+// }
+
+enum class PickupState {
+    IDLE,
+    PREPARING,
+    READY,
+    LOWERING,
+    RAISING
+};
+
+PickupState pickupState = PickupState::IDLE;
 
 void opcontrol() {
 
@@ -156,39 +289,113 @@ void opcontrol() {
         chassis.arcade(leftY, rightX);
 
 
-        // INTAKE
-        // A = inward
+        // =========================================
+        // A = PREPARE FOR INTAKE
+        // =========================================
+
         if (controller.get_digital_new_press(
                 pros::E_CONTROLLER_DIGITAL_A)) {
 
             intake.spinInward();
+ 
+            lift.moveAngle(15);
+
+            pickupState = PickupState::PREPARING;
         }
 
 
-        // Y = outward
+        // =========================================
+        // B = PICK UP OBJECT
+        // =========================================
+
         if (controller.get_digital_new_press(
-                pros::E_CONTROLLER_DIGITAL_Y)) {
+                pros::E_CONTROLLER_DIGITAL_B)) {
 
-            intake.spinOutward();
-        }
+            if (pickupState == PickupState::READY) {
 
+                lift.moveAngle(11);
 
-        // WRIST
-        // L1 = toggle up/down
-        if (controller.get_digital_new_press(
-                pros::E_CONTROLLER_DIGITAL_L1)) {
-
-            if (wrist.isUp) {
-                wrist.moveDOWN();
-            }
-            else {
-                wrist.moveUP();
+                pickupState = PickupState::LOWERING;
             }
         }
 
 
-        // CLAW
-        // L2 = toggle open/close
+        // =========================================
+        // PICKUP STATE MACHINE
+        // =========================================
+
+        switch (pickupState) {
+
+            case PickupState::IDLE:
+
+                break;
+
+
+            // Lift goes up first
+            case PickupState::PREPARING:
+
+                if (lift.atTarget()) {
+
+                    claw.open();
+
+                    wrist.moveDOWN();
+
+                    pickupState = PickupState::READY;
+                }
+                // else{
+                //     pros::lcd::print(
+                //         4,
+                //         "Prep: %.2f Err: %.2f",
+                //         lift.getAngle(),
+                //         15.0 - lift.getAngle()
+                //     );
+                // }
+
+                break;
+
+
+            // Robot stays here until driver presses B
+            case PickupState::READY:
+
+                break;
+
+
+            // Lift goes down to grab position
+            case PickupState::LOWERING:
+
+                if (lift.atTarget()) {
+
+                    intake.stop();
+
+                    claw.close();
+
+                    wrist.moveUP();
+
+                    lift.moveAngle(15);
+
+                    pickupState = PickupState::RAISING;
+                }
+
+                break;
+
+
+            // Lift returns back up
+            case PickupState::RAISING:
+
+                if (lift.atTarget()) {
+
+                    pickupState = PickupState::IDLE;
+                }
+
+                break;
+        }
+
+
+        // =========================================
+        // MANUAL CLAW
+        // L2
+        // =========================================
+
         if (controller.get_digital_new_press(
                 pros::E_CONTROLLER_DIGITAL_L2)) {
 
@@ -201,28 +408,77 @@ void opcontrol() {
         }
 
 
-        // LIFT
-        // R1 = up
+        // =========================================
+        // MANUAL LIFT
+        // =========================================
+
         if (controller.get_digital(
-                pros::E_CONTROLLER_DIGITAL_R1)) {
+        pros::E_CONTROLLER_DIGITAL_R1)) {
+
+            pickupState = PickupState::IDLE;
 
             lift.manual(120);
         }
 
-        // R2 = down
         else if (controller.get_digital(
-                     pros::E_CONTROLLER_DIGITAL_R2)) {
+                    pros::E_CONTROLLER_DIGITAL_R2)) {
 
-            lift.manual(-40);
+            pickupState = PickupState::IDLE;
+
+            lift.manual(-60);
         }
 
-        // neither pressed = stop
         else {
 
-            lift.stop();
+            if (lift.isAuto()) {
+
+                lift.update();
+            }
+
+            else {
+
+                lift.stop();
+            }
         }
 
 
         pros::delay(10);
     }
 }
+
+// void opcontrol() {
+
+//     while (true) {
+
+//         // DRIVE
+//         int leftY = controller.get_analog(
+//             pros::E_CONTROLLER_ANALOG_LEFT_Y
+//         );
+
+//         int rightX = controller.get_analog(
+//             pros::E_CONTROLLER_ANALOG_RIGHT_X
+//         );
+
+//         chassis.arcade(leftY, rightX);
+
+//         // A = move lift to 15 degrees
+//         if (controller.get_digital_new_press(
+//                 pros::E_CONTROLLER_DIGITAL_A)) {
+
+//             lift.moveAngle(15);
+//         }
+
+//         lift.update();
+
+//         // // keep automatic lift movement running
+//         // if (lift.isAuto()) {
+//         //     lift.update();
+//         // }
+//         // else {
+//         //     lift.stop();
+//         // }
+
+
+//         pros::delay(10);
+//     }
+// }

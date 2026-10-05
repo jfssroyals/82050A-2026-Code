@@ -39,7 +39,7 @@ void Lift::stop() {
 
 void Lift::manual(double speed) {
 
-    // Manual control cancels any automatic movement
+    // Manual control cancels automatic movement
     autoMode = false;
 
     L_liftMotor.move(speed);
@@ -70,12 +70,24 @@ void Lift::moveAngle(double angle) {
 
 
 // =====================================================
+// CHECK IF AUTO MODE IS ACTIVE
+// =====================================================
+
+bool Lift::isAuto() {
+
+    return autoMode;
+}
+
+
+// =====================================================
 // CHECK TARGET
 // =====================================================
 
 bool Lift::atTarget() {
-    
-    return std::abs(targetAngle - getAngle()) < margin;
+   
+    return std::abs(
+        targetAngle - getAngle()
+    ) <= margin;
 }
 
 
@@ -85,7 +97,7 @@ bool Lift::atTarget() {
 
 void Lift::update() {
 
-    // Don't do anything if we aren't automatically moving
+    // Do nothing if automatic movement is not active
     if (!autoMode) {
         return;
     }
@@ -93,11 +105,12 @@ void Lift::update() {
 
     double currentAngle = getAngle();
 
-    double error = targetAngle - currentAngle;
+    double error =
+        targetAngle - currentAngle;
 
 
-    // Reached target
-    if (std::abs(error) < margin) {
+    // Target reached
+    if (std::abs(error) <= margin) {
 
         stop();
 
@@ -142,7 +155,7 @@ void Lift::cancelAuto() {
 
 void Lift::reset() {
 
-    // Allow the lift to move freely into hard stop
+    // Temporarily coast while moving into hard stop
     L_liftMotor.set_brake_mode(
         pros::E_MOTOR_BRAKE_COAST
     );
@@ -169,7 +182,7 @@ void Lift::reset() {
         ) / 2.0;
 
 
-    // Wait until motors stop moving
+    // Wait until lift stops physically moving
     while (
         stableTime < 500
         &&
@@ -212,7 +225,7 @@ void Lift::reset() {
     R_liftMotor.move(0);
 
 
-    // Physical bottom is now 0 degrees
+    // Physical bottom becomes 0 degrees
     rotationSensor.reset_position();
 
 
@@ -221,7 +234,7 @@ void Lift::reset() {
     autoMode = false;
 
 
-    // Restore hold mode
+    // Restore hold brake mode
     L_liftMotor.set_brake_mode(
         pros::E_MOTOR_BRAKE_HOLD
     );

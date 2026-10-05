@@ -12,8 +12,9 @@ private:
 
     bool autoMode = false;
 
-    double kp = 5.0;
-    double margin = 0.5;
+    double kp = 10.0;
+    // Allow for sensor noise and the lift settling short under load (degrees).
+    double margin = 1.0;
 
 public:
     Lift(
@@ -34,9 +35,12 @@ public:
     void update();
     void cancelAuto();
 
+    // Check whether automatic control is active
+    bool isAuto();
+
+    // Check whether target angle has been reached
+    bool atTarget();
+
     // Reset / calibration
     void reset();
-
-    // Check whether automatic move is finished
-    bool atTarget();
 };

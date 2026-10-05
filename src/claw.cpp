@@ -7,11 +7,11 @@ Claw::Claw(char port)
     : piston(port) {}
 
 void Claw::open() {
-    piston.set_value(false);
+    piston.set_value(true);
     isExtended = true;
 }  
 
 void Claw::close() {
-    piston.set_value(true);
+    piston.set_value(false);
     isExtended = false;
 }
