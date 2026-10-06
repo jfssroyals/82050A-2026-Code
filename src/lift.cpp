@@ -120,22 +120,22 @@ void Lift::update() {
     }
 
 
-    // Proportional control
+    // Proportional control with a minimum output to overcome static friction/load.
     double speed = kp * error;
 
 
-    // Limit motor power
-    if (std::abs(error) > margin) {
-        if (speed > 0){
-            speed = std::max(speed, 8.0);
-        }
-        else{
-            speed = std::min(speed, -8.0);
-        }
+    // This point is reached only when outside the target margin, so preserve
+    // the direction while ensuring small errors still produce useful movement.
+    if (speed > 0) {
+        speed = std::max(speed, minUpOutput);
+    } else {
+        speed = std::min(speed, -minDownOutput);
     }
+
+    // Limit motor power
     speed = std::clamp(
         speed,
-        -80.0,
+        -90.0,
         127.0
     );
 

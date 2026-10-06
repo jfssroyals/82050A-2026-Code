@@ -9,10 +9,13 @@ private:
     pros::Rotation rotationSensor;
 
     double targetAngle = 0.0;
-
+    
     bool autoMode = false;
 
     double kp = 5.69;
+    // Minimum outputs can differ because the lift's load differs by direction.
+    double minUpOutput = 60.0;
+    double minDownOutput = 40.0;
     // Allow for sensor noise and the lift settling short under load (degrees).
     double margin = 1.0;
 
