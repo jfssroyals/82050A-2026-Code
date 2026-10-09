@@ -249,7 +249,7 @@ void opcontrol() {
         else if (controller.get_digital(
                      pros::E_CONTROLLER_DIGITAL_R2)) {
 
-            lift.manual(-120);
+            lift.manual(-127);
         }
 
         // neither pressed = stop
