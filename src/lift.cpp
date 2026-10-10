@@ -121,7 +121,7 @@ void Lift::update() {
 
 
     // Proportional control with a minimum output to overcome static friction/load.
-    double speed = kp * error;
+    double speed = (error > 0 ? kpUp : kpDown) * error; //double speed = kp * error;
 
 
     // This point is reached only when outside the target margin, so preserve

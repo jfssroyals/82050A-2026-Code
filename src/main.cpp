@@ -178,10 +178,43 @@ void opcontrol() {
 
     while (true) {
 
+        // WRIST
+        // L1 = toggle up/down
+        if (controller.get_digital_new_press(
+                pros::E_CONTROLLER_DIGITAL_L1)) {
+
+            if (wrist.isUp) {
+                wrist.moveDOWN();
+            }
+            else {
+                wrist.moveUP();
+            }
+        }
+
+
+        // CLAW
+        // L2 = toggle open/close
+        if (controller.get_digital_new_press(
+                pros::E_CONTROLLER_DIGITAL_L2)) {
+
+            if (claw.isExtended) {
+                claw.close();
+            }
+            else {
+                claw.open();
+            }
+        }
+
         // Button A: Move lift to 15 degrees
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
-            lift.moveAngle(15);
+            lift.moveAngle(20);
         }
+        
+        // Button Y: Move lift to 10 degrees
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
+            lift.moveAngle(10);
+        }
+
 
         // Button B: Check if lift is at target
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)) {

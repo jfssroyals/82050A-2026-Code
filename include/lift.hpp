@@ -12,12 +12,14 @@ private:
     
     bool autoMode = false;
 
-    double kp = 5.69;
+    //double kp = 5.69;
+    double kpUp = 5.69;
+    double kpDown = 3.71;  // Starting value to test
     // Minimum outputs can differ because the lift's load differs by direction.
-    double minUpOutput = 60.0;
-    double minDownOutput = 40.0;
+    double minUpOutput = 55.0;
+    double minDownOutput = 5.0;
     // Allow for sensor noise and the lift settling short under load (degrees).
-    double margin = 1.0;
+    double margin = 1.0; //7.25;
 
 public:
     Lift(
