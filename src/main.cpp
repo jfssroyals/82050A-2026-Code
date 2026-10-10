@@ -174,94 +174,115 @@ void competition_initialize() {
 void autonomous() {
 }
 
-
 void opcontrol() {
 
     while (true) {
 
-        // DRIVE
-        int leftY = controller.get_analog(
-            pros::E_CONTROLLER_ANALOG_LEFT_Y
-        );
-
-        int rightX = controller.get_analog(
-            pros::E_CONTROLLER_ANALOG_RIGHT_X
-        );
-
-        chassis.arcade(leftY, rightX);
-
-
-        // INTAKE
-        // A = inward
-        if (controller.get_digital_new_press(
-                pros::E_CONTROLLER_DIGITAL_A)) {
-
-            intake.spinInward();
+        // Button A: Move lift to 15 degrees
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
+            lift.moveAngle(15);
         }
 
-
-        // Y = outward
-        if (controller.get_digital_new_press(
-                pros::E_CONTROLLER_DIGITAL_Y)) {
-
-            intake.stop();
-        }
-
-
-
-        // WRIST
-        // L1 = toggle up/down
-        if (controller.get_digital_new_press(
-                pros::E_CONTROLLER_DIGITAL_L1)) {
-
-            if (wrist.isUp) {
-                wrist.moveDOWN();
-            }
-            else {
-                wrist.moveUP();
+        // Button B: Check if lift is at target
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)) {
+            if (lift.atTarget()) {
+                controller.rumble(".");
             }
         }
 
-
-        // CLAW
-        // L2 = toggle open/close
-        if (controller.get_digital_new_press(
-                pros::E_CONTROLLER_DIGITAL_L2)) {
-
-            if (claw.isExtended) {
-                claw.close();
-            }
-            else {
-                claw.open();
-            }
-        }
-
-
-        // LIFT
-        // R1 = up
-        if (controller.get_digital(
-                pros::E_CONTROLLER_DIGITAL_R1)) {
-
-            lift.manual(127);
-        }
-
-        // R2 = down
-        else if (controller.get_digital(
-                     pros::E_CONTROLLER_DIGITAL_R2)) {
-
-            lift.manual(-127);
-        }
-
-        // neither pressed = stop
-        else {
-
-            lift.stop();
-        }
-
+        // Constantly update lift movement
+        lift.update();
 
         pros::delay(10);
     }
 }
+// void opcontrol() {
+
+//     while (true) {
+
+//         // DRIVE
+//         int leftY = controller.get_analog(
+//             pros::E_CONTROLLER_ANALOG_LEFT_Y
+//         );
+
+//         int rightX = controller.get_analog(
+//             pros::E_CONTROLLER_ANALOG_RIGHT_X
+//         );
+
+//         chassis.arcade(leftY, rightX);
+
+
+//         // INTAKE
+//         // A = inward
+//         if (controller.get_digital_new_press(
+//                 pros::E_CONTROLLER_DIGITAL_A)) {
+
+//             intake.spinInward();
+//         }
+
+
+//         // Y = outward
+//         if (controller.get_digital_new_press(
+//                 pros::E_CONTROLLER_DIGITAL_Y)) {
+
+//             intake.stop();
+//         }
+
+
+
+//         // WRIST
+//         // L1 = toggle up/down
+//         if (controller.get_digital_new_press(
+//                 pros::E_CONTROLLER_DIGITAL_L1)) {
+
+//             if (wrist.isUp) {
+//                 wrist.moveDOWN();
+//             }
+//             else {
+//                 wrist.moveUP();
+//             }
+//         }
+
+
+//         // CLAW
+//         // L2 = toggle open/close
+//         if (controller.get_digital_new_press(
+//                 pros::E_CONTROLLER_DIGITAL_L2)) {
+
+//             if (claw.isExtended) {
+//                 claw.close();
+//             }
+//             else {
+//                 claw.open();
+//             }
+//         }
+
+
+//         // LIFT
+//         // R1 = up
+//         if (controller.get_digital(
+//                 pros::E_CONTROLLER_DIGITAL_R1)) {
+
+//             lift.manual(127);
+//         }
+
+//         // R2 = down
+//         else if (controller.get_digital(
+//                      pros::E_CONTROLLER_DIGITAL_R2)) {
+
+//             lift.manual(-127);
+//         }
+
+//         // neither pressed = stop
+//         else {
+
+//             lift.stop();
+//         }
+
+
+//         pros::delay(10);
+//     }
+// }
 
 // enum class PickupState {
 //     IDLE,
