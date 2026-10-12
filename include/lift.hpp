@@ -16,8 +16,9 @@ private:
     double kpUp = 5.69;
     double kpDown = 3.71;  // Starting value to test
     // Minimum outputs can differ because the lift's load differs by direction.
-    double minUpOutput = 55.0;
-    double minDownOutput = 5.0;
+    double minUpOutput = 80.0;
+    // Keep enough downward power near the target to overcome static friction.
+    double minDownOutput = 60.0;
     // Allow for sensor noise and the lift settling short under load (degrees).
     double margin = 1.0; //7.25;
 

@@ -16,6 +16,10 @@ void Intake::spinInward() {
     // }
 }
 
+void Intake::spinOutward() {
+    motor.move(-127);
+}
+
 void Intake::stop() {
     motor.move(0);
     // if (!isSpinningInward && isRunning){
