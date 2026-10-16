@@ -117,6 +117,7 @@ lemlib::Chassis chassis(
     &steerCurve
 );
 
+bool autoClawTriggered = false; 
 
 // initialize function. Runs on program startup
 void initialize() {
@@ -155,6 +156,12 @@ void initialize() {
                 3,
                 "Lift Angle: %.2f",
                 lift.getAngle()
+            );
+
+            pros::lcd::print(
+                4,
+                "Distance: %d mm",
+                distanceSensor.get_distance()
             );
 
             pros::delay(100);
@@ -386,6 +393,29 @@ void opcontrol() {
 
             intake.stop();
         }
+
+        int distance = distanceSensor.get_distance();
+
+        if (distance > 0 && distance <= 21 && !autoClawTriggered) {
+            autoClawTriggered = true;
+            claw.close();
+
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+
+                if (claw.isExtended) {
+                    claw.close();
+                }
+                else {
+                    claw.open();
+                }
+            }
+
+            pros::delay(1000);
+        }
+
+        if (distance > 21) {
+            autoClawTriggered = false;
+}
         
         // =========================================
         // MANUAL LIFT
@@ -421,7 +451,7 @@ void opcontrol() {
         }
 
 
-        pros::delay(10);
+        pros::delay(5);
     }
 }
 
