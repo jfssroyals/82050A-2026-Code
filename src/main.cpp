@@ -18,7 +18,7 @@ Lift lift(-9, 2, 10);
 
 Intake intake(1);
 
-pros::Distance distanceSensor(3);
+pros::Distance distanceSensor(7);
 
 
 // drivetrain motors
@@ -27,22 +27,22 @@ pros::MotorGroup rightMotors({16, 12, 15});
 
 
 // sensors
-pros::Imu imu(6);
+pros::Imu imu(17);
 
-pros::Rotation horizontalEnc(-12);
+pros::Rotation horizontalEnc(-18);
 pros::Rotation verticalEnc(-19);
 
 
 lemlib::TrackingWheel horizontal(
     &horizontalEnc,
     lemlib::Omniwheel::NEW_2,
-    -4.917
+    -0.6
 );
 
 lemlib::TrackingWheel vertical(
     &verticalEnc,
     lemlib::Omniwheel::NEW_2,
-    -1
+    -1.75
 );
 
 

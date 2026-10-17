@@ -7,16 +7,6 @@ extern pros::Controller controller;
 extern lemlib::Chassis chassis;
 
 // auton routines
-void score_back();
-void grab_up();
-void fourPin_red1();
-void fourPin_red2();
-void fourPin_blue1();
-void fourPin_blue2();
-void twoPin_blue1();
-void test();
-void skillsAuton();
-void Post();
-void skillsScore_L();
-void skillsScore_R();
+void right3pin();
+void left3pin();
 void align_pose(double straight);
