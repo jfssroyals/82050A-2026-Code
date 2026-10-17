@@ -30,7 +30,7 @@ pros::MotorGroup rightMotors({16, 12, 15});
 pros::Imu imu(17);
 
 pros::Rotation horizontalEnc(-18);
-pros::Rotation verticalEnc(-19);
+pros::Rotation verticalEnc(19);
 
 
 lemlib::TrackingWheel horizontal(
@@ -179,6 +179,11 @@ void competition_initialize() {
 
 
 void autonomous() {
+//     chassis.setPose(0, 0, 0);
+//     //chassis.moveToPoint(0, 10, 3000, {.maxSpeed = 50});
+//     chassis.moveToPoint(0, 30, 3000);
+//     chassis.waitUntilDone();
+    auton1();
 }
 
 // void opcontrol() {

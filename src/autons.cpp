@@ -50,3 +50,17 @@ void right3pin() {
     // Open claw
     claw.open();
 }
+
+// coding first auton, in progress
+void auton1() {
+    // set position to 0,0
+     chassis.setPose(0, 0, 0);
+    // Open claw
+    claw.open();
+    pros::delay(2000);
+    // Move to goal
+    chassis.moveToPoint(0, 8, 300);
+    chassis.waitUntilDone();
+    // Open claw
+    claw.open();
+}
