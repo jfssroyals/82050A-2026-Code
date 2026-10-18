@@ -6,6 +6,7 @@
 
 #include "lift.hpp"
 #include "claw.hpp"
+#include "pros/rtos.hpp"
 #include "wrist.hpp"
 #include "intake.hpp"
 
@@ -126,6 +127,11 @@ void initialize() {
 
     chassis.calibrate();
 
+    claw.open();
+    pros::delay(2000);
+    claw.close();
+
+    pros::delay(200);
     lift.foldInSize(wrist);
 
     pros::Task screen_task([&]() {
@@ -181,12 +187,16 @@ void competition_initialize() {
 void autonomous() {
 //     chassis.setPose(0, 0, 0);
 //     //chassis.moveToPoint(0, 10, 3000, {.maxSpeed = 50});
-    chassis.moveToPose(0, 10, 90, 3000);
-    chassis.waitUntilDone();
+    // chassis.moveToPose(0, 24, 90, 3000);
+    // chassis.waitUntilDone();
     // auton1();
+    // lift.foldInSize(wrist);
+    // pros::delay(2000);
+    lift.unfoldAndHome(wrist);
+    
 }
 
-// void opcontrol() {
+// void opcontrol() {s
 
 //     while (true) {
 
