@@ -181,9 +181,9 @@ void competition_initialize() {
 void autonomous() {
 //     chassis.setPose(0, 0, 0);
 //     //chassis.moveToPoint(0, 10, 3000, {.maxSpeed = 50});
-//     chassis.moveToPoint(0, 30, 3000);
-//     chassis.waitUntilDone();
-    auton1();
+    chassis.moveToPose(0, 10, 90, 3000);
+    chassis.waitUntilDone();
+    // auton1();
 }
 
 // void opcontrol() {
