@@ -2,6 +2,8 @@
 
 #include "main.h"
 
+class Wrist;
+
 class Lift {
 private:
     pros::Motor L_liftMotor;
@@ -49,4 +51,11 @@ public:
 
     // Reset / calibration
     void reset();
+
+    // Blocking, timed fold sequence. Does not read or zero any sensor.
+    void foldInSize(Wrist& wrist);
+
+    // Blocking unfold and home sequence. Returns false on homing timeout.
+    // Only zeroes the motor encoders and rotation sensor after detecting a stop.
+    bool unfoldAndHome(Wrist& wrist);
 };

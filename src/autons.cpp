@@ -5,9 +5,11 @@
 #include "lift.hpp"
 #include "claw.hpp"
 #include "intake.hpp"
+#include "wrist.hpp"
 
 extern Claw claw;
 extern Lift lift;
+extern Wrist wrist;
 
 void align_pose(double straight){
     double goalRadius = 6.5;
@@ -54,13 +56,27 @@ void right3pin() {
 // coding first auton, in progress
 void auton1() {
     // set position to 0,0
-     chassis.setPose(0, 0, 0);
-    // Open claw
-    claw.open();
-    pros::delay(2000);
+    chassis.setPose(0, 0, 51);
+
+    // Score single pin
+
+    // Unfold and home while the chassis drives to the goal.
+    pros::Task unfoldTask([&] {
+        lift.unfoldAndHome(wrist);
+    });
     // Move to goal
-    chassis.moveToPoint(0, 8, 300);
-    chassis.waitUntilDone();
+    chassis.moveToPoint(0, 8, 1000);
+    pros::delay(200);
     // Open claw
     claw.open();
+    chassis.waitUntilDone();
+    unfoldTask.join();
+
+    // Pickup First Stack
+
+    // Score First Stack
+
+    // Pickup Second Stack
+
+    // Score Second Stack
 }

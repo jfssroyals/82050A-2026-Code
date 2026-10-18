@@ -126,7 +126,7 @@ void initialize() {
 
     chassis.calibrate();
 
-    lift.reset();
+    lift.foldInSize(wrist);
 
     pros::Task screen_task([&]() {
 

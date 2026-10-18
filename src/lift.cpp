@@ -1,7 +1,70 @@
 #include "lift.hpp"
+#include "wrist.hpp"
 
 #include <algorithm>
 #include <cmath>
+
+void Lift::foldInSize(Wrist& wrist) {
+    // Starting values: tune on the robot for wrist clearance and starting size.
+    constexpr int raiseMs = 500;
+    constexpr int wristMs = 300;
+    constexpr int lowerMs = 500;
+
+    manual(100);
+    pros::delay(raiseMs);
+    stop();
+
+    wrist.moveDOWN();
+    pros::delay(wristMs);
+
+    manual(-80);
+    pros::delay(lowerMs);
+    stop();
+}
+
+bool Lift::unfoldAndHome(Wrist& wrist) {
+    // Raise for clearance without relying on an uncalibrated rotation sensor.
+    constexpr int raiseMs = 150;
+    constexpr int wristMs = 200;
+    manual(100);
+    pros::delay(raiseMs);
+    stop();
+
+    wrist.moveUP();
+    pros::delay(wristMs);
+
+    // Like reset(), seek the bottom using motor movement, with a timeout.
+    // Keep reset() unchanged; this sequence also tares both motor encoders
+    // and does not zero anything if homing times out.
+    double lastLeft = L_liftMotor.get_position();
+    double lastRight = R_liftMotor.get_position();
+    int stableMs = 0;
+    manual(-100);
+    for (int elapsed = 0; elapsed < 3000 && stableMs < 500; elapsed += 20) {
+        pros::delay(20);
+        const double left = L_liftMotor.get_position();
+        const double right = R_liftMotor.get_position();
+        // Allow initial motor response, and require both motors to stop.
+        if (elapsed >= 300 && std::isfinite(left) && std::isfinite(right) &&
+            std::fabs(left - lastLeft) < 0.5 &&
+            std::fabs(right - lastRight) < 0.5) {
+            stableMs += 20;
+        } else {
+            stableMs = 0;
+        }
+        lastLeft = left;
+        lastRight = right;
+    }
+    stop();
+
+    if (stableMs < 500) return false;
+
+    L_liftMotor.tare_position();
+    R_liftMotor.tare_position();
+    rotationSensor.reset_position();
+    targetAngle = 0.0;
+    return true;
+}
 
 
 // =====================================================
