@@ -6,9 +6,9 @@
 
 void Lift::foldInSize(Wrist& wrist) {
     // Starting values: tune on the robot for wrist clearance and starting size.
-    constexpr int raiseMs = 200;
-    constexpr int wristMs = 700;
-    constexpr int lowerMs = 150;
+    constexpr int raiseMs = 400;
+    constexpr int wristMs = 300;
+    constexpr int lowerMs = 300;
 
     manual(80);
     pros::delay(raiseMs);
@@ -22,49 +22,45 @@ void Lift::foldInSize(Wrist& wrist) {
     stop();
 }
 
-bool Lift::unfoldAndHome(Wrist& wrist) {
+bool Lift::unfold(Wrist& wrist) {
     // Raise for clearance without relying on an uncalibrated rotation sensor.
-    constexpr int raiseMs = 150;
-    constexpr int wristMs = 400;
+    constexpr int raiseMs = 200;
 
     wrist.moveUP();
     manual(100);
     pros::delay(raiseMs);
     stop();
-   
-    pros::delay(wristMs);
 
-    // Like reset(), seek the bottom using motor movement, with a timeout.
-    // Keep reset() unchanged; this sequence also tares both motor encoders
-    // and does not zero anything if homing times out.
-    double lastLeft = L_liftMotor.get_position();
-    double lastRight = R_liftMotor.get_position();
-    int stableMs = 0;
-    manual(-100);
-    for (int elapsed = 0; elapsed < 3000 && stableMs < 500; elapsed += 20) {
-        pros::delay(20);
-        const double left = L_liftMotor.get_position();
-        const double right = R_liftMotor.get_position();
-        // Allow initial motor response, and require both motors to stop.
-        if (elapsed >= 300 && std::isfinite(left) && std::isfinite(right) &&
-            std::fabs(left - lastLeft) < 0.5 &&
-            std::fabs(right - lastRight) < 0.5) {
-            stableMs += 20;
-        } else {
-            stableMs = 0;
-        }
-        lastLeft = left;
-        lastRight = right;
-    }
-    stop();
+    // // Like reset(), seek the bottom using motor movement, with a timeout.
+    // // Keep reset() unchanged; this sequence also tares both motor encoders
+    // // and does not zero anything if homing times out.
+    // double lastLeft = liftMotors.get_position(0);
+    // double lastRight = liftMotors.get_position(1);
+    // int stableMs = 0;
+    // manual(-100);
+    // for (int elapsed = 0; elapsed < 3000 && stableMs < 500; elapsed += 20) {
+    //     pros::delay(20);
+    //     const double left = liftMotors.get_position(0);
+    //     const double right = liftMotors.get_position(1);
+    //     // Allow initial motor response, and require both motors to stop.
+    //     if (elapsed >= 300 && std::isfinite(left) && std::isfinite(right) &&
+    //         std::fabs(left - lastLeft) < 0.5 &&
+    //         std::fabs(right - lastRight) < 0.5) {
+    //         stableMs += 20;
+    //     } else {
+    //         stableMs = 0;
+    //     }
+    //     lastLeft = left;
+    //     lastRight = right;
+    // }
+    // stop();
 
-    if (stableMs < 500) return false;
+    // if (stableMs < 500) return false;
 
-    L_liftMotor.tare_position();
-    R_liftMotor.tare_position();
-    rotationSensor.reset_position();
-    targetAngle = 0.0;
-    return true;
+    // liftMotors.tare_position_all();
+    // rotationSensor.reset_position();
+    // targetAngle = 0.0;
+    // return true;
 }
 
 
@@ -77,12 +73,10 @@ Lift::Lift(
     signed char rightPort,
     signed char rotationPort
 )
-    : L_liftMotor(leftPort, pros::MotorGearset::green),
-      R_liftMotor(rightPort, pros::MotorGearset::green),
+    : liftMotors({leftPort, rightPort}, pros::MotorGearset::red),
       rotationSensor(rotationPort) {
 
-    L_liftMotor.set_brake_mode(pros::MotorBrake::hold);
-    R_liftMotor.set_brake_mode(pros::MotorBrake::hold);
+    liftMotors.set_brake_mode_all(pros::MotorBrake::coast);
 }
 
 
@@ -90,10 +84,13 @@ Lift::Lift(
 // STOP
 // =====================================================
 
+const pros::MotorGroup& Lift::getMotorGroup() const {
+    return liftMotors;
+}
+
 void Lift::stop() {
 
-    L_liftMotor.brake();
-    R_liftMotor.brake();
+    liftMotors.brake();
 }
 
 
@@ -106,8 +103,7 @@ void Lift::manual(double speed) {
     // Manual control cancels automatic movement
     autoMode = false;
 
-    L_liftMotor.move(speed);
-    R_liftMotor.move(speed);
+    liftMotors.move(speed);
 }
 
 
@@ -204,8 +200,7 @@ void Lift::update() {
     );
 
 
-    L_liftMotor.move(speed);
-    R_liftMotor.move(speed);
+    liftMotors.move(speed);
 }
 
 
@@ -228,18 +223,13 @@ void Lift::cancelAuto() {
 void Lift::reset() {
 
     // Temporarily coast while moving into hard stop
-    L_liftMotor.set_brake_mode(
-        pros::E_MOTOR_BRAKE_COAST
-    );
-
-    R_liftMotor.set_brake_mode(
+    liftMotors.set_brake_mode_all(
         pros::E_MOTOR_BRAKE_COAST
     );
 
 
     // Move downward into physical hard stop
-    L_liftMotor.move(-80);
-    R_liftMotor.move(-80);
+    liftMotors.move(-80);
 
 
     int stableTime = 0;
@@ -248,9 +238,9 @@ void Lift::reset() {
 
     double lastPosition =
         (
-            L_liftMotor.get_position()
+            liftMotors.get_position(0)
             +
-            R_liftMotor.get_position()
+            liftMotors.get_position(1)
         ) / 2.0;
 
 
@@ -268,9 +258,9 @@ void Lift::reset() {
 
         double currentPosition =
             (
-                L_liftMotor.get_position()
+                liftMotors.get_position(0)
                 +
-                R_liftMotor.get_position()
+                liftMotors.get_position(1)
             ) / 2.0;
 
 
@@ -293,8 +283,7 @@ void Lift::reset() {
 
 
     // Stop motors
-    L_liftMotor.move(0);
-    R_liftMotor.move(0);
+    liftMotors.move(0);
 
 
     // Physical bottom becomes 0 degrees
@@ -307,11 +296,7 @@ void Lift::reset() {
 
 
     // Restore hold brake mode
-    L_liftMotor.set_brake_mode(
-        pros::E_MOTOR_BRAKE_HOLD
-    );
-
-    R_liftMotor.set_brake_mode(
+    liftMotors.set_brake_mode_all(
         pros::E_MOTOR_BRAKE_HOLD
     );
 

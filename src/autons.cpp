@@ -61,16 +61,42 @@ void auton1() {
     // Score single pin
 
     // Unfold and home while the chassis drives to the goal.
-    pros::Task unfoldTask([&] {
-        lift.unfoldAndHome(wrist);
-    });
+
     // Move to goal
-    chassis.moveToPoint(0, 8, 1000);
+    chassis.arcade(100, 0);
+    // Move wrist up and lift up while driving
+    wrist.moveUP();
+    lift.getMotorGroup().move_relative(300, 100);
+    lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+    pros::delay(350);
+    // Stop lift and chassis
+    lift.stop();
+    chassis.arcade(0, 0);
+    lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
+    // Move lift down once at goal
+    lift.manual(-100);
     pros::delay(200);
-    // Open claw
+    lift.manual(0);
+    // Open claw to score
     claw.open();
+
+
+    // Move to point (3, 2, 48 degrees)
+    chassis.moveToPoint(3, 2, 2000);
     chassis.waitUntilDone();
-    unfoldTask.join();
+
+    // turn to -43.2 degrees
+    chassis.turnToHeading(-43.2, 2000);
+    chassis.waitUntilDone();
+
+    // // move to pose (-3, 11, -43.58 degrees)
+    // chassis.moveToPose(-3, 11, -43.58, 2000);
+    // chassis.waitUntilDone();
+    
+    // pros::delay(200);
+    // Open claw
+    // chassis.waitUntilDone();
+    // kill task
 
     // Pickup First Stack
 

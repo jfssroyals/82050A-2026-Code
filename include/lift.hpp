@@ -6,9 +6,7 @@ class Wrist;
 
 class Lift {
 private:
-    pros::Motor L_liftMotor;
-    pros::Motor R_liftMotor;
-    pros::Rotation rotationSensor;
+    pros::MotorGroup liftMotors;
 
     double targetAngle = 0.0;
     
@@ -25,6 +23,9 @@ private:
     double margin = 1.0; //7.25;
 
 public:
+    
+    pros::Rotation rotationSensor;
+
     Lift(
         signed char leftPort,
         signed char rightPort,
@@ -32,6 +33,7 @@ public:
     );
 
     // Motor control
+    const pros::MotorGroup& getMotorGroup() const;
     void stop();
     void manual(double speed);
 
@@ -57,5 +59,5 @@ public:
 
     // Blocking unfold and home sequence. Returns false on homing timeout.
     // Only zeroes the motor encoders and rotation sensor after detecting a stop.
-    bool unfoldAndHome(Wrist& wrist);
+    bool unfold(Wrist& wrist);
 };

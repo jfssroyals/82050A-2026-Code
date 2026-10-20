@@ -12,3 +12,11 @@ void Wrist::moveDOWN(){
     piston.set_value(true);
     isUp = false;
 }
+
+void Wrist::toggle() {
+    if (isUp) {
+        moveDOWN();
+    } else {
+        moveUP();
+    }
+}

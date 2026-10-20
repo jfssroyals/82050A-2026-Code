@@ -127,13 +127,16 @@ void initialize() {
 
     chassis.calibrate();
 
+    // calibrate the lift rotation sensor
+    lift.rotationSensor.reset_position();
+    //
     claw.open();
     pros::delay(2000);
     claw.close();
 
     pros::delay(200);
     lift.foldInSize(wrist);
-
+    // lift.reset();
     pros::Task screen_task([&]() {
 
         while (true) {
@@ -191,9 +194,11 @@ void autonomous() {
     // chassis.waitUntilDone();
     // auton1();
     // lift.foldInSize(wrist);
-    // pros::delay(2000);
-    lift.unfoldAndHome(wrist);
-    
+
+    // delete this after testing
+    pros::delay(3000);
+
+    auton1();    
 }
 
 // void opcontrol() {s
@@ -258,12 +263,19 @@ enum class PickupState {
     PREPARING,
     READY,
     LOWERING,
+    WAITING,
     RAISING
 };
 
 PickupState pickupState = PickupState::IDLE;
+unsigned long int pickupWaitStart = 0;
 
 void opcontrol() {
+    // autonomous();
+    // pros::delay(1000);
+
+    // op control setup
+    lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
 
     while (true) {
 
@@ -290,7 +302,7 @@ void opcontrol() {
 
             wrist.moveDOWN();
 
-            lift.moveAngle(15);
+            lift.moveAngle(16);
 
             pickupState = PickupState::PREPARING;
         }
@@ -310,7 +322,7 @@ void opcontrol() {
                 pickupState = PickupState::LOWERING;
             }
         }
-
+        
 
         // =========================================
         // PICKUP STATE MACHINE
@@ -332,6 +344,8 @@ void opcontrol() {
 
                     lift.moveAngle(10);
 
+                    // We are not waiting for lift to reach 10 deg
+                    // driver can close claw earlier if they want to
                     pickupState = PickupState::READY;
                 }
                 // else{
@@ -356,7 +370,17 @@ void opcontrol() {
             case PickupState::LOWERING:
 
                 if (lift.atTarget()) {
-                    pros::delay(200);
+                    pickupWaitStart = pros::millis();
+                    pickupState = PickupState::WAITING;
+                }
+
+                break;
+
+
+            // Allow the mechanism to settle while driver control keeps running.
+            case PickupState::WAITING:
+
+                if (pros::millis() - pickupWaitStart >= 200U) {
 
                     wrist.moveUP();
 
@@ -381,10 +405,17 @@ void opcontrol() {
 
 
         // =========================================
-        // MANUAL CLAW
-        // L2
+        // MANUAL WRIST
+        // L1
         // =========================================
 
+        if (controller.get_digital_new_press(
+                pros::E_CONTROLLER_DIGITAL_L1)) {
+
+            wrist.toggle();
+        }
+
+        // MANUAL CLAW: L2
         if (controller.get_digital_new_press(
                 pros::E_CONTROLLER_DIGITAL_L2)) {
 
@@ -409,28 +440,18 @@ void opcontrol() {
             intake.stop();
         }
 
-        int distance = distanceSensor.get_distance();
-
-        if (distance > 0 && distance <= 21 && !autoClawTriggered) {
-            autoClawTriggered = true;
-            claw.close();
-
-            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
-
-                if (claw.isExtended) {
-                    claw.close();
-                }
-                else {
-                    claw.open();
-                }
-            }
-
-            pros::delay(1000);
-        }
-
-        if (distance > 21) {
-            autoClawTriggered = false;
-}
+        // Distance-sensor auto-close will not be used in driver control.
+        // We plan to bring this logic to autonomous eventually.
+        // int distance = distanceSensor.get_distance();
+        //
+        // if (distance > 0 && distance <= 21 && !autoClawTriggered) {
+        //     autoClawTriggered = true;
+        //     claw.close();
+        // }
+        //
+        // if (distance > 21) {
+        //     autoClawTriggered = false;
+        // }
         
         // =========================================
         // MANUAL LIFT

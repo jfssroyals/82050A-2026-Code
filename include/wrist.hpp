@@ -8,5 +8,6 @@ public:
 
     void moveUP();
     void moveDOWN();
+    void toggle();
 
 };
