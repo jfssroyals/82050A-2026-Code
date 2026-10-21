@@ -118,8 +118,6 @@ lemlib::Chassis chassis(
     &steerCurve
 );
 
-bool autoClawTriggered = false; 
-
 // initialize function. Runs on program startup
 void initialize() {
 
@@ -277,6 +275,11 @@ void opcontrol() {
     // op control setup
     lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
 
+    bool outtakeWasHeld = false;
+    bool autoGrabArmed = true;
+    bool distanceClearTiming = false;
+    std::uint32_t distanceClearStart = 0;
+
     while (true) {
 
         // DRIVE
@@ -300,108 +303,108 @@ void opcontrol() {
 
             intake.spinInward();
 
-            wrist.moveDOWN();
+            // wrist.moveDOWN();
 
-            lift.moveAngle(16);
+            // lift.moveAngle(16);
 
-            pickupState = PickupState::PREPARING;
+            // pickupState = PickupState::PREPARING;
         }
 
 
-        // =========================================
-        // B = PICK UP OBJECT
-        // =========================================
+        // // =========================================
+        // // B = PICK UP OBJECT
+        // // =========================================
 
-        if (controller.get_digital_new_press(
-                pros::E_CONTROLLER_DIGITAL_B)) {
+        // if (controller.get_digital_new_press(
+        //         pros::E_CONTROLLER_DIGITAL_B)) {
 
-            if (pickupState == PickupState::READY) {
-                claw.close();   
-                intake.stop();
-                // change pickup state to lowering
-                pickupState = PickupState::LOWERING;
-            }
-        }
-        
-
-        // =========================================
-        // PICKUP STATE MACHINE
-        // =========================================
-
-        switch (pickupState) {
-
-            case PickupState::IDLE:
-
-                break;
+        //     if (pickupState == PickupState::READY) {
+        //         claw.close();   
+        //         intake.stop();
+        //         // change pickup state to lowering
+        //         pickupState = PickupState::LOWERING;
+        //     }
+        // }
 
 
-            // Lift goes up first
-            case PickupState::PREPARING:
+        // // =========================================
+        // // PICKUP STATE MACHINE
+        // // =========================================
 
-                if (lift.atTarget()) {
+        // switch (pickupState) {
 
-                    claw.open();
+        //     case PickupState::IDLE:
 
-                    lift.moveAngle(10);
-
-                    // We are not waiting for lift to reach 10 deg
-                    // driver can close claw earlier if they want to
-                    pickupState = PickupState::READY;
-                }
-                // else{
-                //     pros::lcd::print(
-                //         4,
-                //         "Prep: %.2f Err: %.2f",
-                //         lift.getAngle(),
-                //         15.0 - lift.getAngle()
-                //     );
-                // }
-
-                break;
+        //         break;
 
 
-            // Robot stays here until driver presses B
-            case PickupState::READY:
+        //     // Lift goes up first
+        //     case PickupState::PREPARING:
 
-                break;
+        //         if (lift.atTarget()) {
 
+        //             claw.open();
 
-            // Lift goes down to grab position
-            case PickupState::LOWERING:
+        //             lift.moveAngle(10);
 
-                if (lift.atTarget()) {
-                    pickupWaitStart = pros::millis();
-                    pickupState = PickupState::WAITING;
-                }
+        //             // We are not waiting for lift to reach 10 deg
+        //             // driver can close claw earlier if they want to
+        //             pickupState = PickupState::READY;
+        //         }
+        //         // else{
+        //         //     pros::lcd::print(
+        //         //         4,
+        //         //         "Prep: %.2f Err: %.2f",
+        //         //         lift.getAngle(),
+        //         //         15.0 - lift.getAngle()
+        //         //     );
+        //         // }
 
-                break;
-
-
-            // Allow the mechanism to settle while driver control keeps running.
-            case PickupState::WAITING:
-
-                if (pros::millis() - pickupWaitStart >= 200U) {
-
-                    wrist.moveUP();
-
-                    lift.moveAngle(20);
-
-                    pickupState = PickupState::RAISING;
-                }
-
-                break;
+        //         break;
 
 
-            // Lift returns back up
-            case PickupState::RAISING:
+        //     // Robot stays here until driver presses B
+        //     case PickupState::READY:
 
-                if (lift.atTarget()) {
+        //         break;
 
-                    pickupState = PickupState::IDLE;
-                }
 
-                break;
-        }
+        //     // Lift goes down to grab position
+        //     case PickupState::LOWERING:
+
+        //         if (lift.atTarget()) {
+        //             pickupWaitStart = pros::millis();
+        //             pickupState = PickupState::WAITING;
+        //         }
+
+        //         break;
+
+
+        //     // Allow the mechanism to settle while driver control keeps running.
+        //     case PickupState::WAITING:
+
+        //         if (pros::millis() - pickupWaitStart >= 200U) {
+
+        //             wrist.moveUP();
+
+        //             lift.moveAngle(20);
+
+        //             pickupState = PickupState::RAISING;
+        //         }
+
+        //         break;
+
+
+        //     // Lift returns back up
+        //     case PickupState::RAISING:
+
+        //         if (lift.atTarget()) {
+
+        //             pickupState = PickupState::IDLE;
+        //         }
+
+        //         break;
+        // }
 
 
         // =========================================
@@ -415,9 +418,13 @@ void opcontrol() {
             wrist.toggle();
         }
 
-        // MANUAL CLAW: L2
-        if (controller.get_digital_new_press(
-                pros::E_CONTROLLER_DIGITAL_L2)) {
+        // CLAW: L2 overrides auto-grab, including when opening to score.
+        const bool manualClawPressed = controller.get_digital_new_press(
+            pros::E_CONTROLLER_DIGITAL_L2);
+        const int distance = distanceSensor.get();
+        const bool validDistance = distance != PROS_ERR && distance > 0;
+
+        if (manualClawPressed) {
 
             if (claw.isExtended) {
                 claw.close();
@@ -425,14 +432,47 @@ void opcontrol() {
             else {
                 claw.open();
             }
+
+            autoGrabArmed = false;
+            distanceClearTiming = false;
+        } else if (!validDistance || !claw.isExtended) {
+
+            distanceClearTiming = false;
+        } else if (distance <= 23) {
+
+            distanceClearTiming = false;
+            if (autoGrabArmed) {
+                claw.close();
+                autoGrabArmed = false;
+            }
+        } else if (!autoGrabArmed) {
+
+            // Re-arm only after the open claw has been clear for 200 ms.
+            // Use elapsed time so driving and manual controls keep updating.
+            const std::uint32_t now = pros::millis();
+            if (!distanceClearTiming) {
+                distanceClearStart = now;
+                distanceClearTiming = true;
+            } else if (now - distanceClearStart >= 200U) {
+                autoGrabArmed = true;
+                distanceClearTiming = false;
+            }
         }
 
-        // OUTAKE =========================================
-        if (controller.get_digital(
-                pros::E_CONTROLLER_DIGITAL_Y)) {
+        // OUTTAKE: hold Y to run, release Y to stop.
+        const bool outtakeHeld = controller.get_digital(
+            pros::E_CONTROLLER_DIGITAL_Y);
+
+        if (outtakeHeld) {
 
             intake.spinOutward();
+
+        } else if (outtakeWasHeld) {
+
+            intake.stop();
         }
+
+        outtakeWasHeld = outtakeHeld;
 
         if (controller.get_digital(
                 pros::E_CONTROLLER_DIGITAL_X)) {
@@ -440,19 +480,6 @@ void opcontrol() {
             intake.stop();
         }
 
-        // Distance-sensor auto-close will not be used in driver control.
-        // We plan to bring this logic to autonomous eventually.
-        // int distance = distanceSensor.get_distance();
-        //
-        // if (distance > 0 && distance <= 21 && !autoClawTriggered) {
-        //     autoClawTriggered = true;
-        //     claw.close();
-        // }
-        //
-        // if (distance > 21) {
-        //     autoClawTriggered = false;
-        // }
-        
         // =========================================
         // MANUAL LIFT
         // =========================================

@@ -10,6 +10,7 @@
 extern Claw claw;
 extern Lift lift;
 extern Wrist wrist;
+// extern pros::Distance distanceSensor; // Uncomment with the auto-close block below.
 
 void align_pose(double straight){
     double goalRadius = 6.5;
@@ -65,10 +66,12 @@ void auton1() {
     // Move to goal
     chassis.arcade(100, 0);
     // Move wrist up and lift up while driving
-    wrist.moveUP();
+   
     lift.getMotorGroup().move_relative(300, 100);
     lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-    pros::delay(350);
+    pros::delay(150);
+    wrist.moveUP();
+    pros::delay(200);
     // Stop lift and chassis
     lift.stop();
     chassis.arcade(0, 0);
@@ -77,21 +80,33 @@ void auton1() {
     lift.manual(-100);
     pros::delay(200);
     lift.manual(0);
+    pros::delay(100);
     // Open claw to score
     claw.open();
-
+    pros::delay(200);
 
     // Move to point (3, 2, 48 degrees)
     chassis.moveToPoint(3, 2, 2000);
     chassis.waitUntilDone();
 
     // turn to -43.2 degrees
-    chassis.turnToHeading(-43.2, 2000);
+    chassis.turnToHeading(-45, 2000);
     chassis.waitUntilDone();
-
-    // // move to pose (-3, 11, -43.58 degrees)
-    // chassis.moveToPose(-3, 11, -43.58, 2000);
-    // chassis.waitUntilDone();
+    // Move to pose and check the distance while LemLib drives asynchronously.
+    // Keep this whole block commented until ready to test.
+    // bool autoClawTriggered = false;
+    // chassis.moveToPose(2.13, 11.54, -47.25, 2000, {}, true);
+    // while (chassis.isInMotion()) {
+    //     int distance = distanceSensor.get(); // PROS 3.8 distance API; millimeters.
+    //
+    //     if (distance > 0 && distance <= 21 && !autoClawTriggered) {
+    //         autoClawTriggered = true;
+    //         claw.close();
+    //     }
+    //
+    //     pros::delay(10);
+    // }
+    // Close only once per move; continue to the next auton step when motion ends.
     
     // pros::delay(200);
     // Open claw
