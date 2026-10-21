@@ -57,7 +57,7 @@ public:
     // Blocking, timed fold sequence. Does not read or zero any sensor.
     void foldInSize(Wrist& wrist);
 
-    // Blocking unfold and home sequence. Returns false on homing timeout.
-    // Only zeroes the motor encoders and rotation sensor after detecting a stop.
+    // Raises for clearance, then commands the wrist up. Returns true on completion.
+    // Does not home or zero any sensor, or verify wrist movement.
     bool unfold(Wrist& wrist);
 };

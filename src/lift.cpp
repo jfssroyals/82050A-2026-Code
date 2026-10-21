@@ -7,8 +7,8 @@
 void Lift::foldInSize(Wrist& wrist) {
     // Starting values: tune on the robot for wrist clearance and starting size.
     constexpr int raiseMs = 400;
-    constexpr int wristMs = 300;
-    constexpr int lowerMs = 300;
+    constexpr int wristMs = 1000;
+    constexpr int lowerMs = 100;
 
     manual(80);
     pros::delay(raiseMs);
@@ -26,10 +26,12 @@ bool Lift::unfold(Wrist& wrist) {
     // Raise for clearance without relying on an uncalibrated rotation sensor.
     constexpr int raiseMs = 200;
 
-    wrist.moveUP();
     manual(100);
     pros::delay(raiseMs);
     stop();
+
+    wrist.moveUP();
+    return true;
 
     // // Like reset(), seek the bottom using motor movement, with a timeout.
     // // Keep reset() unchanged; this sequence also tares both motor encoders

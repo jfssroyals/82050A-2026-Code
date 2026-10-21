@@ -129,7 +129,7 @@ void initialize() {
     lift.rotationSensor.reset_position();
     //
     claw.open();
-    pros::delay(2000);
+    pros::delay(3000);
     claw.close();
 
     pros::delay(200);
@@ -269,8 +269,8 @@ PickupState pickupState = PickupState::IDLE;
 unsigned long int pickupWaitStart = 0;
 
 void opcontrol() {
-    // autonomous();
-    // pros::delay(1000);
+    autonomous();
+    pros::delay(1000);
 
     // op control setup
     lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
