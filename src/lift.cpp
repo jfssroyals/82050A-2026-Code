@@ -24,7 +24,7 @@ void Lift::foldInSize(Wrist& wrist) {
 
 bool Lift::unfold(Wrist& wrist) {
     // Raise for clearance without relying on an uncalibrated rotation sensor.
-    constexpr int raiseMs = 200;
+    constexpr int raiseMs = 300;
 
     manual(100);
     pros::delay(raiseMs);

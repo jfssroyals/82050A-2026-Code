@@ -184,13 +184,6 @@ void competition_initialize() {
 
 
 void autonomous() {
-//     chassis.setPose(0, 0, 0);
-//     //chassis.moveToPoint(0, 10, 3000, {.maxSpeed = 50});
-    // chassis.moveToPose(0, 24, 90, 3000);
-    // chassis.waitUntilDone();
-    // auton1();
-    // lift.foldInSize(wrist);
-
     // delete this after testing
     pros::delay(3000);
 

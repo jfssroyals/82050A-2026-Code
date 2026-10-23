@@ -13,6 +13,25 @@ extern Wrist wrist;
 extern pros::Distance distanceSensor;
 // extern pros::Distance distanceSensor; // Uncomment with the auto-close block below.
 
+namespace {
+void waitForAutoClaw() {
+    bool autoClawTriggered = false;
+    while (chassis.isInMotion()) {
+        int distance = distanceSensor.get(); // PROS 3.8 distance API; millimeters.
+
+        if (distance > 0 && distance <= 35 && !autoClawTriggered) {
+            autoClawTriggered = true;
+            claw.close();
+            lift.manual(127);
+            pros::delay(100);
+            lift.stop();
+        }
+
+        pros::delay(10);
+    }
+}
+} // namespace
+
 void align_pose(double straight){
     double goalRadius = 6.5;
 
@@ -72,20 +91,23 @@ void auton1() {
     pros::delay(200);
     // Stop lift and chassis
     lift.stop();
-    chassis.arcade(0, 0);
+    chassis.arcade(30, 0);
     lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
     // Move lift down once at goal
     lift.manual(-100);
-    pros::delay(120);
+    pros::delay(300);
     lift.manual(0);
-    // pros::delay(500);
-    
+    pros::delay(200);
+    //delete this wait
+    pros::delay(1000);
+    // Open claw to score
+    claw.open();
+    //delete this wait
+    pros::delay(1000);
+    pros::delay(200);
 
     // Move to point (3, 2, 48 degrees)
     chassis.moveToPoint(3, 2, 2000);
-    // score
-    claw.open();
-    pros::delay(100);
     chassis.waitUntilDone();
 
     // turn to -43.2 degrees
@@ -94,59 +116,37 @@ void auton1() {
 
     // Move to pose and check the distance while LemLib drives asynchronously.
     // Keep this whole block commented until ready to test.
-    bool autoClawTriggered = false;
-    chassis.moveToPose(-3.5, 12.5, -40.5, 2000, {}, true);
-    while (chassis.isInMotion()) {
-        int distance = distanceSensor.get(); // PROS 3.8 distance API; millimeters.
-    
-        if (distance > 0 && distance <= 35 && !autoClawTriggered) {
-            autoClawTriggered = true;
-            claw.close();
-            lift.manual(127);
-            pros::delay(100);
-            lift.stop();
-        }
-    
-    }
+    chassis.moveToPose(-3.5, 12.5, -40.5, 2000, {
+        .lead = 0.25
+    });
+    waitForAutoClaw();
     // Close only once per move; continue to the next auton step when motion ends.
     
     pros::delay(200);
     
     // turn to the goal
     chassis.turnToHeading(86, 2000);
-    lift.manual(65);
+    lift.manual(50);
+    lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
     chassis.waitUntilDone();
     lift.stop();
     // go into the goal
     chassis.arcade(100, 0);
-    pros::delay(600);
-    lift.manual(-100);
+    pros::delay(800);
     chassis.arcade(0, 0);
+    lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
+    lift.manual(-100);
     pros::delay(200);
     claw.open();
     lift.stop();
-    // pros::delay(200);
-    // lift.manual(-100);
-    // pros::delay(300);
-    // lift.stop();
 
+    // move backwards
+    chassis.moveToPoint(-1.36, 9.14, 2000, {}, false);
+    // turn to next stack
+    chassis.turnToHeading(38, 2000, {}, false);
+    return;
 
-
-    // turn to heading 77.42
-    // -4.9, 7.48, 77.42
-    // lift go up
-    // 3.99, 9.51, 78.62
-    // lift go down
-    // claw open
-    // move back -> -3.64, 8.58, 80.59
-    // turn heading -> 39.31
-    
-
-    // Pickup First Stack
-
-    // Score First Stack
-
-    // Pickup Second Stack
-
-    // Score Second Stack
+    // go to stack
+    chassis.moveToPose(16.2, 29.2, 35.5, 2000);
+    waitForAutoClaw();
 }
