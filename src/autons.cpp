@@ -76,15 +76,16 @@ void auton1() {
     lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
     // Move lift down once at goal
     lift.manual(-100);
-    pros::delay(200);
+    pros::delay(120);
     lift.manual(0);
-    pros::delay(100);
-    // Open claw to score
-    claw.open();
-    pros::delay(200);
+    // pros::delay(500);
+    
 
     // Move to point (3, 2, 48 degrees)
     chassis.moveToPoint(3, 2, 2000);
+    // score
+    claw.open();
+    pros::delay(100);
     chassis.waitUntilDone();
 
     // turn to -43.2 degrees
@@ -98,7 +99,7 @@ void auton1() {
     while (chassis.isInMotion()) {
         int distance = distanceSensor.get(); // PROS 3.8 distance API; millimeters.
     
-        if (distance > 0 && distance <= 50 && !autoClawTriggered) {
+        if (distance > 0 && distance <= 35 && !autoClawTriggered) {
             autoClawTriggered = true;
             claw.close();
             lift.manual(127);
@@ -106,25 +107,24 @@ void auton1() {
             lift.stop();
         }
     
-        pros::delay(10);
     }
     // Close only once per move; continue to the next auton step when motion ends.
     
     pros::delay(200);
     
     // turn to the goal
-    chassis.turnToHeading(77.42, 2000);
-    lift.manual(100);
+    chassis.turnToHeading(86, 2000);
+    lift.manual(65);
     chassis.waitUntilDone();
-
+    lift.stop();
     // go into the goal
     chassis.arcade(100, 0);
-    lift.stop();
-    pros::delay(500);
+    pros::delay(600);
     lift.manual(-100);
-    pros::delay(200);
     chassis.arcade(0, 0);
+    pros::delay(200);
     claw.open();
+    lift.stop();
     // pros::delay(200);
     // lift.manual(-100);
     // pros::delay(300);

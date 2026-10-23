@@ -127,14 +127,12 @@ void initialize() {
 
     // calibrate the lift rotation sensor
     lift.rotationSensor.reset_position();
-    //
     claw.open();
     pros::delay(3000);
     claw.close();
 
     pros::delay(200);
     lift.foldInSize(wrist);
-    // lift.reset();
     pros::Task screen_task([&]() {
 
         while (true) {
@@ -199,63 +197,6 @@ void autonomous() {
     auton1();    
 }
 
-// void opcontrol() {s
-
-//     while (true) {
-
-//         // WRIST
-//         // L1 = toggle up/down
-//         if (controller.get_digital_new_press(
-//                 pros::E_CONTROLLER_DIGITAL_L1)) {
-
-//             if (wrist.isUp) {
-//                 wrist.moveDOWN();
-//             }
-//             else {
-//                 wrist.moveUP();
-//             }
-//         }
-
-
-//         // CLAW
-//         // L2 = toggle open/close
-//         if (controller.get_digital_new_press(
-//                 pros::E_CONTROLLER_DIGITAL_L2)) {
-
-//             if (claw.isExtended) {
-//                 claw.close();
-//             }
-//             else {
-//                 claw.open();
-//             }
-//         }
-
-//         // Button A: Move lift to 15 degrees
-//         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
-//             lift.moveAngle(20);
-//         }
-        
-//         // Button Y: Move lift to 10 degrees
-//         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
-//             lift.moveAngle(10);
-//         }
-
-
-//         // Button B: Check if lift is at target
-//         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)) {
-//             if (lift.atTarget()) {
-//                 controller.rumble(".");
-//             }
-//         }
-
-//         // Constantly update lift movement
-//         lift.update();
-
-//         pros::delay(10);
-//     }
-// }
-
-
 enum class PickupState {
     IDLE,
     PREPARING,
@@ -265,19 +206,26 @@ enum class PickupState {
     RAISING
 };
 
+enum class AutoGrabState {
+    ARMED,
+    DISARMED,
+    WAITING_FOR_CLEAR
+};
+
 PickupState pickupState = PickupState::IDLE;
 unsigned long int pickupWaitStart = 0;
 
 void opcontrol() {
-    autonomous();
-    pros::delay(1000);
+    // autonomous();
+    // pros::delay(1000);
 
     // op control setup
     lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
 
-    bool outtakeWasHeld = false;
-    bool autoGrabArmed = true;
-    bool distanceClearTiming = false;
+    std::uint32_t outtakeRemainingMs = 0;
+    std::uint32_t lastOuttakeUpdate = pros::millis();
+    std::uint32_t lastOuttakeRumble = 0;
+    AutoGrabState autoGrabState = AutoGrabState::ARMED;
     std::uint32_t distanceClearStart = 0;
 
     while (true) {
@@ -423,9 +371,9 @@ void opcontrol() {
             pros::E_CONTROLLER_DIGITAL_L2);
         const int distance = distanceSensor.get();
         const bool validDistance = distance != PROS_ERR && distance > 0;
+        const std::uint32_t autoGrabNow = pros::millis();
 
         if (manualClawPressed) {
-
             if (claw.isExtended) {
                 claw.close();
             }
@@ -433,50 +381,73 @@ void opcontrol() {
                 claw.open();
             }
 
-            autoGrabArmed = false;
-            distanceClearTiming = false;
-        } else if (!validDistance || !claw.isExtended) {
+            autoGrabState = AutoGrabState::DISARMED;
+        } else {
+            switch (autoGrabState) {
+                case AutoGrabState::ARMED:
+                    if (wrist.isUp && validDistance && claw.isExtended
+                        && distance <= 30) {
+                        claw.close();
+                        autoGrabState = AutoGrabState::DISARMED;
+                    }
+                    break;
 
-            distanceClearTiming = false;
-        } else if (distance <= 23) {
+                case AutoGrabState::DISARMED:
+                    if (wrist.isUp && validDistance && claw.isExtended
+                        && distance > 30) {
+                        distanceClearStart = autoGrabNow;
+                        autoGrabState = AutoGrabState::WAITING_FOR_CLEAR;
+                    }
+                    break;
 
-            distanceClearTiming = false;
-            if (autoGrabArmed) {
-                claw.close();
-                autoGrabArmed = false;
-            }
-        } else if (!autoGrabArmed) {
-
-            // Re-arm only after the open claw has been clear for 200 ms.
-            // Use elapsed time so driving and manual controls keep updating.
-            const std::uint32_t now = pros::millis();
-            if (!distanceClearTiming) {
-                distanceClearStart = now;
-                distanceClearTiming = true;
-            } else if (now - distanceClearStart >= 200U) {
-                autoGrabArmed = true;
-                distanceClearTiming = false;
+                case AutoGrabState::WAITING_FOR_CLEAR:
+                    if (!wrist.isUp || !validDistance || !claw.isExtended
+                        || distance <= 30) {
+                        autoGrabState = AutoGrabState::DISARMED;
+                    } else if (autoGrabNow - distanceClearStart >= 200U) {
+                        autoGrabState = AutoGrabState::ARMED;
+                    }
+                    break;
             }
         }
 
-        // OUTTAKE: hold Y to run, release Y to stop.
-        const bool outtakeHeld = controller.get_digital(
+        // OUTTAKE: each Y press adds 500 ms of run time.
+        const std::uint32_t outtakeNow = pros::millis();
+        const std::uint32_t outtakeElapsed = outtakeNow - lastOuttakeUpdate;
+        lastOuttakeUpdate = outtakeNow;
+        const bool outtakeWasRunning = outtakeRemainingMs > 0;
+        outtakeRemainingMs = outtakeElapsed >= outtakeRemainingMs
+            ? 0 : outtakeRemainingMs - outtakeElapsed;
+
+        const bool outtakePressed = controller.get_digital_new_press(
             pros::E_CONTROLLER_DIGITAL_Y);
 
-        if (outtakeHeld) {
+        if (outtakePressed) {
+            if (outtakeRemainingMs == 0) {
+                controller.rumble(".");
+                lastOuttakeRumble = outtakeNow;
+            }
+            outtakeRemainingMs += 235U;
+        }
+
+        if (outtakeRemainingMs > 0) {
 
             intake.spinOutward();
 
-        } else if (outtakeWasHeld) {
+            if (outtakeNow - lastOuttakeRumble >= 300U) {
+                controller.rumble(".");
+                lastOuttakeRumble = outtakeNow;
+            }
+
+        } else if (outtakeWasRunning) {
 
             intake.stop();
         }
 
-        outtakeWasHeld = outtakeHeld;
-
         if (controller.get_digital(
                 pros::E_CONTROLLER_DIGITAL_X)) {
 
+            outtakeRemainingMs = 0;
             intake.stop();
         }
 
@@ -517,4 +488,3 @@ void opcontrol() {
         pros::delay(5);
     }
 }
-
