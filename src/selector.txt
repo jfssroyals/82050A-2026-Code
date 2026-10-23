@@ -47,3 +47,7 @@ rotate each button 90 degrees left from the center of the button
 
  scale things down in size according to that ratio 
   - change the minimums and maximums according to the measurements
+
+general idea:
+apply the scaling factor
+perform rotations

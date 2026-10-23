@@ -1,61 +1,11 @@
+
 #include "selector.hpp"
-#include <cstdio>
-#include <exception>
-#include <vector>
-#include "pros/colors.hpp"
-#include "pros/screen.hpp"
+#include "ui_renderer.hpp"
 
-#include "autons.hpp"
-
-// width is double the height
-float xtoy_scalar = SCREEN_WIDTH / TILTED_WIDTH;
-int ytox_scalar = SCREEN_HEIGHT / TILTED_HEIGHT;
-
-orientation
-
-(0,1) -> ()
-
-int rotation(x, y)
-{
-    (x,y)
-}
-
-
-/*
-calculate the orientation of the screen and its components
-
-fix the issues where necessary
-
-
-*/
-
-int rotation()
-{
-    switch(orientation)
-}
-// ============================================================
-// AUTON DEFINITIONS
-// ============================================================
-//
-// Add autons HERE.
-//
-// You do NOT need to update AUTONS.size().
-//
-// The compiler calculates the count automatically.
-//
-// Competition:
-//
-//     Loader
-//     NonLoader
-//
-// Skills:
-//
-//     Side is ignored.
-//
-// ============================================================
+#include <cstdlib>
+#include <cstring>
 
 namespace {
-
 constexpr int FOURPIN_RED1 = 0;
 constexpr int AUTON_BLUE_2 = 1;
 constexpr int AUTON_RED_1 = 2;
@@ -67,160 +17,124 @@ constexpr int FILLER = 7;
 constexpr int lebron = 8;
 constexpr int dingalinga = 9;
 constexpr int imcracked = 10;
+
+void centeredText(int centerX, int y, const char* text,
+                  pros::Color color = pros::Color::white) {
+    const int length = static_cast<int>(std::strlen(text));
+    const int textWidth = length * 6;
+    ui::drawText(centerX - textWidth / 2, y, text, color);
+}
 }
 
-// List of the Autons
-// do this later
-const std::vector<AutonSelector::AutonDefinition> AutonSelector::AUTONS = {
-
-    {
-        FOURPIN_RED1,
-        "FOURPIN_RED1",
-        AutonSelector::AutonMode::Competition,
-        AutonSelector::AutonSide::Loader
-    },
-
-    {
-        AUTON_BLUE_2,
-        "BLUE 2",
-        AutonSelector::AutonMode::Competition,
-        AutonSelector::AutonSide::NonLoader
-    },
-
-    {
-        AUTON_RED_1,
-        "RED 1",    
-        AutonSelector::AutonMode::Competition,
-        AutonSelector::AutonSide::Loader
-    },
-
-    {
-        AUTON_RED_2,
-        "RED 2",
-        AutonSelector::AutonMode::Competition,
-        AutonSelector::AutonSide::NonLoader
-    },
-
-    {
-        AUTON_SKILLS,
-        "SKILLS",
-        AutonSelector::AutonMode::Skills,
-        AutonSelector::AutonSide::Loader
-    },
-     {
-        BRRR,
-        "BRRR",
-        AutonSelector::AutonMode::Competition,
-        AutonSelector::AutonSide::NonLoader
-     },
-
-     {
-        CHOTTU,
-        "CHOTTU",
-        AutonSelector::AutonMode::Competition,
-        AutonSelector::AutonSide::NonLoader
-     },
-
-     {
-        FILLER,
-        "FILLER",
-        AutonSelector::AutonMode::Competition,
-        AutonSelector::AutonSide::NonLoader
-     },
-
-     {
-        lebron,
-        "lebron",
-        AutonSelector::AutonMode::Competition,
-        AutonSelector::AutonSide::NonLoader
-     },
-
-     {
-        dingalinga,
-        "dingalinga",
-        AutonSelector::AutonMode::Competition,
-        AutonSelector::AutonSide::NonLoader
-     },
-
-     {
-        imcracked,
-        "imcracked",
-        AutonSelector::AutonMode::Competition,
-        AutonSelector::AutonSide::Loader
-     }
+const std::vector<AutonSelector::AutonDefinition>
+AutonSelector::AUTONS = {
+    {FOURPIN_RED1, "FOURPIN_RED1", AutonMode::Competition, AutonSide::Loader},
+    {AUTON_BLUE_2, "BLUE 2", AutonMode::Competition, AutonSide::NonLoader},
+    {AUTON_RED_1, "RED 1", AutonMode::Competition, AutonSide::Loader},
+    {AUTON_RED_2, "RED 2", AutonMode::Competition, AutonSide::NonLoader},
+    {AUTON_SKILLS, "SKILLS", AutonMode::Skills, AutonSide::Loader},
+    {BRRR, "BRRR", AutonMode::Competition, AutonSide::NonLoader},
+    {CHOTTU, "CHOTTU", AutonMode::Competition, AutonSide::NonLoader},
+    {FILLER, "FILLER", AutonMode::Competition, AutonSide::NonLoader},
+    {lebron, "lebron", AutonMode::Competition, AutonSide::NonLoader},
+    {dingalinga, "dingalinga", AutonMode::Competition, AutonSide::NonLoader},
+    {imcracked, "imcracked", AutonMode::Competition, AutonSide::Loader}
 };
 
+AutonSelector::AutonSelector() = default;
 
-// ============================================================
-// DYNAMIC AUTON COUNT
-// ============================================================
-//
-// This is automatically calculated from AUTONS[].
-//
-// If you add another auton to AUTONS[], this automatically
-// increases.
-//
-// If you remove one, this automatically decreases.
-//
-// ============================================================
+// ------------------------------------------------------------
+// ORIENTATION
+// ------------------------------------------------------------
 
-// use the getter function to expose AUTONS
+void AutonSelector::setOrientation(Orientation orientation) {
+    ui::currentOrientation = orientation;
+    render();
+}
 
+AutonSelector::Orientation AutonSelector::getCurrentOrientation() const {
+    return ui::currentOrientation;
+}
 
-// ============================================================
+// ------------------------------------------------------------
+// LAYOUT
+// ------------------------------------------------------------
+
+AutonSelector::Button AutonSelector::layout(Element element) const {
+    const bool portrait =
+        ui::currentOrientation == ui::Orientation::Portrait;
+
+    if (!portrait) {
+        switch (element) {
+            case Element::ModeCompetition: return {10, 65, 235, 230};
+            case Element::ModeSkills:      return {245, 65, 470, 230};
+            case Element::SideLoader:      return {40, 70, 220, 135};
+            case Element::SideNonLoader:   return {260, 70, 440, 135};
+            case Element::Back:            return {20, 195, 140, 230};
+            case Element::Confirm:         return {340, 195, 460, 230};
+            case Element::ScrollUp:        return {440, 55, 475, 105};
+            case Element::ScrollDown:      return {440, 125, 475, 175};
+        }
+    } else {
+        switch (element) {
+            case Element::ModeCompetition: return {15, 100, 225, 215};
+            case Element::ModeSkills:      return {15, 250, 225, 365};
+            case Element::SideLoader:      return {15, 125, 225, 215};
+            case Element::SideNonLoader:   return {15, 245, 225, 335};
+            case Element::Back:            return {10, 430, 105, 470};
+            case Element::Confirm:         return {130, 430, 230, 470};
+            case Element::ScrollUp:        return {198, 100, 235, 145};
+            case Element::ScrollDown:      return {198, 320, 235, 365};
+        }
+    }
+
+    return {0, 0, 0, 0};
+}
+
+int AutonSelector::listLeft() const {
+    return ui::currentOrientation == ui::Orientation::Portrait ? 8 : 20;
+}
+
+int AutonSelector::listRight() const {
+    return ui::currentOrientation == ui::Orientation::Portrait ? 192 : 420;
+}
+
+int AutonSelector::listTop() const {
+    return ui::currentOrientation == ui::Orientation::Portrait ? 78 : 55;
+}
+
+int AutonSelector::listBottom() const {
+    return ui::currentOrientation == ui::Orientation::Portrait ? 410 : 180;
+}
+
+int AutonSelector::rowHeight() const {
+    return ui::currentOrientation == ui::Orientation::Portrait ? 28 : 35;
+}
+
+int AutonSelector::rowStep() const {
+    return ui::currentOrientation == ui::Orientation::Portrait ? 33 : 42;
+}
+
+// ------------------------------------------------------------
 // GEOMETRY
-// ============================================================
+// ------------------------------------------------------------
 
 bool AutonSelector::isInside(int x, int y, const Button& button) {
-
-    return (x >= button.left && x < button.right && y >= button.top && y < button.bottom);
+    return x >= button.left && x < button.right
+        && y >= button.top && y < button.bottom;
 }
-
-
-// ============================================================
-// CENTER X
-// ============================================================
 
 int AutonSelector::getCenterX(const Button& button) {
-
-    return (button.left + (button.right - button.left) / 2);
+    return button.left + (button.right - button.left) / 2;
 }
-
-
-// ============================================================
-// CENTER Y
-// ============================================================
 
 int AutonSelector::getCenterY(const Button& button) {
-
-    return (button.top + (button.bottom - button.top) / 2);
+    return button.top + (button.bottom - button.top) / 2;
 }
 
-
-// ============================================================
-// CONSTRUCTOR
-// ============================================================
-
-AutonSelector::AutonSelector()
-    : scroll_offset{0},
-      touch_was_pressed{false},
-      touch_start_x{0},
-      touch_start_y{0},
-      touch_current_x{0},
-      touch_current_y{0},
-      touch_task{nullptr},
-      screen_number{SCREEN_MODE},
-      selected_mode{AutonMode::Competition},
-      selected_side{AutonSide::Loader},
-      auton_number{-1},
-      auton_confirmed{false}
-{
-}
-
-
-// ============================================================
-// DRAW BUTTON
-// ============================================================
+// ------------------------------------------------------------
+// BUTTON DRAWING
+// ------------------------------------------------------------
 
 void AutonSelector::drawButton(
     const Button& button,
@@ -228,2074 +142,718 @@ void AutonSelector::drawButton(
     pros::Color color,
     bool selected
 ) {
+    const pros::Color fill =
+        selected ? pros::Color::green : color;
 
-    // --------------------------------------------------------
-    // BUTTON COLOR
-    // --------------------------------------------------------
-
-    if (selected) {
-
-        pros::screen::set_pen(
-            pros::Color::green
-        );
-
-    } else {
-
-        pros::screen::set_pen(
-            color
-        );
-    }
-
-
-    // --------------------------------------------------------
-    // BUTTON
-    // --------------------------------------------------------
-
-    pros::screen::fill_rect(
-        button.left,
-        button.top,
-        button.right - 1,
-        button.bottom - 1
+    ui::fillRect(
+        button.left, button.top,
+        button.right - 1, button.bottom - 1,
+        fill
     );
 
-
-    // --------------------------------------------------------
-    // TEXT
-    // --------------------------------------------------------
-
-    pros::screen::set_pen(
+    ui::drawRect(
+        button.left, button.top,
+        button.right - 1, button.bottom - 1,
         pros::Color::white
     );
 
-
-    const int centerX =
-        getCenterX(button);
-
-    const int centerY =
-        getCenterY(button);
-
-
-    // PROS text width isn't reliably exposed as a simple
-    // function across all versions, so use a conservative
-    // centered starting point based on text length.
-    //
-    // This is much better than hard-coding every button's
-    // text position.
-
-    const int textLength = 8;
+    const int textWidth =
+        static_cast<int>(std::strlen(text)) * 6;
 
     const int textX =
-        centerX - (textLength * 5);
+        getCenterX(button) - textWidth / 2;
 
+    const int textY =
+        getCenterY(button) - 3;
 
-    pros::screen::print(
-        pros::E_TEXT_MEDIUM,
-        textX,
-        centerY - 8,
-        "%s",
-        text
-    );
+    ui::drawText(textX, textY, text, pros::Color::white);
 }
 
-
-// ============================================================
-// INITIALIZE
-// ============================================================
+// ------------------------------------------------------------
+// INITIALIZATION AND TOUCH TASK
+// ------------------------------------------------------------
 
 void AutonSelector::initialize() {
+    screen_number = SCREEN_MODE;
+    selected_mode = AutonMode::Competition;
+    selected_side = AutonSide::Loader;
+    auton_number = -1;
+    auton_confirmed = false;
+    scroll_offset = 0;
 
-    // --------------------------------------------------------
-    // RESET STATE
-    // --------------------------------------------------------
-
-    screen_number =
-        SCREEN_MODE;
-
-    selected_mode =
-        AutonMode::Competition;
-
-    selected_side =
-        AutonSide::Loader;
-
-    auton_number =
-        -1;
-
-    auton_confirmed =
-        false;
-
-    scroll_offset =
-        0;
-
-    touch_was_pressed =
-        false;
-
-
-    // --------------------------------------------------------
-    // DRAW
-    // --------------------------------------------------------
+    touch_was_pressed = false;
+    touch_start_x = touch_start_y = 0;
+    touch_current_x = touch_current_y = 0;
 
     render();
 
-
-    // --------------------------------------------------------
-    // START TOUCH TASK
-    // --------------------------------------------------------
-
     if (touch_task == nullptr) {
-
-        touch_task =
-            new pros::Task(
-                [this] {
-                    this->touchTaskLoop();
-                }
-            );
+        touch_task = new pros::Task([this] {
+            touchTaskLoop();
+        });
     }
 }
 
-
-// ============================================================
-// TOUCH TASK LOOP
-// ============================================================
-
 void AutonSelector::touchTaskLoop() {
-
     while (true) {
-
         update();
-
         pros::delay(20);
     }
 }
 
-
-// ============================================================
-// UPDATE
-// ============================================================
-//
-// This handles:
-//
-//     1. Finger down
-//     2. Finger movement
-//     3. Finger release
-//
-// A tap and swipe are treated differently.
-//
-// ============================================================
-
 void AutonSelector::update() {
-
-    pros::screen_touch_status_s touch =  pros::screen::touch_status();
-
-
-    // ========================================================
-    // FINGER IS DOWN
-    // ========================================================
+    const pros::screen_touch_status_s touch =
+        pros::screen::touch_status();
 
     if (touch.touch_status) {
-
-        // ----------------------------------------------------
-        // NEW TOUCH
-        // ----------------------------------------------------
+        const ui::Point point = ui::toVirtual(touch.x, touch.y);
 
         if (!touch_was_pressed) {
-
-            touch_was_pressed =
-                true;
-
-            touch_start_x =
-                touch.x;
-
-            touch_start_y =
-                touch.y;
+            touch_was_pressed = true;
+            touch_start_x = point.x;
+            touch_start_y = point.y;
         }
 
-
-        // ----------------------------------------------------
-        // SAVE CURRENT POSITION
-        // ----------------------------------------------------
-
-        touch_current_x = touch.x;
-
-        touch_current_y = touch.y;
-
-
+        touch_current_x = point.x;
+        touch_current_y = point.y;
         return;
     }
-
-
-    // ========================================================
-    // FINGER WAS RELEASED
-    // ========================================================
 
     if (!touch_was_pressed) {
-
         return;
     }
 
+    touch_was_pressed = false;
 
-    // --------------------------------------------------------
-    // TOUCH ENDED
-    // --------------------------------------------------------
+    const int deltaX = touch_current_x - touch_start_x;
+    const int deltaY = touch_current_y - touch_start_y;
 
-    touch_was_pressed =
-        false;
+    const bool onList =
+        screen_number == SCREEN_COMPETITION_AUTONS ||
+        screen_number == SCREEN_SKILLS_AUTONS;
 
-
-    // --------------------------------------------------------
-    // CALCULATE MOVEMENT
-    // --------------------------------------------------------
-
-    const int deltaX =
-        touch_current_x -
-        touch_start_x;
-
-    const int deltaY =
-        touch_current_y -
-        touch_start_y;
-
-
-    // ========================================================
-    // SWIPE DETECTION
-    // ========================================================
-
-    if (screen_number == SCREEN_COMPETITION_AUTONS || screen_number == SCREEN_SKILLS_AUTONS) 
-    
-    {
-
-        // ----------------------------------------------------
-        // VERTICAL SWIPE
-        // ----------------------------------------------------
-
-        if (deltaY <= -SWIPE_THRESHOLD) {
-
-            // Finger moved upward.
-            //
-            // Content should move upward,
-            // therefore scroll downward.
-
-            scrollBy(AUTON_ROW_STEP * 2);
-
-            render();
-
-            return;
+    if (onList && std::abs(deltaX) < SWIPE_THRESHOLD &&
+        std::abs(deltaY) >= SWIPE_THRESHOLD) {
+        // Moving a finger up moves the list toward later entries.
+        if (deltaY < 0) {
+            scrollBy(rowStep() * 2);
+        } else {
+            scrollBy(-rowStep() * 2);
         }
 
-
-        if (deltaY >= SWIPE_THRESHOLD) {
-
-            // Finger moved downward.
-            //
-            // Content should move downward,
-            // therefore scroll upward.
-
-            scrollBy(-AUTON_ROW_STEP * 2);
-
-            render();
-
-            return;
-        }
+        render();
+        return;
     }
 
-
-    // ========================================================
-    // TAP
-    // ========================================================
-    //
-    // If movement was small enough, treat it as a tap.
-    //
-    // ========================================================
-
-    if (
-        std::abs(deltaX) < SWIPE_THRESHOLD &&
-        std::abs(deltaY) < SWIPE_THRESHOLD
-    ) {
-
-        handleTouch(
-            touch_current_x,
-            touch_current_y
-        );
+    if (std::abs(deltaX) < SWIPE_THRESHOLD &&
+        std::abs(deltaY) < SWIPE_THRESHOLD) {
+        handleTouch(touch_current_x, touch_current_y);
     }
 }
 
-
-// ============================================================
+// ------------------------------------------------------------
 // RENDER
-// ============================================================
+// ------------------------------------------------------------
 
 void AutonSelector::render() {
-
-    pros::screen::erase();
-
+    ui::clear();
 
     switch (screen_number) {
-
         case SCREEN_MODE:
-
             drawModeScreen();
-
             break;
-
-
         case SCREEN_COMPETITION_SIDE:
-
             drawCompetitionSideScreen();
-
             break;
-
-
         case SCREEN_COMPETITION_AUTONS:
-
             drawCompetitionAutonScreen();
-
             break;
-
-
         case SCREEN_SKILLS_AUTONS:
-
             drawSkillsAutonScreen();
-
             break;
-
-
         case SCREEN_CONFIRM:
-
             drawConfirmScreen();
-
             break;
-
-
         default:
-
-            screen_number =
-                SCREEN_MODE;
-
-            selected_mode =
-                AutonMode::Competition;
-
-            selected_side =
-                AutonSide::Loader;
-
-            auton_number =
-                -1;
-
-            auton_confirmed =
-                false;
-
-            scroll_offset =
-                0;
-
+            screen_number = SCREEN_MODE;
+            selected_mode = AutonMode::Competition;
+            selected_side = AutonSide::Loader;
+            auton_number = -1;
+            auton_confirmed = false;
+            scroll_offset = 0;
             drawModeScreen();
-
             break;
     }
 }
 
-
-// ============================================================
-// MODE SCREEN
-// ============================================================
+// ------------------------------------------------------------
+// SCREENS
+// ------------------------------------------------------------
 
 void AutonSelector::drawModeScreen() {
+    const bool portrait =
+        ui::currentOrientation == ui::Orientation::Portrait;
 
-    pros::screen::set_pen(
-        pros::Color::white
+    centeredText(ui::width() / 2, portrait ? 35 : 12, "SELECT MODE");
+    centeredText(
+        ui::width() / 2,
+        portrait ? 55 : 35,
+        "CHOOSE AUTON TYPE"
     );
-
-
-    pros::screen::print(
-        pros::E_TEXT_LARGE,
-        150,
-        10,
-        "SELECT MODE"
-    );
-
-
-    pros::screen::print(
-        pros::E_TEXT_SMALL,
-        125,
-        38,
-        "Choose autonomous type"
-    );
-
-
-    // --------------------------------------------------------
-    // COMPETITION
-    // --------------------------------------------------------
 
     drawButton(
-        MODE_COMPETITION,
+        layout(Element::ModeCompetition),
         "COMPETITION",
         pros::Color::blue,
         selected_mode == AutonMode::Competition
     );
 
-
-    // --------------------------------------------------------
-    // SKILLS
-    // --------------------------------------------------------
-
     drawButton(
-        MODE_SKILLS,
+        layout(Element::ModeSkills),
         "SKILLS",
         pros::Color::green,
         selected_mode == AutonMode::Skills
     );
 }
 
-
-// ============================================================
-// COMPETITION SIDE SCREEN
-// ============================================================
-
 void AutonSelector::drawCompetitionSideScreen() {
+    const bool portrait =
+        ui::currentOrientation == ui::Orientation::Portrait;
 
-    pros::screen::set_pen(
-        pros::Color::white
-    );
-
-
-    pros::screen::print(
-        pros::E_TEXT_LARGE,
-        135,
-        10,
-        "COMPETITION"
-    );
-
-
-    pros::screen::print(
-        pros::E_TEXT_SMALL,
-        145,
-        38,
-        "SELECT AUTON SIDE"
-    );
-
-
-    // --------------------------------------------------------
-    // LOADER
-    // --------------------------------------------------------
+    centeredText(ui::width() / 2, portrait ? 45 : 12, "COMPETITION");
+    centeredText(ui::width() / 2, portrait ? 63 : 35, "SELECT AUTON SIDE");
 
     drawButton(
-        SIDE_LOADER,
+        layout(Element::SideLoader),
         "LOADER",
         pros::Color::blue,
         selected_side == AutonSide::Loader
     );
 
-
-    // --------------------------------------------------------
-    // NON-LOADER
-    // --------------------------------------------------------
-
     drawButton(
-        SIDE_NON_LOADER,
+        layout(Element::SideNonLoader),
         "NON-LOADER",
         pros::Color::blue,
         selected_side == AutonSide::NonLoader
     );
 
-
-    // --------------------------------------------------------
-    // BACK
-    // --------------------------------------------------------
-
-    drawButton(
-        BACK,
-        "BACK",
-        pros::Color::grey
-    );
+    drawButton(layout(Element::Back), "BACK", pros::Color::grey);
 }
 
-
-// ============================================================
-// COMPETITION AUTON SCREEN
-// ============================================================
-
 void AutonSelector::drawCompetitionAutonScreen() {
+    const bool portrait =
+        ui::currentOrientation == ui::Orientation::Portrait;
 
-    pros::screen::set_pen(
-        pros::Color::white
-    );
-
-
-    pros::screen::print(
-        pros::E_TEXT_LARGE,
-        125,
-        8,
+    centeredText(
+        ui::width() / 2,
+        portrait ? 20 : 7,
         "COMPETITION AUTONS"
     );
 
-
-    pros::screen::print(
-        pros::E_TEXT_SMALL,
-        165,
-        35,
+    centeredText(
+        ui::width() / 2,
+        portrait ? 42 : 29,
         selected_side == AutonSide::Loader
-            ? "LOADER SIDE"
-            : "NON-LOADER SIDE"
+            ? "LOADER SIDE" : "NON-LOADER SIDE"
     );
-
-
-    // --------------------------------------------------------
-    // DYNAMIC LIST
-    // --------------------------------------------------------
 
     drawAutonList();
-
-
-    // --------------------------------------------------------
-    // BACK
-    // --------------------------------------------------------
-
-    drawButton(
-        BACK,
-        "BACK",
-        pros::Color::grey
-    );
+    drawButton(layout(Element::Back), "BACK", pros::Color::grey);
 }
-
-
-// ============================================================
-// SKILLS AUTON SCREEN
-// ============================================================
 
 void AutonSelector::drawSkillsAutonScreen() {
+    const bool portrait =
+        ui::currentOrientation == ui::Orientation::Portrait;
 
-    pros::screen::set_pen(
-        pros::Color::white
-    );
-
-
-    pros::screen::print(
-        pros::E_TEXT_LARGE,
-        145,
-        8,
-        "SKILLS AUTONS"
-    );
-
-
-    pros::screen::print(
-        pros::E_TEXT_SMALL,
-        165,
-        35,
-        "SELECT A ROUTINE"
-    );
-
-
-    // --------------------------------------------------------
-    // DYNAMIC LIST
-    // --------------------------------------------------------
+    centeredText(ui::width() / 2, portrait ? 20 : 7, "SKILLS AUTONS");
+    centeredText(ui::width() / 2, portrait ? 42 : 29, "SELECT A ROUTINE");
 
     drawAutonList();
-
-
-    // --------------------------------------------------------
-    // BACK
-    // --------------------------------------------------------
-
-    drawButton(
-        BACK,
-        "BACK",
-        pros::Color::grey
-    );
+    drawButton(layout(Element::Back), "BACK", pros::Color::grey);
 }
 
-
-// ============================================================
-// CONFIRM SCREEN
-// ============================================================
-
 void AutonSelector::drawConfirmScreen() {
+    const bool portrait =
+        ui::currentOrientation == ui::Orientation::Portrait;
 
-    const AutonDefinition* selected =
-        nullptr;
+    centeredText(ui::width() / 2, portrait ? 35 : 12, "CONFIRM AUTON");
 
+    const AutonDefinition* selected = nullptr;
 
-    // --------------------------------------------------------
-    // FIND SELECTED AUTON
-    // --------------------------------------------------------
-
-    for (int i = 0; i < AUTONS.size(); ++i) {
-
-        if (
-            AUTONS[i].id ==
-            auton_number
-        ) {
-
-            selected =
-                &AUTONS[i];
-
+    for (const auto& auton : AUTONS) {
+        if (auton.id == auton_number) {
+            selected = &auton;
             break;
         }
     }
 
-
-    // --------------------------------------------------------
-    // TITLE
-    // --------------------------------------------------------
-
-    pros::screen::set_pen(
-        pros::Color::white
-    );
-
-
-    pros::screen::print(
-        pros::E_TEXT_LARGE,
-        150,
-        10,
-        "CONFIRM AUTON"
-    );
-
-
-    // --------------------------------------------------------
-    // SELECTED AUTON
-    // --------------------------------------------------------
-
     if (selected != nullptr) {
-
-        pros::screen::print(
-            pros::E_TEXT_LARGE,
-            180,
-            65,
-            "%s",
+        centeredText(
+            ui::width() / 2,
+            portrait ? 120 : 65,
             selected->name
         );
 
+        centeredText(
+            ui::width() / 2,
+            portrait ? 155 : 100,
+            selected_mode == AutonMode::Competition
+                ? "COMPETITION" : "SKILLS"
+        );
 
-        // ----------------------------------------------------
-        // MODE
-        // ----------------------------------------------------
-
-        if (
-            selected_mode ==
-            AutonMode::Competition
-        ) {
-
-            pros::screen::print(
-                pros::E_TEXT_MEDIUM,
-                175,
-                100,
-                "COMPETITION"
-            );
-
-
-            pros::screen::print(
-                pros::E_TEXT_SMALL,
-                185,
-                130,
+        if (selected_mode == AutonMode::Competition) {
+            centeredText(
+                ui::width() / 2,
+                portrait ? 180 : 125,
                 selected_side == AutonSide::Loader
-                    ? "LOADER SIDE"
-                    : "NON-LOADER SIDE"
-            );
-
-        } else {
-
-            pros::screen::print(
-                pros::E_TEXT_MEDIUM,
-                205,
-                100,
-                "SKILLS"
+                    ? "LOADER SIDE" : "NON-LOADER SIDE"
             );
         }
 
-
-        // ----------------------------------------------------
-        // STATUS
-        // ----------------------------------------------------
-
-        if (auton_confirmed) {
-
-            pros::screen::set_pen(
-                pros::Color::green
-            );
-
-            pros::screen::print(
-                pros::E_TEXT_SMALL,
-                180,
-                160,
-                "AUTON CONFIRMED"
-            );
-
-        } else {
-
-            pros::screen::set_pen(
-                pros::Color::yellow
-            );
-
-            pros::screen::print(
-                pros::E_TEXT_SMALL,
-                170,
-                160,
-                "PRESS CONFIRM"
-            );
-        }
+        centeredText(
+            ui::width() / 2,
+            portrait ? 230 : 160,
+            auton_confirmed ? "AUTON CONFIRMED" : "PRESS CONFIRM",
+            auton_confirmed ? pros::Color::green : pros::Color::yellow
+        );
     }
 
-
-    // --------------------------------------------------------
-    // BACK
-    // --------------------------------------------------------
+    drawButton(layout(Element::Back), "BACK", pros::Color::grey);
 
     drawButton(
-        BACK,
-        "BACK",
-        pros::Color::grey
-    );
-
-
-    // --------------------------------------------------------
-    // CONFIRM
-    // --------------------------------------------------------
-
-    drawButton(
-        CONFIRM,
-        auton_confirmed
-            ? "CONFIRMED"
-            : "CONFIRM",
+        layout(Element::Confirm),
+        auton_confirmed ? "CONFIRMED" : "CONFIRM",
         pros::Color::green,
         auton_confirmed
     );
 }
 
+// ------------------------------------------------------------
+// FILTERING
+// ------------------------------------------------------------
 
-// ============================================================
-// AUTON MATCHING
-// ============================================================
-
-bool AutonSelector::autonMatchesSelection(const AutonDefinition& auton) const {
-
-    // --------------------------------------------------------
-    // MODE
-    // --------------------------------------------------------
-
-    if (
-        auton.mode !=
-        selected_mode
-    ) {
-
+bool AutonSelector::autonMatchesSelection(
+    const AutonDefinition& auton
+) const {
+    if (auton.mode != selected_mode) {
         return false;
     }
 
-
-    // --------------------------------------------------------
-    // SKILLS
-    // --------------------------------------------------------
-    //
-    // Skills does not care about side.
-    //
-    // --------------------------------------------------------
-
-    if (
-        selected_mode ==
-        AutonMode::Skills
-    ) {
-
+    if (selected_mode == AutonMode::Skills) {
         return true;
     }
 
-
-    // --------------------------------------------------------
-    // COMPETITION
-    // --------------------------------------------------------
-
-    return (
-        auton.side ==
-        selected_side
-    );
+    return auton.side == selected_side;
 }
 
-
-// ============================================================
-// FILTERED COUNT
-// ============================================================
-
 int AutonSelector::getFilteredAutonCount() const {
-
     int count = 0;
 
-
-    for (int i = 0; i < AUTONS.size(); ++i) {
-
-        if (
-            autonMatchesSelection(
-                AUTONS[i]
-            )
-        ) {
-
+    for (const auto& auton : AUTONS) {
+        if (autonMatchesSelection(auton)) {
             ++count;
         }
     }
 
-
     return count;
 }
 
- 
-// ============================================================
-// GET FILTERED AUTON
-// ============================================================
-
 const AutonSelector::AutonDefinition*
-AutonSelector::getFilteredAuton(
-    int filteredIndex
-) const {
-
+AutonSelector::getFilteredAuton(int filteredIndex) const {
     if (filteredIndex < 0) {
-
         return nullptr;
     }
 
+    int index = 0;
 
-    int currentIndex = 0;
-
-
-    for (int i = 0; i < AUTONS.size(); ++i) {
-
-        if (
-            !autonMatchesSelection(
-                AUTONS[i]
-            )
-        ) {
-
+    for (const auto& auton : AUTONS) {
+        if (!autonMatchesSelection(auton)) {
             continue;
         }
 
-
-        if (
-            currentIndex ==
-            filteredIndex
-        ) {
-
-            return &AUTONS[i];
+        if (index == filteredIndex) {
+            return &auton;
         }
 
-
-        ++currentIndex;
+        ++index;
     }
-
 
     return nullptr;
 }
 
-
-// ============================================================
-// MAXIMUM SCROLL
-// ============================================================
-//
-// This calculates how far the list is actually allowed to
-// scroll.
-//
-// Nothing is hard-coded based on the number of autons.
-//
-// ============================================================
+// ------------------------------------------------------------
+// SCROLLING
+// ------------------------------------------------------------
 
 int AutonSelector::getMaxScrollOffset() const {
+    const int contentHeight = rowStep() * getFilteredAutonCount();
+    const int visibleHeight = listBottom() - listTop();
+    const int maximum = contentHeight - visibleHeight;
 
-    const int count =
-        getFilteredAutonCount();
-
-
-    if (count <= 0) {
-
-        return 0;
-    }
-
-
-    const int contentHeight =
-        AUTON_ROW_STEP * count;
-
-
-    const int visibleHeight =
-        LIST_BOTTOM - LIST_TOP;
-
-
-    const int maxScroll =
-        contentHeight -
-        visibleHeight;
-
-
-    if (maxScroll < 0) {
-
-        return 0;
-    }
-
-
-    return maxScroll;
+    return maximum > 0 ? maximum : 0;
 }
 
-
-// ============================================================
-// CLAMP SCROLL
-// ============================================================
-
 void AutonSelector::clampScroll() {
-
-    const int maxScroll =
-        getMaxScrollOffset();
-
-
     if (scroll_offset < 0) {
-
         scroll_offset = 0;
     }
 
+    const int maximum = getMaxScrollOffset();
 
-    if (scroll_offset > maxScroll) {
-
-        scroll_offset =
-            maxScroll;
+    if (scroll_offset > maximum) {
+        scroll_offset = maximum;
     }
 }
 
-
-// ============================================================
-// SCROLL BY
-// ============================================================
-
-void AutonSelector::scrollBy(
-    int amount
-) {
-
+void AutonSelector::scrollBy(int amount) {
     scroll_offset += amount;
-
     clampScroll();
 }
 
-
-// ============================================================
-// SCROLL UP
-// ============================================================
-
 void AutonSelector::scrollUp() {
-
-    scrollBy(
-        -AUTON_ROW_STEP
-    );
+    scrollBy(-rowStep());
 }
-
-
-// ============================================================
-// SCROLL DOWN
-// ============================================================
 
 void AutonSelector::scrollDown() {
-
-    scrollBy(
-        AUTON_ROW_STEP
-    );
+    scrollBy(rowStep());
 }
 
-
-// ============================================================
-// DRAW AUTON LIST
-// ============================================================
-
 void AutonSelector::drawAutonList() {
-
-    const int count =
-        getFilteredAutonCount();
-
-
-    // --------------------------------------------------------
-    // EMPTY LIST
-    // --------------------------------------------------------
+    const int count = getFilteredAutonCount();
 
     if (count == 0) {
-
-        pros::screen::set_pen(
-            pros::Color::white
-        );
-
-        pros::screen::print(
-            pros::E_TEXT_MEDIUM,
-            150,
-            105,
-            "NO AUTONS AVAILABLE"
-        );
-
+        centeredText(ui::width() / 2, ui::height() / 2, "NO AUTONS");
         return;
     }
 
-
-    // --------------------------------------------------------
-    // KEEP SCROLL VALID
-    // --------------------------------------------------------
-
     clampScroll();
 
+    int index = 0;
 
-    // --------------------------------------------------------
-    // DRAW LIST
-    // --------------------------------------------------------
-
-    int visibleIndex = 0;
-
-
-    for (int i = 0; i < AUTONS.size(); ++i) {
-
-        const AutonDefinition& auton =
-            AUTONS[i];
-
-
-        // ----------------------------------------------------
-        // FILTER
-        // ----------------------------------------------------
-
-        if (
-            !autonMatchesSelection(
-                auton
-            )
-        ) {
-
+    for (const auto& auton : AUTONS) {
+        if (!autonMatchesSelection(auton)) {
             continue;
         }
 
+        const int y = listTop() + index * rowStep() - scroll_offset;
 
-        // ----------------------------------------------------
-        // CALCULATE Y
-        // ----------------------------------------------------
-
-        const int y =
-            LIST_TOP +
-            visibleIndex * AUTON_ROW_STEP -
-            scroll_offset;
-
-
-        // ----------------------------------------------------
-        // DRAW IF VISIBLE
-        // ----------------------------------------------------
-
-        if (
-            y < LIST_BOTTOM &&
-            y + AUTON_ROW_HEIGHT > LIST_TOP
-        ) {
-
-            Button row = {
-
-                LIST_LEFT,
+        if (y < listBottom() && y + rowHeight() > listTop()) {
+            const Button row = {
+                listLeft(),
                 y,
-                LIST_RIGHT,
-                y + AUTON_ROW_HEIGHT
+                listRight(),
+                y + rowHeight()
             };
-
 
             drawButton(
                 row,
                 auton.name,
                 selected_mode == AutonMode::Skills
-                    ? pros::Color::green
-                    : pros::Color::blue,
+                    ? pros::Color::green : pros::Color::blue,
                 auton.id == auton_number
             );
         }
 
-
-        ++visibleIndex;
+        ++index;
     }
 
+    const int maximum = getMaxScrollOffset();
 
-    // ========================================================
-    // SCROLL CONTROLS
-    // ========================================================
+    if (maximum > 0) {
+        drawButton(layout(Element::ScrollUp), "^", pros::Color::grey);
+        drawButton(layout(Element::ScrollDown), "V", pros::Color::grey);
 
-    const int maxScroll =
-        getMaxScrollOffset();
+        const int percentage = scroll_offset * 100 / maximum;
+        char percentageText[8];
 
-
-    if (maxScroll > 0) {
-
-        // ----------------------------------------------------
-        // UP
-        // ----------------------------------------------------
-
-        drawButton(
-            SCROLL_UP,
-            "^",
-            pros::Color::grey
-        );
-
-
-        // ----------------------------------------------------
-        // DOWN
-        // ----------------------------------------------------
-
-        drawButton(
-            SCROLL_DOWN,
-            "v",
-            pros::Color::grey
-        );
-    }
-
-
-    // ========================================================
-    // SCROLL POSITION
-    // ========================================================
-
-    if (maxScroll > 0) {
-
-        const int percentage =
-            (
-                scroll_offset * 100
-            ) /
-            maxScroll;
-
-
-        pros::screen::set_pen(
-            pros::Color::white
-        );
-
-
-        pros::screen::print(
-            pros::E_TEXT_SMALL,
-            30,
-            188,
+        std::snprintf(
+            percentageText,
+            sizeof(percentageText),
             "%d%%",
             percentage
         );
+
+        ui::drawText(
+            listLeft(),
+            listBottom() + 3,
+            percentageText,
+            pros::Color::white
+        );
     }
 }
 
-
-// ============================================================
-// SELECT COMPETITION
-// ============================================================
+// ------------------------------------------------------------
+// SELECTION
+// ------------------------------------------------------------
 
 void AutonSelector::selectCompetition() {
-
-    selected_mode =
-        AutonMode::Competition;
-
-    selected_side =
-        AutonSide::Loader;
-
-    auton_number =
-        -1;
-
-    auton_confirmed =
-        false;
-
-    scroll_offset =
-        0;
-
-    screen_number =
-        SCREEN_COMPETITION_SIDE;
+    selected_mode = AutonMode::Competition;
+    selected_side = AutonSide::Loader;
+    auton_number = -1;
+    auton_confirmed = false;
+    scroll_offset = 0;
+    screen_number = SCREEN_COMPETITION_SIDE;
 }
-
-
-// ============================================================
-// SELECT SKILLS
-// ============================================================
 
 void AutonSelector::selectSkills() {
-
-    selected_mode =
-        AutonMode::Skills;
-
-    auton_number =
-        -1;
-
-    auton_confirmed =
-        false;
-
-    scroll_offset =
-        0;
-
-    screen_number =
-        SCREEN_SKILLS_AUTONS;
+    selected_mode = AutonMode::Skills;
+    auton_number = -1;
+    auton_confirmed = false;
+    scroll_offset = 0;
+    screen_number = SCREEN_SKILLS_AUTONS;
 }
-
-
-// ============================================================
-// SELECT LOADER
-// ============================================================
 
 void AutonSelector::selectLoader() {
-
-    selected_side =
-        AutonSide::Loader;
-
-    auton_number =
-        -1;
-
-    auton_confirmed =
-        false;
-
-    scroll_offset =
-        0;
-
-    screen_number =
-        SCREEN_COMPETITION_AUTONS;
+    selected_side = AutonSide::Loader;
+    auton_number = -1;
+    auton_confirmed = false;
+    scroll_offset = 0;
+    screen_number = SCREEN_COMPETITION_AUTONS;
 }
-
-
-// ============================================================
-// SELECT NON-LOADER
-// ============================================================
 
 void AutonSelector::selectNonLoader() {
-
-    selected_side =
-        AutonSide::NonLoader;
-
-    auton_number =
-        -1;
-
-    auton_confirmed =
-        false;
-
-    scroll_offset =
-        0;
-
-    screen_number =
-        SCREEN_COMPETITION_AUTONS;
+    selected_side = AutonSide::NonLoader;
+    auton_number = -1;
+    auton_confirmed = false;
+    scroll_offset = 0;
+    screen_number = SCREEN_COMPETITION_AUTONS;
 }
 
-
-// ============================================================
-// SELECT AUTON
-// ============================================================
-
-void AutonSelector::selectAuton(
-    int auton
-) {
-
-    for (int i = 0; i < AUTONS.size(); ++i) {
-
-        // ----------------------------------------------------
-        // FIND AUTON
-        // ----------------------------------------------------
-
-        if (
-            AUTONS[i].id != auton
-        ) {
-
+void AutonSelector::selectAuton(int autonId) {
+    for (const auto& auton : AUTONS) {
+        if (auton.id != autonId) {
             continue;
         }
 
-
-        // ----------------------------------------------------
-        // MAKE SURE IT BELONGS TO CURRENT FILTER
-        // ----------------------------------------------------
-
-        if (
-            !autonMatchesSelection(
-                AUTONS[i]
-            )
-        ) {
-
+        if (!autonMatchesSelection(auton)) {
             return;
         }
 
-
-        // ----------------------------------------------------
-        // SAVE PENDING SELECTION
-        // ----------------------------------------------------
-
-        auton_number =
-            auton;
-
-
-        // ----------------------------------------------------
-        // NOT CONFIRMED YET
-        // ----------------------------------------------------
-
-        auton_confirmed =
-            false;
-
-
-        // ----------------------------------------------------
-        // GO TO CONFIRM SCREEN
-        // ----------------------------------------------------
-
-        screen_number =
-            SCREEN_CONFIRM;
-
-
+        auton_number = autonId;
+        auton_confirmed = false;
+        screen_number = SCREEN_CONFIRM;
         return;
     }
 }
 
-
-// ============================================================
-// SELECT AUTON AT TOUCH POSITION
-// ============================================================
-
-bool AutonSelector::selectAutonAt(
-    int x,
-    int y
-) {
-
-    // --------------------------------------------------------
-    // LIST X
-    // --------------------------------------------------------
-
-    if (
-        x < LIST_LEFT ||
-        x >= LIST_RIGHT
-    ) {
-
+bool AutonSelector::selectAutonAt(int x, int y) {
+    if (x < listLeft() || x >= listRight() ||
+        y < listTop() || y >= listBottom()) {
         return false;
     }
 
+    const int contentY = y - listTop() + scroll_offset;
+    const int filteredIndex = contentY / rowStep();
+    const int rowOffset = contentY % rowStep();
 
-    // --------------------------------------------------------
-    // LIST Y
-    // --------------------------------------------------------
-
-    if (
-        y < LIST_TOP ||
-        y >= LIST_BOTTOM
-    ) {
-
+    if (rowOffset >= rowHeight()) {
         return false;
     }
 
-
-    // --------------------------------------------------------
-    // SCREEN → CONTENT
-    // --------------------------------------------------------
-
-    const int contentY =
-        y -
-        LIST_TOP +
-        scroll_offset;
-
-
-    if (contentY < 0) {
-
-        return false;
-    }
-
-
-    // --------------------------------------------------------
-    // FIND ROW
-    // --------------------------------------------------------
-
-    const int filteredIndex =
-        contentY /
-        AUTON_ROW_STEP;
-
-
-    // --------------------------------------------------------
-    // FIND POSITION INSIDE ROW
-    // --------------------------------------------------------
-
-    const int rowOffset =
-        contentY %
-        AUTON_ROW_STEP;
-
-
-    // --------------------------------------------------------
-    // TOUCH WAS IN GAP
-    // --------------------------------------------------------
-
-    if (
-        rowOffset >= AUTON_ROW_HEIGHT
-    ) {
-
-        return false;
-    }
-
-
-    // --------------------------------------------------------
-    // FIND ACTUAL AUTON
-    // --------------------------------------------------------
-
-    const AutonDefinition* auton =
-        getFilteredAuton(
-            filteredIndex
-        );
-
+    const AutonDefinition* auton = getFilteredAuton(filteredIndex);
 
     if (auton == nullptr) {
-
         return false;
     }
 
-
-    // --------------------------------------------------------
-    // SELECT
-    // --------------------------------------------------------
-
-    selectAuton(
-        auton->id
-    );
-
-
+    selectAuton(auton->id);
     return true;
 }
 
-
-// ============================================================
-// BACK
-// ============================================================
+// ------------------------------------------------------------
+// BACK NAVIGATION
+// ------------------------------------------------------------
 
 void AutonSelector::goBack() {
-
     switch (screen_number) {
-
-        // ----------------------------------------------------
-        // MODE
-        // ----------------------------------------------------
-
         case SCREEN_MODE:
-
             break;
-
-
-        // ----------------------------------------------------
-        // COMPETITION SIDE
-        // ----------------------------------------------------
 
         case SCREEN_COMPETITION_SIDE:
-
-            screen_number =
-                SCREEN_MODE;
-
-            auton_number =
-                -1;
-
-            auton_confirmed =
-                false;
-
-            scroll_offset =
-                0;
-
+            screen_number = SCREEN_MODE;
             break;
-
-
-        // ----------------------------------------------------
-        // COMPETITION AUTONS
-        // ----------------------------------------------------
 
         case SCREEN_COMPETITION_AUTONS:
-
-            screen_number =
-                SCREEN_COMPETITION_SIDE;
-
-            auton_number =
-                -1;
-
-            auton_confirmed =
-                false;
-
-            scroll_offset =
-                0;
-
+            screen_number = SCREEN_COMPETITION_SIDE;
             break;
-
-
-        // ----------------------------------------------------
-        // SKILLS AUTONS
-        // ----------------------------------------------------
 
         case SCREEN_SKILLS_AUTONS:
-
-            screen_number =
-                SCREEN_MODE;
-
-            auton_number =
-                -1;
-
-            auton_confirmed =
-                false;
-
-            scroll_offset =
-                0;
-
+            screen_number = SCREEN_MODE;
             break;
-
-
-        // ----------------------------------------------------
-        // CONFIRM
-        // ----------------------------------------------------
 
         case SCREEN_CONFIRM:
-
-            // The pending auton is discarded.
-            auton_number =
-                -1;
-
-            auton_confirmed =
-                false;
-
-
-            if (
-                selected_mode ==
-                AutonMode::Competition
-            ) {
-
-                screen_number =
-                    SCREEN_COMPETITION_AUTONS;
-
-            } else {
-
-                screen_number =
-                    SCREEN_SKILLS_AUTONS;
-            }
-
+            screen_number = selected_mode == AutonMode::Competition
+                ? SCREEN_COMPETITION_AUTONS
+                : SCREEN_SKILLS_AUTONS;
             break;
-
-
-        // ----------------------------------------------------
-        // INVALID
-        // ----------------------------------------------------
 
         default:
-
-            screen_number =
-                SCREEN_MODE;
-
-            selected_mode =
-                AutonMode::Competition;
-
-            selected_side =
-                AutonSide::Loader;
-
-            auton_number =
-                -1;
-
-            auton_confirmed =
-                false;
-
-            scroll_offset =
-                0;
-
+            screen_number = SCREEN_MODE;
+            selected_mode = AutonMode::Competition;
+            selected_side = AutonSide::Loader;
             break;
     }
+
+    auton_number = -1;
+    auton_confirmed = false;
+    scroll_offset = 0;
 }
 
+// ------------------------------------------------------------
+// TOUCH HANDLERS
+// ------------------------------------------------------------
 
-// ============================================================
-// MODE TOUCH
-// ============================================================
-
-bool AutonSelector::handleModeTouch(
-    int x,
-    int y
-) {
-
-    // --------------------------------------------------------
-    // COMPETITION
-    // --------------------------------------------------------
-
-    if (
-        isInside(
-            x,
-            y,
-            MODE_COMPETITION
-        )
-    ) {
-
+bool AutonSelector::handleModeTouch(int x, int y) {
+    if (isInside(x, y, layout(Element::ModeCompetition))) {
         selectCompetition();
-
         return true;
     }
 
-
-    // --------------------------------------------------------
-    // SKILLS
-    // --------------------------------------------------------
-
-    if (
-        isInside(
-            x,
-            y,
-            MODE_SKILLS
-        )
-    ) {
-
+    if (isInside(x, y, layout(Element::ModeSkills))) {
         selectSkills();
-
         return true;
     }
-
 
     return false;
 }
 
-
-// ============================================================
-// COMPETITION SIDE TOUCH
-// ============================================================
-
-bool AutonSelector::handleCompetitionSideTouch(
-    int x,
-    int y
-) {
-
-    // --------------------------------------------------------
-    // LOADER
-    // --------------------------------------------------------
-
-    if (
-        isInside(
-            x,
-            y,
-            SIDE_LOADER
-        )
-    ) {
-
+bool AutonSelector::handleCompetitionSideTouch(int x, int y) {
+    if (isInside(x, y, layout(Element::SideLoader))) {
         selectLoader();
-
         return true;
     }
 
-
-    // --------------------------------------------------------
-    // NON-LOADER
-    // --------------------------------------------------------
-
-    if (
-        isInside(
-            x,
-            y,
-            SIDE_NON_LOADER
-        )
-    ) {
-
+    if (isInside(x, y, layout(Element::SideNonLoader))) {
         selectNonLoader();
-
         return true;
     }
 
-
-    // --------------------------------------------------------
-    // BACK
-    // --------------------------------------------------------
-
-    if (
-        isInside(
-            x,
-            y,
-            BACK
-        )
-    ) {
-
+    if (isInside(x, y, layout(Element::Back))) {
         goBack();
-
         return true;
     }
-
 
     return false;
 }
 
-
-// ============================================================
-// COMPETITION AUTON TOUCH
-// ============================================================
-
-bool AutonSelector::handleCompetitionAutonTouch(
-    int x,
-    int y
-) {
-
-    // --------------------------------------------------------
-    // UP
-    // --------------------------------------------------------
-
-    if (
-        isInside(
-            x,
-            y,
-            SCROLL_UP
-        )
-    ) {
-
+bool AutonSelector::handleCompetitionAutonTouch(int x, int y) {
+    if (isInside(x, y, layout(Element::ScrollUp))) {
         scrollUp();
-
         return true;
     }
 
-
-    // --------------------------------------------------------
-    // DOWN
-    // --------------------------------------------------------
-
-    if (
-        isInside(
-            x,
-            y,
-            SCROLL_DOWN
-        )
-    ) {
-
+    if (isInside(x, y, layout(Element::ScrollDown))) {
         scrollDown();
-
         return true;
     }
 
-
-    // --------------------------------------------------------
-    // AUTON
-    // --------------------------------------------------------
-
-    if (
-        selectAutonAt(
-            x,
-            y
-        )
-    ) {
-
+    if (selectAutonAt(x, y)) {
         return true;
     }
 
-
-    // --------------------------------------------------------
-    // BACK
-    // --------------------------------------------------------
-
-    if (
-        isInside(
-            x,
-            y,
-            BACK
-        )
-    ) {
-
+    if (isInside(x, y, layout(Element::Back))) {
         goBack();
-
         return true;
     }
-
 
     return false;
 }
 
-
-// ============================================================
-// SKILLS AUTON TOUCH
-// ============================================================
-
-bool AutonSelector::handleSkillsAutonTouch(
-    int x,
-    int y
-) {
-
-    // --------------------------------------------------------
-    // UP
-    // --------------------------------------------------------
-
-    if (
-        isInside(
-            x,
-            y,
-            SCROLL_UP
-        )
-    ) {
-
+bool AutonSelector::handleSkillsAutonTouch(int x, int y) {
+    if (isInside(x, y, layout(Element::ScrollUp))) {
         scrollUp();
-
         return true;
     }
 
-
-    // --------------------------------------------------------
-    // DOWN
-    // --------------------------------------------------------
-
-    if (
-        isInside(
-            x,
-            y,
-            SCROLL_DOWN
-        )
-    ) {
-
+    if (isInside(x, y, layout(Element::ScrollDown))) {
         scrollDown();
-
         return true;
     }
 
-
-    // --------------------------------------------------------
-    // AUTON
-    // --------------------------------------------------------
-
-    if (
-        selectAutonAt(
-            x,
-            y
-        )
-    ) {
-
+    if (selectAutonAt(x, y)) {
         return true;
     }
 
-
-    // --------------------------------------------------------
-    // BACK
-    // --------------------------------------------------------
-
-    if (
-        isInside(
-            x,
-            y,
-            BACK
-        )
-    ) {
-
+    if (isInside(x, y, layout(Element::Back))) {
         goBack();
-
         return true;
     }
-
 
     return false;
 }
 
-
-// ============================================================
-// CONFIRM TOUCH
-// ============================================================
-
-bool AutonSelector::handleConfirmTouch(
-    int x,
-    int y
-) {
-
-    // --------------------------------------------------------
-    // BACK
-    // --------------------------------------------------------
-
-    if (isInside(x, y, BACK)) {
-
+bool AutonSelector::handleConfirmTouch(int x, int y) {
+    if (isInside(x, y, layout(Element::Back))) {
         goBack();
-
         return true;
     }
 
-
-    // --------------------------------------------------------
-    // CONFIRM
-    // --------------------------------------------------------
-
-    if (
-        isInside(
-            x,
-            y,
-            CONFIRM
-        )
-    ) {
-
-        // ----------------------------------------------------
-        // Can't confirm nothing.
-        // ----------------------------------------------------
-
-        if (
-            auton_number == -1
-        ) {
-
+    if (isInside(x, y, layout(Element::Confirm))) {
+        if (auton_number == -1) {
             return false;
         }
 
-
-        // ----------------------------------------------------
-        // ACTUALLY CONFIRM
-        // ----------------------------------------------------
-
-        auton_confirmed =
-            true;
-
-
+        auton_confirmed = true;
         return true;
     }
-
 
     return false;
 }
 
-
-// ============================================================
-// TOUCH DISPATCHER
-// ============================================================
-
-void AutonSelector::handleTouch(
-    int x,
-    int y
-) {
-
-    bool handled =
-        false;
-
+void AutonSelector::handleTouch(int x, int y) {
+    bool handled = false;
 
     switch (screen_number) {
-
-        // ----------------------------------------------------
-        // MODE
-        // ----------------------------------------------------
-
         case SCREEN_MODE:
-
-            handled =
-                handleModeTouch(
-                    x,
-                    y
-                );
-
+            handled = handleModeTouch(x, y);
             break;
-
-
-        // ----------------------------------------------------
-        // COMPETITION SIDE
-        // ----------------------------------------------------
 
         case SCREEN_COMPETITION_SIDE:
-
-            handled =
-                handleCompetitionSideTouch(
-                    x,
-                    y
-                );
-
+            handled = handleCompetitionSideTouch(x, y);
             break;
-
-
-        // ----------------------------------------------------
-        // COMPETITION AUTONS
-        // ----------------------------------------------------
 
         case SCREEN_COMPETITION_AUTONS:
-
-            handled =
-                handleCompetitionAutonTouch(
-                    x,
-                    y
-                );
-
+            handled = handleCompetitionAutonTouch(x, y);
             break;
-
-
-        // ----------------------------------------------------
-        // SKILLS AUTONS
-        // ----------------------------------------------------
 
         case SCREEN_SKILLS_AUTONS:
-
-            handled =
-                handleSkillsAutonTouch(
-                    x,
-                    y
-                );
-
+            handled = handleSkillsAutonTouch(x, y);
             break;
-
-
-        // ----------------------------------------------------
-        // CONFIRM
-        // ----------------------------------------------------
 
         case SCREEN_CONFIRM:
-
-            handled =
-                handleConfirmTouch(
-                    x,
-                    y
-                );
-
-            break;
-
-
-        // ----------------------------------------------------
-        // INVALID
-        // ----------------------------------------------------
-
-        default:
-
-            screen_number =
-                SCREEN_MODE;
-
-            selected_mode =
-                AutonMode::Competition;
-
-            selected_side =
-                AutonSide::Loader;
-
-            auton_number =
-                -1;
-
-            auton_confirmed =
-                false;
-
-            scroll_offset =
-                0;
-
-            handled =
-                true;
-
+            handled = handleConfirmTouch(x, y);
             break;
     }
 
-
-    // --------------------------------------------------------
-    // REDRAW
-    // --------------------------------------------------------
-
     if (handled) {
-
         render();
     }
 }
 
-
-// ============================================================
-// GET SELECTED AUTON
-// ============================================================
+// ------------------------------------------------------------
+// GETTERS
+// ------------------------------------------------------------
 
 int AutonSelector::getSelectedAuton() const {
-
     return auton_number;
 }
 
-
-// ============================================================
-// GET SCREEN
-// ============================================================
-
 int AutonSelector::getScreen() const {
-
     return screen_number;
 }
 
-
-// ============================================================
-// GET MODE
-// ============================================================
-
-AutonSelector::AutonMode
-AutonSelector::getSelectedMode() const {
-
+AutonSelector::AutonMode AutonSelector::getSelectedMode() const {
     return selected_mode;
 }
 
-
-// ============================================================
-// GET SIDE
-// ============================================================
-
-AutonSelector::AutonSide
-AutonSelector::getSelectedSide() const {
-
+AutonSelector::AutonSide AutonSelector::getSelectedSide() const {
     return selected_side;
 }
 
-
-// ============================================================
-// GET CONFIRMATION
-// ============================================================
-
 bool AutonSelector::isAutonConfirmed() const {
-
     return auton_confirmed;
 }
 
-
-// ============================================================
-// CLEAR CONFIRMATION
-// ============================================================
-
 void AutonSelector::clearConfirmation() {
-
-    auton_confirmed =
-        false;
+    auton_confirmed = false;
 }

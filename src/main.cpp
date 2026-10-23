@@ -142,8 +142,12 @@ void initialize() {
     pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
     // bar.reset();
-    selector.initialize();
+    
+    // automatically sets the selector in portrait mode
+    selector.setOrientation(AutonSelector::Orientation::Portrait);
+    selector.initialize();    
     lift.reset();
+    
     claw.open();
     pros::delay(1000);
     claw.close();
