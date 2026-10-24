@@ -91,24 +91,19 @@ void auton1() {
     pros::delay(200);
     // Stop lift and chassis
     lift.stop();
-    chassis.arcade(30, 0);
+    chassis.arcade(40, 0);
     lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
     // Move lift down once at goal
     lift.manual(-100);
     pros::delay(300);
     lift.manual(0);
     pros::delay(200);
-    //delete this wait
-    pros::delay(1000);
     // Open claw to score
     claw.open();
-    //delete this wait
-    pros::delay(1000);
     pros::delay(200);
 
     // Move to point (3, 2, 48 degrees)
-    chassis.moveToPoint(3, 2, 2000);
-    chassis.waitUntilDone();
+    chassis.moveToPoint(5.5, 3, 2000);
 
     // turn to -43.2 degrees
     chassis.turnToHeading(-40.5, 2000);
@@ -116,7 +111,7 @@ void auton1() {
 
     // Move to pose and check the distance while LemLib drives asynchronously.
     // Keep this whole block commented until ready to test.
-    chassis.moveToPose(-3.5, 12.5, -40.5, 2000, {
+    chassis.moveToPose(-3.2, 16.5, -39, 2000, {
         .lead = 0.25
     });
     waitForAutoClaw();
@@ -140,11 +135,13 @@ void auton1() {
     claw.open();
     lift.stop();
 
+    return;
+
+
     // move backwards
     chassis.moveToPoint(-1.36, 9.14, 2000, {}, false);
     // turn to next stack
     chassis.turnToHeading(38, 2000, {}, false);
-    return;
 
     // go to stack
     chassis.moveToPose(16.2, 29.2, 35.5, 2000);
