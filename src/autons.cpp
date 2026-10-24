@@ -19,15 +19,15 @@ void waitForAutoClaw() {
     while (chassis.isInMotion()) {
         int distance = distanceSensor.get(); // PROS 3.8 distance API; millimeters.
 
-        if (distance > 0 && distance <= 35 && !autoClawTriggered) {
+        if (distance > 0 && distance <= 100 && !autoClawTriggered) {
             autoClawTriggered = true;
             claw.close();
             lift.manual(127);
-            pros::delay(100);
+            pros::delay(200);
             lift.stop();
         }
 
-        pros::delay(10);
+        pros::delay(5);
     }
 }
 } // namespace
@@ -102,17 +102,18 @@ void auton1() {
     claw.open();
     pros::delay(200);
 
-    // Move to point (3, 2, 48 degrees)
-    chassis.moveToPoint(5.5, 3, 2000);
+    // Two extra inches behind the original (5.5, 3) target along the 51-degree heading.
+    chassis.moveToPoint(3.946, 1.741, 10000, {.forwards = false, .maxSpeed = 50}, false);
 
-    // turn to -43.2 degrees
-    chassis.turnToHeading(-40.5, 2000);
+    // turn to first stack
+    chassis.turnToPoint(-4.100, 16.064, 10000, {.maxSpeed = 50});
     chassis.waitUntilDone();
 
     // Move to pose and check the distance while LemLib drives asynchronously.
     // Keep this whole block commented until ready to test.
-    chassis.moveToPose(-3.2, 16.5, -39, 2000, {
-        .lead = 0.25
+    chassis.moveToPoint(-4.100, 16.064, 10000, {
+        // .lead = 0.15,
+        .maxSpeed = 50
     });
     waitForAutoClaw();
     // Close only once per move; continue to the next auton step when motion ends.
@@ -120,8 +121,10 @@ void auton1() {
     pros::delay(200);
     
     // turn to the goal
-    chassis.turnToHeading(86, 2000);
-    lift.manual(50);
+    chassis.turnToHeading(90, 10000, {.maxSpeed = 50});
+    lift.manual(70);
+    pros::delay(800);
+    lift.manual(0);
     lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
     chassis.waitUntilDone();
     lift.stop();
@@ -135,15 +138,32 @@ void auton1() {
     claw.open();
     lift.stop();
 
-    return;
-
-
     // move backwards
-    chassis.moveToPoint(-1.36, 9.14, 2000, {}, false);
-    // turn to next stack
-    chassis.turnToHeading(38, 2000, {}, false);
-
-    // go to stack
-    chassis.moveToPose(16.2, 29.2, 35.5, 2000);
+    chassis.moveToPoint(-0.5, 16, 10000, {.forwards = false, .maxSpeed = 50}, false);
+    
+    // Face the stack from the current pose before driving directly toward it.
+    chassis.turnToPoint(16.468, 31.286, 10000, {.maxSpeed = 50}, false);
+    // Approach the stack at 40 degrees; a smaller lead reduces the approach curve.
+    chassis.moveToPose(16.468, 31.286, 40, 10000, {.lead = 0.25, .maxSpeed = 50});
     waitForAutoClaw();
+
+    // Turn to face the goal
+    chassis.turnToHeading(173.82, 10000, {.maxSpeed = 50});
+    lift.manual(80);
+    pros::delay(900);
+    lift.manual(0);
+    lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+    chassis.waitUntilDone();
+    // Move to goal
+    chassis.arcade(100, 0);
+    pros::delay(800);
+    chassis.arcade(30, 0);
+    // drop the pin and cup
+    lift.manual(-100);
+    pros::delay(200);
+    claw.open();
+    lift.stop();
+
+
+    // return;
 }
