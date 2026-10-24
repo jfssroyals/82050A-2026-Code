@@ -25,6 +25,7 @@ void waitForAutoClaw() {
             lift.manual(127);
             pros::delay(200);
             lift.stop();
+            chassis.cancelMotion();
         }
 
         pros::delay(5);
@@ -104,24 +105,24 @@ void auton1() {
 
     // Two extra inches behind the original (5.5, 3) target along the 51-degree heading.
     chassis.moveToPoint(3.946, 1.741, 10000, {.forwards = false, .maxSpeed = 50}, false);
-
-    // turn to first stack
-    chassis.turnToPoint(-4.100, 16.064, 10000, {.maxSpeed = 50});
+    
+    // Midpoint between the original first-stack target and the one-inch-right correction.
+    chassis.turnToPoint(-2.167, 7.873, 10000, {.maxSpeed = 50});
     chassis.waitUntilDone();
 
-    // Move to pose and check the distance while LemLib drives asynchronously.
-    // Keep this whole block commented until ready to test.
-    chassis.moveToPoint(-4.100, 16.064, 10000, {
-        // .lead = 0.15,
+
+    // Drive to the same target while checking the distance sensor.
+    chassis.moveToPoint(-2.167, 7.873, 10000, {
         .maxSpeed = 50
     });
     waitForAutoClaw();
+    
     // Close only once per move; continue to the next auton step when motion ends.
     
     pros::delay(200);
     
     // turn to the goal
-    chassis.turnToHeading(90, 10000, {.maxSpeed = 50});
+    chassis.turnToHeading(85, 10000, {.maxSpeed = 50});
     lift.manual(70);
     pros::delay(800);
     lift.manual(0);
@@ -137,14 +138,14 @@ void auton1() {
     pros::delay(200);
     claw.open();
     lift.stop();
-
+    // return;
     // move backwards
-    chassis.moveToPoint(-0.5, 16, 10000, {.forwards = false, .maxSpeed = 50}, false);
+    chassis.moveToPoint(-1, 7, 10000, {.forwards = false, .maxSpeed = 50}, false);
     
     // Face the stack from the current pose before driving directly toward it.
-    chassis.turnToPoint(16.468, 31.286, 10000, {.maxSpeed = 50}, false);
+    chassis.turnToPoint(13.6, 28.7, 10000, {.maxSpeed = 50}, false);
     // Approach the stack at 40 degrees; a smaller lead reduces the approach curve.
-    chassis.moveToPose(16.468, 31.286, 40, 10000, {.lead = 0.25, .maxSpeed = 50});
+    chassis.moveToPose(13.6, 28.7, 34, 10000, {.lead = 0.25, .maxSpeed = 50});
     waitForAutoClaw();
 
     // Turn to face the goal
@@ -164,6 +165,18 @@ void auton1() {
     claw.open();
     lift.stop();
 
+    // Stop pushing the goal before the toggle approach.
+    chassis.arcade(0, 0);
+
+    // Assume scoring is 5 inches forward from (13.6, 28.7) at 173.82 degrees.
+    // Back up 10 inches from that estimated scoring position.
+    chassis.moveToPoint(13.062, 33.671, 10000, {.forwards = false, .maxSpeed = 50}, false);
+
+    // Turn to an absolute heading of 150 degrees.
+    chassis.turnToHeading(150, 10000, {.maxSpeed = 50}, false);
+
+    // Drive 35 inches forward at 150 degrees.
+    chassis.moveToPoint(30.562, 3.360, 10000, {.maxSpeed = 50}, false);
 
     // return;
 }
