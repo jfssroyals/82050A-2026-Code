@@ -1,25 +1,16 @@
-
+    
 #pragma once
 
 #include "api.h"
 #include "pros/colors.hpp"
 #include "pros/screen.hpp"
 #include "ui_transform.hpp"
-
 #include <vector>
 
 class AutonSelector {
 public:
-    enum class AutonMode {
-        Competition,
-        Skills
-    };
-
-    enum class AutonSide {
-        Loader,
-        NonLoader
-    };
-
+    enum class AutonMode { Competition, Skills };
+    enum class AutonSide { Loader, NonLoader };
     using Orientation = ui::Orientation;
 
     struct AutonDefinition {
@@ -43,9 +34,11 @@ public:
     void render();
 
     void setOrientation(Orientation orientation);
+    void toggleOrientation();
     Orientation getCurrentOrientation() const;
 
     int getSelectedAuton() const;
+    int getConfirmedAuton() const;
     int getScreen() const;
     AutonMode getSelectedMode() const;
     AutonSide getSelectedSide() const;
@@ -73,7 +66,8 @@ private:
         Back,
         Confirm,
         ScrollUp,
-        ScrollDown
+        ScrollDown,
+        Rotate
     };
 
     Button layout(Element element) const;
@@ -86,13 +80,11 @@ private:
     int rowStep() const;
 
     int scroll_offset = 0;
-
     bool touch_was_pressed = false;
     int touch_start_x = 0;
     int touch_start_y = 0;
     int touch_current_x = 0;
     int touch_current_y = 0;
-
     static constexpr int SWIPE_THRESHOLD = 20;
 
     pros::Task* touch_task = nullptr;
@@ -108,12 +100,9 @@ private:
     static int getCenterX(const Button& button);
     static int getCenterY(const Button& button);
 
-    void drawButton(
-        const Button& button,
-        const char* text,
-        pros::Color color,
-        bool selected = false
-    );
+    void drawButton(const Button& button, const char* text,
+                    pros::Color color, bool selected = false);
+    void drawRotateButton();
 
     void drawModeScreen();
     void drawCompetitionSideScreen();
@@ -140,7 +129,6 @@ private:
 
     void goBack();
     void handleTouch(int x, int y);
-
     bool handleModeTouch(int x, int y);
     bool handleCompetitionSideTouch(int x, int y);
     bool handleCompetitionAutonTouch(int x, int y);
