@@ -152,16 +152,6 @@ void initialize() {
     pros::delay(1000);
     claw.close();
     intakePiston.set_value(true);
-    pros::Task screen_task([&]() {
-        while (true) {
-            // print robot location to the brain screen
-            pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
-            pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
-            pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
-            // delay to save resources
-            pros::delay(100);
-        }
-    });
 }
 
 /**
@@ -187,6 +177,17 @@ void autonomous() {
         case 1:
             fourPin_red1();
     }
+
+    pros::Task screen_task([&]() {
+        while (true) {
+            // print robot location to the brain screen
+            pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
+            pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
+            pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
+            // delay to save resources
+            pros::delay(100);
+        }
+    });
 
     // Wait until the path movement finishes
     chassis.waitUntilDone();
