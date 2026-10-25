@@ -186,8 +186,8 @@ void competition_initialize() {
 void autonomous() {
     // delete this after testing
     pros::delay(3000);
-
-    auton1();    
+    autonskills();
+    // auton1();    
 }
 
 enum class PickupState {
@@ -209,8 +209,8 @@ PickupState pickupState = PickupState::IDLE;
 unsigned long int pickupWaitStart = 0;
 
 void opcontrol() {
-    autonomous();
-    pros::delay(1000);
+    // autonomous();
+    // pros::delay(1000);
 
     // op control setup
     lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
@@ -379,7 +379,7 @@ void opcontrol() {
             switch (autoGrabState) {
                 case AutoGrabState::ARMED:
                     if (wrist.isUp && validDistance && claw.isExtended
-                        && distance <= 30) {
+                        && distance <= 60) {
                         claw.close();
                         autoGrabState = AutoGrabState::DISARMED;
                     }
@@ -387,7 +387,7 @@ void opcontrol() {
 
                 case AutoGrabState::DISARMED:
                     if (wrist.isUp && validDistance && claw.isExtended
-                        && distance > 30) {
+                        && distance > 60) {
                         distanceClearStart = autoGrabNow;
                         autoGrabState = AutoGrabState::WAITING_FOR_CLEAR;
                     }
@@ -395,7 +395,7 @@ void opcontrol() {
 
                 case AutoGrabState::WAITING_FOR_CLEAR:
                     if (!wrist.isUp || !validDistance || !claw.isExtended
-                        || distance <= 30) {
+                        || distance <= 60) {
                         autoGrabState = AutoGrabState::DISARMED;
                     } else if (autoGrabNow - distanceClearStart >= 200U) {
                         autoGrabState = AutoGrabState::ARMED;

@@ -10,4 +10,5 @@ extern lemlib::Chassis chassis;
 void right3pin();
 void left3pin();
 void auton1();
+void autonskills();
 void align_pose(double straight);

@@ -10,6 +10,7 @@
 extern Claw claw;
 extern Lift lift;
 extern Wrist wrist;
+extern Intake intake;
 extern pros::Distance distanceSensor;
 // extern pros::Distance distanceSensor; // Uncomment with the auto-close block below.
 
@@ -63,6 +64,49 @@ void test() {
     chassis.waitUntilDone();
 }
 
+void autonskills() {
+    chassis.setPose(0, 0, 0);
+    chassis.arcade(0, 100);
+    pros::delay(240);
+    chassis.arcade(0, 0);
+
+    // Match two Y presses: 235 ms outward per press.
+    intake.spinOutward();
+    pros::delay(275);
+    intake.stop();
+
+    chassis.arcade(0, 100);
+    pros::delay(240);
+    chassis.arcade(0, 0);
+    
+    intake.spinOutward();
+    pros::delay(250);
+    intake.stop();
+
+    pros::delay(200);
+    chassis.turnToHeading(-20, 1000, {}, false);
+
+    chassis.arcade(100, 0);
+    // Raise for clearance, then turn the wrist up while driving.
+    lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+    lift.unfold(wrist);
+    pros::delay(200);
+    // Stop lift and chassis
+    lift.stop();
+    chassis.arcade(40, 0);
+    lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
+    // Move lift down once at goal
+    lift.manual(-100);
+    pros::delay(300);
+    lift.manual(0);
+    pros::delay(200);
+    // Open claw to score
+    claw.open();
+    pros::delay(200);
+    
+
+
+}
 void right3pin() {
     // Align robot to goal
     align_pose(270.0);
