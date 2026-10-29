@@ -1,16 +1,17 @@
 #include "intake.hpp"
+#include <algorithm>
 
 // Constructor: Initializes the motor on the given port
 Intake::Intake(int motorPort) 
     : motor(motorPort, pros::MotorGearset::green) {}
 
-void Intake::spinInward() {
+void Intake::spinInward(int speed) {
     // if (isSpinningInward && isRunning){
     //     motor.move(0); 
     //     isRunning = false;
     // }
     // else{
-        motor.move(127); 
+        motor.move(std::clamp(speed, 0, 127));
         // isRunning = true;
         // isSpinningInward = true;
     // }

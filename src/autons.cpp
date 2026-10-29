@@ -34,6 +34,14 @@ void waitForAutoClaw() {
 }
 } // namespace
 
+void match_load_ready() {
+    lift.manual(100);
+    pros::delay(300);
+    wrist.moveDOWN();
+    claw.open();
+    lift.lowerUntilStopped(2000);
+}
+
 void align_pose(double straight){
     double goalRadius = 6.5;
 
@@ -65,48 +73,200 @@ void test() {
 }
 
 void autonskills() {
+    // // set chassis pose
+    pros::delay(2000);
     chassis.setPose(0, 0, 0);
-    chassis.arcade(0, 100);
-    pros::delay(240);
-    chassis.arcade(0, 0);
 
-    // Match two Y presses: 235 ms outward per press.
-    intake.spinOutward();
-    pros::delay(275);
-    intake.stop();
+    // // toggle twice
+    // chassis.arcade(0, 100);
+    // pros::delay(240);
+    // chassis.arcade(0, 0);
 
-    chassis.arcade(0, 100);
-    pros::delay(240);
-    chassis.arcade(0, 0);
+    // intake.spinOutward();
+    // pros::delay(250);
+    // intake.stop();
+
+    // chassis.arcade(0, 100);
+    // pros::delay(180);
+    // chassis.arcade(0, 0);
     
-    intake.spinOutward();
-    pros::delay(250);
+    // intake.spinOutward();
+    // pros::delay(200);
+    // intake.stop();
+
+    // pros::delay(200);
+
+    // // turn and score first pin
+    // chassis.turnToHeading(-20, 1000, {}, false);
+
+    // chassis.arcade(100, 0);
+    // // Raise for clearance, then turn the wrist up while driving.
+    // lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+    // lift.unfold(wrist);
+    // pros::delay(700); // Drive toward the goal for an extra half second.
+    // // Stop lift and chassis
+    // lift.stop();
+    // chassis.arcade(40, 0);
+    // lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+    // // Move lift down once at goal
+    // lift.manual(-100);
+    // pros::delay(300);
+    // lift.manual(0);
+    // pros::delay(200);
+    // // Open claw to score
+    // claw.open();
+    // pros::delay(1000);
+
+    // // move forward and bring lift down
+    // chassis.moveToPose(-5, 8, 0, 1000, {.forwards = false});
+    // lift.manual(-60);
+    // pros::delay(100);
+    // lift.manual(0);
+    // chassis.waitUntilDone();
+    // // Back toward the target and finish before returning to driver control.
+    // // chassis.arcade(0, 0);
+    // // chassis.moveToPoint(-4, 13, 3000, {.forwards = false}, false);
+    
+    // // picking first stack 
+    // chassis.turnToPoint(-35.055, 27.595, 10000, {.maxSpeed = 50});
+    // chassis.waitUntilDone();
+
+    // chassis.moveToPoint(-35.055, 27.595, 10000, {.maxSpeed = 50});
+    // waitForAutoClaw();
+    
+    
+    // // Turn to face the goal
+    // chassis.turnToHeading(72.5, 10000, {.maxSpeed = 50});
+    // lift.manual(80);
+    // pros::delay(500);
+    // lift.manual(0);
+    // lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+    // chassis.waitUntilDone();
+    // // Move to goal
+    // chassis.arcade(100, 0);
+    // pros::delay(800);
+    // chassis.arcade(30, 0);
+    // // drop the pin and cup
+    // lift.manual(-100);
+    // pros::delay(200);
+    // claw.open();
+    // lift.stop();
+    // chassis.arcade(0, 0);
+
+    // // after scoring go backwards turn and score
+    // chassis.moveToPoint(-41, 29, 10000, {.forwards = false, .maxSpeed = 50}, false);
+
+    // chassis.turnToPoint(-21.854, 48.854, 10000, {.maxSpeed = 50});
+    // lift.manual(-100);
+    // pros::delay(800);
+    // lift.stop();
+    // chassis.waitUntilDone();
+
+    // // Monitor the distance sensor while this move runs asynchronously.
+    // chassis.moveToPoint(-21.854, 48.854, 10000, {.maxSpeed = 75, .minSpeed = 20});
+    // waitForAutoClaw();
+    
+    // // Turn to face the goal
+    // chassis.turnToHeading(160, 10000, {.maxSpeed = 50});
+    // lift.manual(57);
+    // lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+    // chassis.waitUntilDone();
+    // lift.stop();
+    // // Move to goal
+    // chassis.arcade(100, 0);
+    // pros::delay(800);
+    // chassis.arcade(30, 0);
+    // // drop the pin and cup
+    // lift.manual(-200);
+    // pros::delay(250);
+    // claw.open();
+    // lift.stop();
+    // chassis.arcade(0, 0);
+    // // Back toward the next position, then face 270 degrees.
+    // chassis.moveToPoint(-23, 67, 10000, {.forwards = false, .maxSpeed = 50});
+    // chassis.waitUntilDone();
+    // match_load_ready();
+    // chassis.turnToHeading(265, 10000, {.maxSpeed = 50}, false);
+    // // Endpoint shifted 5 inches forward relative to the 290-degree heading.
+    // chassis.moveToPoint(-17.698, 68.710, 10000, {.forwards = false, .maxSpeed = 50}, false);
+    // chassis.moveToPoint(-8.5, 69.5, 10000, {.forwards = false, .maxSpeed = 25}, false);
+    claw.open();
+    intake.spinInward();
+    pros::delay(1500);
+    intake.spinInward(20); // About 30% of full power (127).
+    pros::delay(2000);
     intake.stop();
-
-    pros::delay(200);
-    chassis.turnToHeading(-20, 1000, {}, false);
-
+    pros::delay(500);
+    claw.close();
     chassis.arcade(100, 0);
-    // Raise for clearance, then turn the wrist up while driving.
+    pros::delay(328);
+    
+    chassis.arcade(0, 0);
     lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-    lift.unfold(wrist);
+    lift.unfold(wrist, 200);
     pros::delay(200);
     // Stop lift and chassis
     lift.stop();
-    chassis.arcade(40, 0);
+    pros::delay(100);
+    waitForAutoClaw();
+    pros::delay(500);
+    chassis.turnToPoint(-6.09, 30.53, 2500);
+    chassis.waitUntilDone();
+    chassis.arcade(100,0);
+    pros::delay(400);
+  
     lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
+    pros::delay(300);
     // Move lift down once at goal
     lift.manual(-100);
     pros::delay(300);
     lift.manual(0);
     pros::delay(200);
+
     // Open claw to score
     claw.open();
+    pros::delay(250);
+    chassis.arcade(0,0);
     pros::delay(200);
+
+    chassis.moveToPoint(-1.3, 19.3, 1000, {.forwards = false});
+    chassis.waitUntilDone();
+    chassis.turnToHeading(-53, 1000);
+    chassis.waitUntilDone();
+    chassis.moveToPoint(-27, 31, 1000);
+    chassis.waitUntilDone();
+    chassis.turnToHeading(-1, 1000);
+    chassis.waitUntilDone();
+    chassis.moveToPoint(-36, 70, 1500);
+    chassis.waitUntilDone();
+    chassis.turnToHeading(-90, 1000);
+    chassis.waitUntilDone();
+    chassis.arcade(-100, 0);
+    pros::delay(2000);
+    chassis.arcade(100,0);
+    pros::delay(1500);
+    chassis.arcade(0,0);
+
+
+
+    return; 
     
+
+    
+    chassis.moveToPose(-5.67, 28.4, -6.47, 2000);
+    chassis.waitUntilDone();
+ 
+    // Turn 90 degrees left relative to the current heading.
+    chassis.turnToHeading(chassis.getPose().theta - 90, 10000, {.maxSpeed = 50}, false);
+    // Drive forward for three seconds, then stop.
+    chassis.arcade(-100, 0);
+    pros::delay(3000);
+    chassis.arcade(0, 0);
+
 
 
 }
+
 void right3pin() {
     // Align robot to goal
     align_pose(270.0);

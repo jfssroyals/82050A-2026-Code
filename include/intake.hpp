@@ -20,7 +20,7 @@ public:
     bool isRunning = false;
     bool isSpinningInward = true;
 
-    void spinInward();
+    void spinInward(int speed = 127);
     void spinOutward();
     void stop();
     

@@ -7,6 +7,8 @@ class Wrist;
 class Lift {
 private:
     pros::MotorGroup liftMotors;
+    unsigned char leftMotorPort;
+    unsigned char rightMotorPort;
 
     double targetAngle = 0.0;
     
@@ -36,6 +38,9 @@ public:
     const pros::MotorGroup& getMotorGroup() const;
     void stop();
     void manual(double speed);
+    // Lowers until both motor encoders stop changing, then stops without bouncing up.
+    // Blocking; returns true on stall detection, false on timeout/sensor error.
+    bool lowerUntilStopped(int timeoutMs = 2000);
 
     // Sensor
     double getAngle();
@@ -57,7 +62,7 @@ public:
     // Blocking, timed fold sequence. Does not read or zero any sensor.
     void foldInSize(Wrist& wrist);
 
-    // Raises for clearance, then commands the wrist up. Returns true on completion.
+    // Raises for raiseMs (300 ms by default), then commands the wrist up.
     // Does not home or zero any sensor, or verify wrist movement.
-    bool unfold(Wrist& wrist);
+    bool unfold(Wrist& wrist, int raiseMs = 300);
 };

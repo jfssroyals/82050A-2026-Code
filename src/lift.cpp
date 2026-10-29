@@ -1,5 +1,6 @@
 #include "lift.hpp"
 #include "wrist.hpp"
+#include "pros/motors.h"
 
 #include <algorithm>
 #include <cmath>
@@ -22,9 +23,12 @@ void Lift::foldInSize(Wrist& wrist) {
     stop();
 }
 
-bool Lift::unfold(Wrist& wrist) {
+bool Lift::unfold(Wrist& wrist, int raiseMs) {
     // Raise for clearance without relying on an uncalibrated rotation sensor.
-    constexpr int raiseMs = 300;
+    if (raiseMs <= 0) {
+        stop();
+        return false;
+    }
 
     manual(100);
     pros::delay(raiseMs);
@@ -76,6 +80,8 @@ Lift::Lift(
     signed char rotationPort
 )
     : liftMotors({leftPort, rightPort}, pros::MotorGearset::red),
+      leftMotorPort(std::abs(static_cast<int>(leftPort))),
+      rightMotorPort(std::abs(static_cast<int>(rightPort))),
       rotationSensor(rotationPort) {
 
     liftMotors.set_brake_mode_all(pros::MotorBrake::coast);
@@ -108,6 +114,53 @@ void Lift::manual(double speed) {
     liftMotors.move(speed);
 }
 
+
+bool Lift::lowerUntilStopped(int timeoutMs) {
+    if (timeoutMs <= 0) {
+        stop();
+        return false;
+    }
+
+    constexpr int startupMs = 30;
+    constexpr int stallMs = 40;
+    constexpr int movementCounts = 2;
+
+    // Raw counts avoid depending on the configured encoder units.
+    auto leftAnchor = pros::c::motor_get_raw_position(leftMotorPort, nullptr);
+    auto rightAnchor = pros::c::motor_get_raw_position(rightMotorPort, nullptr);
+    if (leftAnchor == PROS_ERR || rightAnchor == PROS_ERR) {
+        stop();
+        return false;
+    }
+
+    manual(-20);
+    const auto start = pros::millis();
+    auto stationarySince = start;
+    bool stalled = false;
+
+    while (pros::millis() - start < static_cast<unsigned>(timeoutMs)) {
+        pros::delay(10);
+        const auto now = pros::millis();
+        const auto left = pros::c::motor_get_raw_position(leftMotorPort, nullptr);
+        const auto right = pros::c::motor_get_raw_position(rightMotorPort, nullptr);
+        if (left == PROS_ERR || right == PROS_ERR) break;
+
+        // Compare against fixed anchors so slow accumulated movement also counts.
+        if (now - start < startupMs ||
+            std::fabs(static_cast<double>(left) - leftAnchor) > movementCounts ||
+            std::fabs(static_cast<double>(right) - rightAnchor) > movementCounts) {
+            leftAnchor = left;
+            rightAnchor = right;
+            stationarySince = now;
+        } else if (now - stationarySince >= stallMs) {
+            stalled = true;
+            break;
+        }
+    }
+
+    stop();
+    return stalled;
+}
 
 // =====================================================
 // GET ANGLE
