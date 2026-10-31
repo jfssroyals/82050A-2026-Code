@@ -202,7 +202,7 @@ enum class AutoGrabState {
 
 
 void opcontrol() {
-    autonomous();
+    //autonomous();
     // pros::delay(1000);
 
     // op control setup
