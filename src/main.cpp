@@ -179,18 +179,19 @@ void disabled() {
 }
 
 
-void competition_initialize() {
+void competition_initialize() { 
 }
 
 
 void autonomous() {
     // chassis.setPose(0, 0, 0);
     // delete this after testing
-    pros::delay(1000);
+    // pros::delay(5000);
     // autonMatchloadTest(); // Standalone matchloader test.
-    autonskills();
+    // autonskills();
     // auton1();
-    // auton2();
+    // autonskills();
+    auton2();
     
 }
 

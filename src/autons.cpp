@@ -168,8 +168,9 @@ void test() {
 
 void autonskills() {
     // // set chassis pose
-    pros::lcd::print(5, "Skills: running auton2");
+    // pros::lcd::print(5, "Skills: running auton2");
     auton2();
+    return;
     pros::lcd::print(5, "Skills: turn to 90");
     chassis.turnToHeading(90, 3000, {.maxSpeed = 50}, false);
     pros::lcd::print(5, "Skills: pickup at -1,69");
@@ -264,7 +265,8 @@ void auton2() {
     pros::delay(200);
     chassis.arcade(0, 0);
     pros::delay(300); // Shorter release pause than the skills opening's 1000 ms.
-
+    return;
+    
     // Back away while lowering the lift.
     chassis.moveToPose(-5, 8, 0, 1000, {.forwards = false});
     lift.manual(-40);
@@ -272,6 +274,7 @@ void auton2() {
     lift.stop();
     chassis.waitUntilDone();
 
+    
     // Pick up the first stack; monitor the sensor while driving.
     chassis.turnToPoint(-34.224, 28.844, 1500, {
         .maxSpeed = 75, .minSpeed = 20, .earlyExitRange = 3
