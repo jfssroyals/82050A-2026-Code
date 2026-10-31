@@ -7,7 +7,7 @@
 
 void Lift::foldInSize(Wrist& wrist) {
     // Starting values: tune on the robot for wrist clearance and starting size.
-    constexpr int raiseMs = 400;
+    constexpr int raiseMs = 600;
     constexpr int wristMs = 1000;
     constexpr int lowerMs = 100;
 
@@ -179,8 +179,16 @@ double Lift::getAngle() {
 void Lift::moveAngle(double angle) {
 
     targetAngle = angle;
-
+    matchloadPreset = false;
+    angleSettling = false;
+    angleMoveStart = pros::millis();
     autoMode = true;
+}
+
+void Lift::moveToMatchloadHeight(double angle) {
+    liftMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+    moveAngle(angle);
+    matchloadPreset = true;
 }
 
 
@@ -218,19 +226,46 @@ void Lift::update() {
     }
 
 
-    double currentAngle = getAngle();
+    const auto now = pros::millis();
+    const auto sensorPosition = rotationSensor.get_position();
+    if (sensorPosition == PROS_ERR ||
+        (matchloadPreset && now - angleMoveStart >= 3000)) {
+        cancelAuto();
+        return;
+    }
+
+    double currentAngle = sensorPosition / 100.0;
 
     double error =
         targetAngle - currentAngle;
 
 
-    // Target reached
-    if (std::abs(error) <= margin) {
+    // Brake inside the target window, but keep checking for preset overshoot.
+    const double tolerance = matchloadPreset ? 0.35 : margin;
+    if (std::abs(error) <= tolerance) {
 
         stop();
 
-        autoMode = false;
+        if (!matchloadPreset) {
+            autoMode = false;
+        } else {
+            if (!angleSettling) {
+                angleSettling = true;
+                angleSettledSince = now;
+            }
+            if (now - angleSettledSince >= 150) autoMode = false;
+        }
 
+        return;
+    }
+    angleSettling = false;
+
+    // Gentler matchload positioning; existing pickup gains remain unchanged.
+    if (matchloadPreset) {
+        const double power = error > 0
+            ? std::clamp(kpUp * error, 20.0, 50.0)
+            : std::clamp(kpDown * error, -30.0, -10.0);
+        liftMotors.move(power);
         return;
     }
 

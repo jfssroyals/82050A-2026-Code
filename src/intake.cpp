@@ -3,7 +3,9 @@
 
 // Constructor: Initializes the motor on the given port
 Intake::Intake(int motorPort) 
-    : motor(motorPort, pros::MotorGearset::green) {}
+    : motor(motorPort, pros::MotorGearset::green) {
+    motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+}
 
 void Intake::spinInward(int speed) {
     // if (isSpinningInward && isRunning){
@@ -22,7 +24,7 @@ void Intake::spinOutward() {
 }
 
 void Intake::stop() {
-    motor.move(0);
+    motor.brake(); // Uses the configured coast mode.
     // if (!isSpinningInward && isRunning){
     //     motor.move(0); 
     //     isRunning = false;

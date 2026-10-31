@@ -184,20 +184,15 @@ void competition_initialize() {
 
 
 void autonomous() {
+    // chassis.setPose(0, 0, 0);
     // delete this after testing
-    pros::delay(3000);
+    pros::delay(1000);
+    // autonMatchloadTest(); // Standalone matchloader test.
     autonskills();
-    // auton1();    
+    // auton1();
+    // auton2();
+    
 }
-
-enum class PickupState {
-    IDLE,
-    PREPARING,
-    READY,
-    LOWERING,
-    WAITING,
-    RAISING
-};
 
 enum class AutoGrabState {
     ARMED,
@@ -205,12 +200,10 @@ enum class AutoGrabState {
     WAITING_FOR_CLEAR
 };
 
-PickupState pickupState = PickupState::IDLE;
-unsigned long int pickupWaitStart = 0;
 
 void opcontrol() {
-    // autonomous();
-    // // pros::delay(1000);
+    autonomous();
+    // pros::delay(1000);
 
     // op control setup
     lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
@@ -236,7 +229,7 @@ void opcontrol() {
 
 
         // =========================================
-        // A = PREPARE FOR INTAKE
+        // A = INTAKE
         // =========================================
 
         if (controller.get_digital_new_press(
@@ -244,108 +237,7 @@ void opcontrol() {
 
             intake.spinInward();
 
-            // wrist.moveDOWN();
-
-            // lift.moveAngle(16);
-
-            // pickupState = PickupState::PREPARING;
         }
-
-
-        // // =========================================
-        // // B = PICK UP OBJECT
-        // // =========================================
-
-        // if (controller.get_digital_new_press(
-        //         pros::E_CONTROLLER_DIGITAL_B)) {
-
-        //     if (pickupState == PickupState::READY) {
-        //         claw.close();   
-        //         intake.stop();
-        //         // change pickup state to lowering
-        //         pickupState = PickupState::LOWERING;
-        //     }
-        // }
-
-
-        // // =========================================
-        // // PICKUP STATE MACHINE
-        // // =========================================
-
-        // switch (pickupState) {
-
-        //     case PickupState::IDLE:
-
-        //         break;
-
-
-        //     // Lift goes up first
-        //     case PickupState::PREPARING:
-
-        //         if (lift.atTarget()) {
-
-        //             claw.open();
-
-        //             lift.moveAngle(10);
-
-        //             // We are not waiting for lift to reach 10 deg
-        //             // driver can close claw earlier if they want to
-        //             pickupState = PickupState::READY;
-        //         }
-        //         // else{
-        //         //     pros::lcd::print(
-        //         //         4,
-        //         //         "Prep: %.2f Err: %.2f",
-        //         //         lift.getAngle(),
-        //         //         15.0 - lift.getAngle()
-        //         //     );
-        //         // }
-
-        //         break;
-
-
-        //     // Robot stays here until driver presses B
-        //     case PickupState::READY:
-
-        //         break;
-
-
-        //     // Lift goes down to grab position
-        //     case PickupState::LOWERING:
-
-        //         if (lift.atTarget()) {
-        //             pickupWaitStart = pros::millis();
-        //             pickupState = PickupState::WAITING;
-        //         }
-
-        //         break;
-
-
-        //     // Allow the mechanism to settle while driver control keeps running.
-        //     case PickupState::WAITING:
-
-        //         if (pros::millis() - pickupWaitStart >= 200U) {
-
-        //             wrist.moveUP();
-
-        //             lift.moveAngle(20);
-
-        //             pickupState = PickupState::RAISING;
-        //         }
-
-        //         break;
-
-
-        //     // Lift returns back up
-        //     case PickupState::RAISING:
-
-        //         if (lift.atTarget()) {
-
-        //             pickupState = PickupState::IDLE;
-        //         }
-
-        //         break;
-        // }
 
 
         // =========================================
@@ -448,10 +340,14 @@ void opcontrol() {
         // MANUAL LIFT
         // =========================================
 
+        // Up starts the preset; the existing update loop keeps driving responsive.
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) {
+            lift.moveToMatchloadHeight();
+        }
+
         if (controller.get_digital(
         pros::E_CONTROLLER_DIGITAL_R1)) {
 
-            pickupState = PickupState::IDLE;
 
             lift.manual(127);
         }
@@ -459,9 +355,8 @@ void opcontrol() {
         else if (controller.get_digital(
                     pros::E_CONTROLLER_DIGITAL_R2)) {
 
-            pickupState = PickupState::IDLE;
 
-            lift.manual(-127);
+            lift.manual(-70);
         }
 
         else {

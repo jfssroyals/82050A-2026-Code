@@ -13,6 +13,10 @@ private:
     double targetAngle = 0.0;
     
     bool autoMode = false;
+    bool matchloadPreset = false;
+    bool angleSettling = false;
+    std::uint32_t angleMoveStart = 0;
+    std::uint32_t angleSettledSince = 0;
 
     //double kp = 5.69;
     double kpUp = 5.69;
@@ -47,6 +51,7 @@ public:
 
     // Automatic movement
     void moveAngle(double angle);
+    void moveToMatchloadHeight(double angle = 8.5);
     void update();
     void cancelAuto();
 
