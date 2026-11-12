@@ -169,10 +169,15 @@ ASSET(test_path_txt);
 void autonomous() {
     chassis.setPose(0, -70, 0);
 
+    // gets current selected auton
+    // makes auton attributes public
+    // gets the id of the auton that is selected
+    int selectedId = selector.autons_public()[selector.getSelectedAuton()].id;
+
     // Execute the Pure Pursuit path
     chassis.follow(test_path_txt, 15, 4000);
     
-    switch (selector.getSelectedAuton())
+    switch (selectedId)
     {
         case 1:
             fourPin_red1();
