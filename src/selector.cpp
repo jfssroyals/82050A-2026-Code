@@ -4,10 +4,11 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <atomic>
 
 namespace {
-constexpr int FOURPIN_RED1 = 0;
-constexpr int AUTON_BLUE_2 = 1;
+constexpr int AUTON1 = 0;
+constexpr int AUTON_2 = 1;
 constexpr int AUTON_RED_1 = 2;
 constexpr int AUTON_RED_2 = 3;
 constexpr int AUTON_SKILLS = 4;
@@ -27,8 +28,8 @@ void centeredText(int centerX, int y, const char* text,
 }
 
 const std::vector<AutonSelector::AutonDefinition> AutonSelector::AUTONS = {
-    {FOURPIN_RED1, "FOURPIN_RED1", AutonMode::Competition, AutonSide::Loader},
-    {AUTON_BLUE_2, "BLUE 2", AutonMode::Competition, AutonSide::NonLoader},
+    {AUTON1, "AUTON1", AutonMode::Competition, AutonSide::Loader},
+    {AUTON_2, "AUTON_2", AutonMode::Competition, AutonSide::NonLoader},
     {AUTON_RED_1, "RED 1", AutonMode::Competition, AutonSide::Loader},
     {AUTON_RED_2, "RED 2", AutonMode::Competition, AutonSide::NonLoader},
     {AUTON_SKILLS, "SKILLS", AutonMode::Skills, AutonSide::Loader},
@@ -166,6 +167,10 @@ void AutonSelector::touchTaskLoop() {
 }
 
 void AutonSelector::update() {
+    
+    if (auton_confirmed.load(std::memory_order_acquire)) {
+        return;
+    }
     const pros::screen_touch_status_s touch = pros::screen::touch_status();
 
     if (touch.touch_status) {
@@ -201,6 +206,10 @@ void AutonSelector::update() {
 }
 
 void AutonSelector::render() {
+
+    if (auton_confirmed.load(std::memory_order_acquire)) {
+        return;
+    }
     ui::clear();
 
     switch (screen_number) {
@@ -439,7 +448,7 @@ void AutonSelector::goBack() {
             break;
     }
     auton_number = -1;
-    auton_confirmed = false;
+    std::atomic<bool> auton_confirmed{false};
     scroll_offset = 0;
 }
 
@@ -472,7 +481,7 @@ bool AutonSelector::handleConfirmTouch(int x, int y) {
     if (isInside(x, y, layout(Element::Back))) { goBack(); return true; }
     if (isInside(x, y, layout(Element::Confirm))) {
         if (auton_number < 0) return false;
-        auton_confirmed = true;
+        auton_confirmed.store(true, std::memory_order_release);
         return true;
     }
     return false;
@@ -497,11 +506,21 @@ void AutonSelector::handleTouch(int x, int y) {
 }
 
 int AutonSelector::getSelectedAuton() const { return auton_number; }
+
 int AutonSelector::getConfirmedAuton() const {
-    return auton_confirmed ? auton_number : -1;
+    if (!auton_confirmed.load(std::memory_order_acquire)) {
+        return -1;
+    }
+
+    return auton_number;
 }
+
+bool AutonSelector::isAutonConfirmed() const {
+    return auton_confirmed.load(std::memory_order_acquire);
+}
+
+
 int AutonSelector::getScreen() const { return screen_number; }
 AutonSelector::AutonMode AutonSelector::getSelectedMode() const { return selected_mode; }
 AutonSelector::AutonSide AutonSelector::getSelectedSide() const { return selected_side; }
-bool AutonSelector::isAutonConfirmed() const { return auton_confirmed; }
-void AutonSelector::clearConfirmation() { auton_confirmed = false; }
+void AutonSelector::clearConfirmation() { auton_confirmed.store(false, std::memory_order_release);}

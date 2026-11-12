@@ -6,6 +6,7 @@
 #include "pros/screen.hpp"
 #include "ui_transform.hpp"
 #include <vector>
+#include <atomic>
 
 class AutonSelector {
 public:
@@ -94,8 +95,9 @@ private:
     AutonMode selected_mode = AutonMode::Competition;
     AutonSide selected_side = AutonSide::Loader;
     int auton_number = -1;
-    bool auton_confirmed = false;
-
+    
+    std::atomic<bool> auton_confirmed{false};
+    
     static bool isInside(int x, int y, const Button& button);
     static int getCenterX(const Button& button);
     static int getCenterY(const Button& button);
