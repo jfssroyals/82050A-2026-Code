@@ -9,11 +9,15 @@
 #include "pros/rtos.hpp"
 #include "wrist.hpp"
 #include "intake.hpp"
+#include "selector.hpp"
+#include "pros/misc.h"
 
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
 Claw claw('B');
 Wrist wrist('A');
+
+AutonSelector selector;
 
 Lift lift(-9, 2, 10);
 
@@ -120,13 +124,17 @@ lemlib::Chassis chassis(
 
 // initialize function. Runs on program startup
 void initialize() {
-
-    pros::lcd::initialize();
-
-    chassis.calibrate();
-
-    // calibrate the lift rotation sensor
+    controller.rumble(".."); // rumble to indicate that the robot is initializing
+    pros::lcd::initialize(); // initialize brain screen
+    chassis.calibrate(); // calibrate sensors
+    // bar.reset();
     lift.rotationSensor.reset_position();
+
+    // automatically sets the selector in portrait mode
+    selector.setOrientation(AutonSelector::Orientation::Portrait);
+    selector.initialize();    
+    lift.reset();
+    
     claw.open();
     pros::delay(3000);
     claw.close();
@@ -175,25 +183,82 @@ void initialize() {
 }
 
 
-void disabled() {
-}
+/**
+ * runs after initialize if the robot is connected to field control
+ */
+void competition_initialize() {}
 
-
-void competition_initialize() { 
-}
-
+ASSET(test_path_txt);
 
 void autonomous() {
-    // chassis.setPose(0, 0, 0);
-    // delete this after testing
-    // pros::delay(5000);
-    // autonMatchloadTest(); // Standalone matchloader test.
-    // autonskills();
-    // auton1();
-    // autonskills();
-    auton2();
+    chassis.setPose(0, -70, 0);
+
+    // gets current selected auton
+    // makes auton attributes public
+    // gets the id of the auton that is selected
+    int selectedId = selector.autons_public()[selector.getSelectedAuton()].id;
+
+    // Execute the Pure Pursuit path
+    chassis.follow(test_path_txt, 15, 4000);
     
+    switch (selectedId)
+    {
+        case 1:
+    }
+
+    pros::Task screen_task([&]() {
+        while (true) {
+            // print robot location to the brain screen
+            pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
+            pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
+            pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
+            // delay to save resources
+            pros::delay(100);
+        }
+    });
+
+    // Wait until the path movement finishes
+    chassis.waitUntilDone();
+   
+   
+   
+    //     pros::Task liftTask([&] { // lift.updateComplexLift will run independently every 20 ms
+    //     while (true) {
+    //         lift.updateComplexLift();
+    //         pros::delay(20);
+    //     }
+    // });
+
+
+    // uncomment the auton you want to run
+    // test();
+    //twoPin_blue1();
+    //fourPin_red2();
+    //fourPin_red1();
+    //fourPin_blue2();
+    //test();
+    //skillsAuton();
+
+// /-------------------------------------------------------------------/
+    // set chassis pose
+    //chassis.setPose(0, 0, 0);
+    // pros::lcd::print(0, "X = %.2f", chassis.getPose().x);
+    // pros::lcd::print(1, "Y = %.2f", chassis.getPose().y);
+    // pros::lcd::print(2, "Theta = %.2f", chassis.getPose().theta);
+    // lookahead distance: 15 inches
+    // timeout: 2000 ms
+    
+
+    // pros::lcd::print(3, "X = %.2f", chassis.getPose().x);
+    // pros::lcd::print(4, "Y = %.2f", chassis.getPose().y);
+    // pros::lcd::print(5, "Theta = %.2f", chassis.getPose().theta);
+    // pros::lcd::print(6, "Auton done");
+// /-------------------------------------------------------------------/
+
+    pros::delay(1000000);
 }
+
+
 
 enum class AutoGrabState {
     ARMED,

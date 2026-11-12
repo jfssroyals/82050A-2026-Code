@@ -1,0 +1,53 @@
+in selector.cpp select the autons rather than running them
+
+treat every auton like an object function that can be called if its true 
+
+confirm buttons-> set an object to be true 
+
+object returned or called in autons.cpp as a runtime variable
+
+autons.cpp runs the object during runtime
+
+
+
+
+PENDING:
+- make selection feature as above
+- ensure that it will display dynamically
+
+
+Later: ensure the text is centred
+
+
+
+
+
+To change the orientation of the screen
+
+map out the pixels
+
+pseudocode:
+change the size of the text and the code using some scaling function 
+-  y value -> x-value
+
+maxYflipped = 480
+maxXflipped = 240
+
+set a wrapping length to go to the next line,
+ - check distance from the end of the screen 
+
+ 
+
+create a mapping from  
+
+
+rotate each button 90 degrees left from the center of the button
+ - use a transformation 
+ - use a scalar that considers the ratio from the amount of space
+
+ scale things down in size according to that ratio 
+  - change the minimums and maximums according to the measurements
+
+general idea:
+apply the scaling factor
+perform rotations
