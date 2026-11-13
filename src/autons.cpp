@@ -12,7 +12,81 @@ extern Lift lift;
 extern Wrist wrist;
 extern Intake intake;
 extern pros::Distance distanceSensor;
+extern pros::Distance objectSensor;
 // extern pros::Distance distanceSensor; // Uncomment with the auto-close block below.
+
+namespace {
+int intakePickupStep = 0; // 0 idle, 1 detecting, 2 gripping, 3 raising, 4 flipping, 5 lowering.
+bool intakePickupTracking = false;
+std::uint32_t intakePickupSince = 0;
+}
+
+bool intake_pick_up_active() { return intakePickupStep != 0; }
+
+void cancel_intake_pick_up() {
+    if (!intake_pick_up_active()) return;
+    intake.stop();
+    lift.stop();
+    intakePickupStep = 0;
+}
+
+void start_intake_pick_up() {
+    if (intake_pick_up_active()) return;
+    claw.open();
+    intake.spinInward();
+    intakePickupTracking = false;
+    intakePickupStep = 1;
+}
+
+void update_intake_pick_up() {
+    const std::uint32_t now = pros::millis();
+    if (intakePickupStep == 1) {
+        const int distance = objectSensor.get(); // Port 4, millimeters.
+        if (distance != PROS_ERR && distance > 0 && distance < 70) {
+            if (!intakePickupTracking) {
+                intakePickupTracking = true;
+                intakePickupSince = now;
+            }
+            if (now - intakePickupSince > 1000U) {
+                intake.stop();
+                lift.cancelAuto();
+                lift.manual(-100); // Match the lift controller's minimum downward output.
+                pros::delay(1000);
+                lift.stop(); 
+                intakePickupStep = 5;
+                intakePickupSince = now;
+            }
+        } else {
+            intakePickupTracking = false;
+        }
+    } else if (intakePickupStep == 5 && now - intakePickupSince >= 150U) {
+        lift.stop();
+        claw.close();
+        intakePickupStep = 2;
+        intakePickupSince = now;
+    // Allow the pneumatic claw to finish closing before raising the lift.
+    } else if (intakePickupStep == 2 && now - intakePickupSince >= 300U) {
+        lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+        lift.manual(100);
+        intakePickupStep = 3;
+        intakePickupSince = now;
+    } else if (intakePickupStep == 3 && now - intakePickupSince >= 200U) {
+        wrist.moveUP();
+        intakePickupStep = 4;
+        intakePickupSince = now;
+    } else if (intakePickupStep == 4 && now - intakePickupSince >= 200U) {
+        lift.stop();
+        intakePickupStep = 0;
+    }
+}
+
+void intake_pick_up() {
+    start_intake_pick_up();
+    while (intake_pick_up_active()) {
+        update_intake_pick_up();
+        pros::delay(10);
+    }
+}
 
 void matchload() {
     // Use the matchload as the new origin without changing the heading.
@@ -52,6 +126,7 @@ void autonMatchloadTest() {
 void match_load_ready() {
     lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
     lift.manual(100);
+    controller.rumble("..");
     pros::delay(300);
     lift.stop();
     wrist.moveDOWN();
@@ -71,8 +146,10 @@ void waitForAutoClaw() {
         if (distance > 0 && distance <= 100 && !autoClawTriggered) {
             autoClawTriggered = true;
             claw.close();
+            pros::delay(200);
             lift.manual(127);
             pros::delay(300);
+            lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
             lift.stop();
             chassis.cancelMotion();
         }
@@ -168,15 +245,15 @@ void test() {
 
 void autonskills() {
     // // set chassis pose
-    pros::lcd::print(5, "Skills: running auton2");
+    // pros::lcd::print(5, "Skills: running auton2");
     auton2();
-    pros::lcd::print(5, "Skills: turn to 90");
+    // pros::lcd::print(5, "Skills: turn to 90");
     chassis.turnToHeading(90, 3000, {.maxSpeed = 50}, false);
-    pros::lcd::print(5, "Skills: pickup at -1,69");
+    // pros::lcd::print(5, "Skills: pickup at -1,69");
     chassis.moveToPoint(-1, 69, 10000, {.maxSpeed = 50});
     waitForAutoClaw();
 
-    pros::lcd::print(5, "Skills: pickup at -22,69");
+    // pros::lcd::print(5, "Skills: pickup at -22,69");
     chassis.moveToPoint(-22, 69, 10000, {.maxSpeed = 50});
     waitForAutoClaw();
     chassis.turnToHeading(245, 3000, {.maxSpeed = 50}, false);
@@ -258,27 +335,39 @@ void auton2() {
     chassis.arcade(70, 0);
     lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
     lift.manual(-40);
-    pros::delay(300);
+    pros::delay(500);
     lift.stop();
     claw.open();
     pros::delay(200);
     chassis.arcade(0, 0);
-    pros::delay(300); // Shorter release pause than the skills opening's 1000 ms.
+    pros::delay(1000); // Shorter release pause than the skills opening's 1000 ms.
 
     // Back away while lowering the lift.
     chassis.moveToPose(-5, 8, 0, 1000, {.forwards = false});
     lift.manual(-40);
-    pros::delay(100);
+    pros::delay(150);
     lift.stop();
     chassis.waitUntilDone();
+    
+// ------------------  keep for now
+    // // Back away while lowering the lift.
+    // chassis.moveToPoint(-0.26, -0.56, 1000, {.forwards = false});
+    // lift.manual(-40);
+    // pros::delay(100);
+    // lift.stop();
+    // chassis.waitUntilDone();
 
-    // Pick up the first stack; monitor the sensor while driving.
-    chassis.turnToPoint(-34.224, 28.844, 1500, {
-        .maxSpeed = 75, .minSpeed = 20, .earlyExitRange = 3
-    });
+// --------------------------------------
+
+    // First-stack approach rotated another 0.1 degree right around (-5, 8).
+    chassis.turnToPoint(-32.027, 31.685, 1500, {.maxSpeed = 50});
     chassis.waitUntilDone();
-    chassis.moveToPoint(-34.224, 28.844, 10000, {.maxSpeed = 45});
+    chassis.moveToPoint(-32.027, 31.685, 10000, {.maxSpeed = 37});
     waitForAutoClaw();
+
+    
+// --------------------------------------
+
 
     // Raise the stack while turning to the goal.
     chassis.turnToHeading(72.5, 3000, {.maxSpeed = 75});
@@ -299,25 +388,26 @@ void auton2() {
 
     // Back away and prepare to pick up the second stack.
     chassis.moveToPoint(-41, 29, 10000, {.forwards = false, .maxSpeed = 60}, false);
-    chassis.turnToPoint(-21.494, 48.507, 1500, {
+    // Second-stack target extended another 2 inches along the approach from (-41, 29).
+    chassis.turnToPoint(-17.108, 49.778, 1500, {
         .maxSpeed = 60, .minSpeed = 20, .earlyExitRange = 3
     });
     lift.manual(-40);
     pros::delay(800);
     lift.stop();
     chassis.waitUntilDone();
-    chassis.moveToPoint(-21.494, 48.507, 10000, {.maxSpeed = 60, .minSpeed = 20});
+    chassis.moveToPoint(-17.108, 49.778, 10000, {.maxSpeed = 65, .minSpeed = 20});
     waitForAutoClaw();
-
+    lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
     // Raise and score the second stack.
     chassis.turnToHeading(160, 3000, {.maxSpeed = 75});
-    lift.manual(57);
+    lift.manual(100);
     lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
     chassis.waitUntilDone();
     lift.stop();
-    chassis.arcade(100, 0);
-    pros::delay(800);
-    chassis.arcade(30, 0);
+    chassis.arcade(127, 0);
+    pros::delay(625);
+    chassis.arcade(40, 0);
     lift.manual(-80);
     pros::delay(250);
     claw.open();
@@ -325,44 +415,13 @@ void auton2() {
     lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
     chassis.arcade(0, 0);
 
-    // Approach the matchloader using the skills route.
-    pros::lcd::print(5, "Auton2: last move -23,69");
-    chassis.moveToPose(-23, 69, 180, 10000, {.forwards = false, .maxSpeed = 50});
-    // match_load_ready();
-    chassis.waitUntilDone();
+    return;
+    // // Approach the matchloader using the skills route.
+    // pros::lcd::print(5, "Auton2: last move -23,69");
+    // chassis.moveToPose(-23, 69, 180, 10000, {.forwards = false, .maxSpeed = 50});
+    // // match_load_ready();
+    // chassis.waitUntilDone();
 
-    // chassis.turnToHeading(265, 3000, {.maxSpeed = 50}, false);
-    // chassis.moveToPoint(-17.698, 68.710, 10000, {.forwards = false, .maxSpeed = 50}, false);
-    // chassis.moveToPoint(-8.5, 69.5, 10000, {.forwards = false, .maxSpeed = 25}, false);
-    // chassis.arcade(0, 0);
-
-    // // Use the same height preset as the driver Up button.
-    // lift.moveToMatchloadHeight();
-    // while (lift.isAuto()) {
-    //     lift.update();
-    //     pros::delay(5);
-    // }
-    // if (!lift.atTarget()) return;
-
-    // // Nudge farther backward into the matchloader, then stop driving.
-    // chassis.arcade(-40, 0);
-    // pros::delay(300);
-    // chassis.arcade(0, 0);
-
-    // // Load and secure the stack using the skills intake sequence.
-    // claw.open();
-    // intake.spinInward();
-    // pros::delay(2500);
-    // intake.stop();
-    // pros::delay(500);
-    // claw.close();
-    // chassis.arcade(100, 0);
-    // pros::delay(328);
-    // chassis.arcade(0, 0);
-    // lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-    // lift.unfold(wrist, 200);
-    // pros::delay(200);
-    // lift.stop();
 }
 
 // coding first auton, in progress

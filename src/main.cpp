@@ -20,6 +20,11 @@ Lift lift(-9, 2, 10);
 Intake intake(1);
 
 pros::Distance distanceSensor(7);
+pros::Distance objectSensor(4);
+
+// Only detect objects strictly closer than 7 cm (70 mm).
+constexpr int objectDetectionMaxMm = 70;
+constexpr std::uint32_t objectDetectionTimeMs = 1000;
 
 
 // drivetrain motors
@@ -123,19 +128,46 @@ void initialize() {
 
     pros::lcd::initialize();
 
+    // calibrate the lift rotation sensor
+    // lift.rotationSensor.reset_position();
+    // claw.open();
+    // pros::delay(3000);
+    // claw.close();
+
+    // pros::delay(200);
+    // lift.foldInSize(wrist);
     chassis.calibrate();
 
-    // calibrate the lift rotation sensor
-    lift.rotationSensor.reset_position();
-    claw.open();
-    pros::delay(3000);
-    claw.close();
-
-    pros::delay(200);
-    lift.foldInSize(wrist);
-    pros::Task screen_task([&]() {
+    // Use one task for all LCD writes to avoid competing display updates.
+    static pros::Task object_screen_task([]() {
+        bool trackingObject = false;
+        std::uint32_t objectDetectedSince = 0;
 
         while (true) {
+            const int objectDistance = objectSensor.get();
+            if (objectDistance == PROS_ERR) {
+                pros::lcd::set_text(4, "Port 4 distance: error");
+            } else {
+                pros::lcd::print(4, "Port 4 distance: %d mm", objectDistance);
+            }
+            const bool objectPresent = objectDistance != PROS_ERR
+                && objectDistance > 0 && objectDistance < objectDetectionMaxMm;
+            const std::uint32_t now = pros::millis();
+
+            if (!objectPresent) {
+                trackingObject = false;
+                pros::lcd::set_text(5, "No object detected");
+            } else {
+                if (!trackingObject) {
+                    trackingObject = true;
+                    objectDetectedSince = now;
+                }
+                if (now - objectDetectedSince > objectDetectionTimeMs) {
+                    pros::lcd::set_text(5, "Object detected");
+                } else {
+                    pros::lcd::set_text(5, "No object detected");
+                }
+            }
 
             // robot position
             pros::lcd::print(
@@ -164,18 +196,19 @@ void initialize() {
             );
 
             pros::lcd::print(
-                4,
-                "Distance: %d mm",
+                6,
+                "Port 7 distance: %d mm",
                 distanceSensor.get_distance()
             );
 
-            pros::delay(100);
+            pros::delay(50);
         }
     });
 }
 
 
 void disabled() {
+    cancel_intake_pick_up();
 }
 
 
@@ -186,12 +219,11 @@ void competition_initialize() {
 void autonomous() {
     // chassis.setPose(0, 0, 0);
     // delete this after testing
-    pros::delay(1000);
-    // autonMatchloadTest(); // Standalone matchloader test.
-    autonskills();
+    //autonMatchloadTest(); // Standalone matchloader test.
+    //autonskills();
     // auton1();
-    // auton2();
-    
+    //auton2();
+    match_load_ready();
 }
 
 enum class AutoGrabState {
@@ -213,7 +245,7 @@ void opcontrol() {
     std::uint32_t lastOuttakeRumble = 0;
     AutoGrabState autoGrabState = AutoGrabState::ARMED;
     std::uint32_t distanceClearStart = 0;
-
+                                                                                              
     while (true) {
 
         // DRIVE
@@ -229,13 +261,14 @@ void opcontrol() {
 
 
         // =========================================
-        // A = INTAKE
+        // A = sensor-triggered intake pickup
         // =========================================
 
         if (controller.get_digital_new_press(
                 pros::E_CONTROLLER_DIGITAL_A)) {
 
-            intake.spinInward();
+            outtakeRemainingMs = 0;
+            start_intake_pick_up();
 
         }
 
@@ -245,15 +278,20 @@ void opcontrol() {
         // L1
         // =========================================
 
-        if (controller.get_digital_new_press(
-                pros::E_CONTROLLER_DIGITAL_L1)) {
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
 
+            cancel_intake_pick_up();
             wrist.toggle();
         }
 
         // CLAW: L2 overrides auto-grab, including when opening to score.
         const bool manualClawPressed = controller.get_digital_new_press(
             pros::E_CONTROLLER_DIGITAL_L2);
+        if (manualClawPressed) cancel_intake_pick_up();
+        // Let the pickup sequence control the claw while it is running.
+        if (intake_pick_up_active()) {
+            autoGrabState = AutoGrabState::DISARMED;
+        }
         const int distance = distanceSensor.get();
         const bool validDistance = distance != PROS_ERR && distance > 0;
         const std::uint32_t autoGrabNow = pros::millis();
@@ -308,6 +346,7 @@ void opcontrol() {
             pros::E_CONTROLLER_DIGITAL_Y);
 
         if (outtakePressed) {
+            cancel_intake_pick_up();
             if (outtakeRemainingMs == 0) {
                 controller.rumble(".");
                 lastOuttakeRumble = outtakeNow;
@@ -333,6 +372,7 @@ void opcontrol() {
                 pros::E_CONTROLLER_DIGITAL_X)) {
 
             outtakeRemainingMs = 0;
+            cancel_intake_pick_up();
             intake.stop();
         }
 
@@ -342,24 +382,23 @@ void opcontrol() {
 
         // Up starts the preset; the existing update loop keeps driving responsive.
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) {
+            cancel_intake_pick_up();
             lift.moveToMatchloadHeight();
         }
 
-        if (controller.get_digital(
-        pros::E_CONTROLLER_DIGITAL_R1)) {
+        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
 
-
+            cancel_intake_pick_up();
             lift.manual(127);
         }
 
-        else if (controller.get_digital(
-                    pros::E_CONTROLLER_DIGITAL_R2)) {
+        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
 
-
+            cancel_intake_pick_up();
             lift.manual(-70);
         }
 
-        else {
+        else if (!intake_pick_up_active()) {
 
             if (lift.isAuto()) {
 
@@ -373,6 +412,7 @@ void opcontrol() {
         }
 
 
+        update_intake_pick_up();
         pros::delay(5);
     }
 }
