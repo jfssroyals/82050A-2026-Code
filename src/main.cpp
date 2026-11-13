@@ -13,6 +13,7 @@
 #include "pros/misc.h"
 #include "ui_renderer.hpp"
 #include <cstdio>
+#include "leds.hpp"
 
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
@@ -192,6 +193,7 @@ void telemetryTask() {
 void initialize() {    
     controller.rumble(".."); // rumble to indicate that the robot is initializing
     pros::lcd::initialize(); // initialize brain screen
+    startLeds(); // start the LED pattern
     chassis.calibrate(); // calibrate sensors
     // bar.reset();
     lift.rotationSensor.reset_position();
