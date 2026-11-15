@@ -146,7 +146,7 @@ void AutonSelector::initialize() {
     selected_mode = AutonMode::Competition;
     selected_side = AutonSide::Loader;
     auton_number = -1;
-    auton_confirmed = false;
+    auton_confirmed.store(false, std::memory_order_release);
     scroll_offset = 0;
     touch_was_pressed = false;
     touch_start_x = touch_start_y = 0;

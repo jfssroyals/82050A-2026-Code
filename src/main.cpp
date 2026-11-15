@@ -28,6 +28,11 @@ Lift lift(-9, 2, 10);
 Intake intake(1);
 
 pros::Distance distanceSensor(7);
+pros::Distance objectSensor(4);
+
+// Only detect objects strictly closer than 7 cm (70 mm).
+constexpr int objectDetectionMaxMm = 70;
+constexpr std::uint32_t objectDetectionTimeMs = 1000;
 
 
 // drivetrain motors
@@ -126,104 +131,270 @@ lemlib::Chassis chassis(
     &steerCurve
 );
 
+
 void telemetryTask() {
+
+    // Object detection tracking variables.
+    bool trackingObject = false;
+    std::uint32_t objectDetectedSince = 0;
 
     while (true) {
 
-        // Telemetry only owns the screen after confirmation.
+        // The selector owns the screen until confirmation.
         if (selector.isAutonConfirmed()) {
 
-            // Read robot data.
+            // ==========================================
+            // 1. READ ROBOT DATA
+            // ==========================================
+
             const lemlib::Pose pose = chassis.getPose();
 
             const double liftAngle = lift.getAngle();
-            const int distance = distanceSensor.get_distance();
-            const int horizontalPosition = horizontalEnc.get_position();
 
-            // Prepare display strings.
+            const int distance = distanceSensor.get_distance();
+
+            const int horizontalPosition =
+                horizontalEnc.get_position();
+
+            const int objectDistance = objectSensor.get();
+
+            // ==========================================
+            // 2. OBJECT DETECTION LOGIC
+            // ==========================================
+
+            const bool objectPresent =
+                objectDistance != PROS_ERR &&
+                objectDistance > 0 &&
+                objectDistance < objectDetectionMaxMm;
+
+            const std::uint32_t now = pros::millis();
+
+            const char* objectStatus;
+
+            if (!objectPresent) {
+
+                trackingObject = false;
+                objectStatus = "No object detected";
+
+            } else {
+
+                if (!trackingObject) {
+
+                    trackingObject = true;
+                    objectDetectedSince = now;
+
+                }
+
+                if (now - objectDetectedSince >
+                    objectDetectionTimeMs) {
+
+                    objectStatus = "Object detected";
+
+                } else {
+
+                    objectStatus = "Detecting...";
+
+                }
+            }
+
+            // ==========================================
+            // 3. PREPARE DISPLAY STRINGS
+            // ==========================================
+
             char line1[40];
             char line2[32];
             char line3[32];
             char line4[32];
             char line5[40];
+            char line6[40];
+            char line7[40];
 
-            std::snprintf(line1, sizeof(line1),
-                          "X: %.1f Y: %.1f", pose.x, pose.y);
+            std::snprintf(
+                line1, sizeof(line1),
+                "X: %.1f Y: %.1f",
+                pose.x, pose.y
+            );
 
-            std::snprintf(line2, sizeof(line2),
-                          "HEADING: %.1f", pose.theta);
+            std::snprintf(
+                line2, sizeof(line2),
+                "HEADING: %.1f",
+                pose.theta
+            );
 
-            std::snprintf(line3, sizeof(line3),
-                          "LIFT: %.1f", liftAngle);
+            std::snprintf(
+                line3, sizeof(line3),
+                "LIFT: %.1f",
+                liftAngle
+            );
 
-            std::snprintf(line4, sizeof(line4),
-                          "DIST: %d MM", distance);
+            std::snprintf(
+                line4, sizeof(line4),
+                "DIST: %d MM",
+                distance
+            );
 
-            std::snprintf(line5, sizeof(line5),
-                          "H-ENC: %ld",
-                          static_cast<long>(horizontalPosition));
+            std::snprintf(
+                line5, sizeof(line5),
+                "H-ENC: %ld",
+                static_cast<long>(horizontalPosition)
+            );
 
-            // Redraw dashboard.
+            if (objectDistance == PROS_ERR) {
+
+                std::snprintf(
+                    line6, sizeof(line6),
+                    "OBJECT SENSOR: ERROR"
+                );
+
+            } else {
+
+                std::snprintf(
+                    line6, sizeof(line6),
+                    "OBJECT DIST: %d MM",
+                    objectDistance
+                );
+            }
+
+            std::snprintf(
+                line7, sizeof(line7),
+                "STATUS: %s",
+                objectStatus
+            );
+
+            // ==========================================
+            // 4. DRAW TELEMETRY DASHBOARD
+            // ==========================================
+
             ui::clear();
 
-            ui::drawText(10, 15, "ROBOT TELEMETRY",
-                         pros::Color::green, 2);
+            ui::drawText(
+                10, 15,
+                "ROBOT TELEMETRY",
+                pros::Color::green, 2
+            );
 
-            ui::drawText(10, 65, line1,
-                         pros::Color::white, 2);
+            ui::drawText(
+                10, 65,
+                line1,
+                pros::Color::white, 1
+            );
 
-            ui::drawText(10, 110, line2,
-                         pros::Color::white, 2);
+            ui::drawText(
+                10, 115,
+                line2,
+                pros::Color::white, 1
+            );
 
-            ui::drawText(10, 155, line3,
-                         pros::Color::white, 2);
+            ui::drawText(
+                10, 165,
+                line3,
+                pros::Color::white, 1
+            );
 
-            ui::drawText(10, 200, line4,
-                         pros::Color::white, 2);
+            ui::drawText(
+                10, 215,
+                line4,
+                pros::Color::white, 1
+            );
 
-            // Encoder line is omitted here to keep the
-            // dashboard within the portrait display.
+            ui::drawText(
+                10, 265,
+                line5,
+                pros::Color::white, 1
+            );
+
+            ui::drawText(
+                10, 315,
+                line6,
+                pros::Color::white, 1
+            );
+
+            ui::drawText(
+                10, 365,
+                line7,
+                pros::Color::white, 1
+            );
         }
 
         pros::delay(100);
     }
 }
 
+
 // initialize function. Runs on program startup
-void initialize() {    
-    controller.rumble(".."); // rumble to indicate that the robot is initializing
-    pros::lcd::initialize(); // initialize brain screen
-    startLeds(); // start the LED pattern
-    chassis.calibrate(); // calibrate sensors
-    // bar.reset();
+
+void initialize() {
+
+    // ==========================================
+    // 1. INITIALIZATION
+    // ==========================================
+
+    selector.clearConfirmation();
+
+    controller.rumble("..");
+-
+    pros::lcd::initialize();
+
+    startLeds();
+
+    // ==========================================
+    // 2. CALIBRATION
+    // ==========================================
+
+    chassis.calibrate();
+
     lift.rotationSensor.reset_position();
 
-    // automatically sets the selector in portrait mode
-    selector.setOrientation(AutonSelector::Orientation::Portrait);
-    selector.initialize();    
+    // ==========================================
+    // 3. AUTON SELECTOR
+    // ==========================================
+
+    selector.setOrientation(
+        AutonSelector::Orientation::Portrait
+    );
+
+    selector.initialize();
+
+    // ==========================================
+    // 4. MECHANISM INITIALIZATION
+    // ==========================================
+
+    lift.reset();
+
+    claw.open();
+
+    pros::delay(3000);
+
+    claw.close();
+
+    pros::delay(200);
+
+    lift.foldInSize(wrist);
+
+    // ==========================================
+    // 5. START TELEMETRY TASK
+    // ==========================================
 
     static pros::Task* telemetryTaskHandle = nullptr;
 
     if (telemetryTaskHandle == nullptr) {
+
         telemetryTaskHandle = new pros::Task(telemetryTask);
+
     }
-
-    lift.reset();
-    
-    claw.open();
-    pros::delay(3000);
-    claw.close();
-
-    pros::delay(200);
-    lift.foldInSize(wrist);
-
 }
+
 
 
 /**
  * runs after initialize if the robot is connected to field control
  */
 void competition_initialize() {}
+
+void disabled() {
+    cancel_intake_pick_up();
+}
+
 
 ASSET(test_path_txt);
 
@@ -273,6 +444,9 @@ void autonomous() {
 
     pros::lcd::print(5, "Auton completed!");
     controller.rumble("..");
+
+    match_load_ready();
+
 }
 
 
@@ -302,10 +476,7 @@ void opcontrol() {
     AutoGrabState autoGrabState = AutoGrabState::ARMED;
     std::uint32_t distanceClearStart = 0;
 
-    // =========================================
-    // MAIN OPERATOR CONTROL LOOP
-    // =========================================
-
+    
     while (true) {
 
         // =========================================
@@ -383,13 +554,15 @@ void opcontrol() {
 
 
         // =========================================
-        // A = INTAKE
+        // A = sensor-triggered intake pickup
         // =========================================
 
         if (controller.get_digital_new_press(
                 pros::E_CONTROLLER_DIGITAL_A)) {
 
-            intake.spinInward();
+            outtakeRemainingMs = 0;
+            start_intake_pick_up();
+
         }
 
 
@@ -397,22 +570,20 @@ void opcontrol() {
         // L1 = WRIST TOGGLE
         // =========================================
 
-        if (controller.get_digital_new_press(
-                pros::E_CONTROLLER_DIGITAL_L1)) {
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
 
+            cancel_intake_pick_up();
             wrist.toggle();
         }
 
-
-        // =========================================
-        // L2 = MANUAL CLAW
-        // =========================================
-
-        const bool manualClawPressed =
-            controller.get_digital_new_press(
-                pros::E_CONTROLLER_DIGITAL_L2
-            );
-
+        // CLAW: L2 overrides auto-grab, including when opening to score.
+        const bool manualClawPressed = controller.get_digital_new_press(
+            pros::E_CONTROLLER_DIGITAL_L2);
+        if (manualClawPressed) cancel_intake_pick_up();
+        // Let the pickup sequence control the claw while it is running.
+        if (intake_pick_up_active()) {
+            autoGrabState = AutoGrabState::DISARMED;
+        }
         const int distance = distanceSensor.get();
 
         const bool validDistance =
@@ -507,7 +678,7 @@ void opcontrol() {
             );
 
         if (outtakePressed) {
-
+            cancel_intake_pick_up();
             if (outtakeRemainingMs == 0) {
                 controller.rumble(".");
                 lastOuttakeRumble = outtakeNow;
@@ -535,6 +706,7 @@ void opcontrol() {
                 pros::E_CONTROLLER_DIGITAL_X)) {
 
             outtakeRemainingMs = 0;
+            cancel_intake_pick_up();
             intake.stop();
         }
 
@@ -543,31 +715,27 @@ void opcontrol() {
         // LIFT CONTROL
         // =========================================
 
-        // UP = preset matchload height.
-        if (controller.get_digital_new_press(
-                pros::E_CONTROLLER_DIGITAL_UP)) {
-
+        // Up starts the preset; the existing update loop keeps driving responsive.
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) {
+            cancel_intake_pick_up();
             lift.moveToMatchloadHeight();
         }
 
-        // R1 = manual lift upward.
-        if (controller.get_digital(
-                pros::E_CONTROLLER_DIGITAL_R1)) {
+        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
 
+            cancel_intake_pick_up();
             lift.manual(127);
 
         }
 
-        // R2 = manual lift downward.
-        else if (controller.get_digital(
-                     pros::E_CONTROLLER_DIGITAL_R2)) {
+        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
 
+            cancel_intake_pick_up();
             lift.manual(-70);
 
         }
 
-        // Otherwise, update the automatic lift controller or stop.
-        else {
+        else if (!intake_pick_up_active()) {
 
             if (lift.isAuto()) {
                 lift.update();
@@ -577,7 +745,8 @@ void opcontrol() {
             }
         }
 
+
+        update_intake_pick_up();
         pros::delay(5);
     }
 }
-
