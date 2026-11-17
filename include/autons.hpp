@@ -14,6 +14,7 @@ void auton2();
 void autonskills();
 void toggleDriveSequence();
 void matchload();
+void test_5();
 // Blocking: open claw and intake until port 4 reads <70 mm for >1 second,
 // then stop intake, lower briefly, grip, raise, and flip wrist up.
 void intake_pick_up();

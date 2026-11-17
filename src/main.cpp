@@ -413,6 +413,12 @@ void autonomous() {
 
     pros::lcd::print(5, "Starting auton ID: %d", selectedId);
 
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
+        test_5();
+        return;
+    }
+
+
     switch (selectedId) {
 
         case 0:
@@ -434,7 +440,9 @@ void autonomous() {
         case 4:
             autonskills();
             break;
-
+        case 5:
+            test_5();
+            break;
         default:
             pros::lcd::print(5, "Invalid auton ID!");
             return;
@@ -466,6 +474,10 @@ void opcontrol() {
     // =========================================
     // DRIVER CONTROL INITIALIZATION
     // =========================================
+    // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
+    //     test_5();
+    //     return;
+    // }
 
     lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
 
@@ -522,6 +534,11 @@ void opcontrol() {
                     case 4:
                         autonskills();
                         break;
+                    
+                    case 5:
+                        test_5();
+                        break;
+                    
 
                     default:
                         pros::lcd::print(5, "Invalid auton ID!");

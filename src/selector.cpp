@@ -12,7 +12,7 @@ constexpr int AUTON_2 = 1;
 constexpr int AUTON_RED_1 = 2;
 constexpr int AUTON_RED_2 = 3;
 constexpr int AUTON_SKILLS = 4;
-constexpr int BRRR = 5;
+constexpr int TEST_5 = 5;
 constexpr int CHOTTU = 6;
 constexpr int FILLER = 7;
 constexpr int LEBRON = 8;
@@ -33,7 +33,7 @@ const std::vector<AutonSelector::AutonDefinition> AutonSelector::AUTONS = {
     {AUTON_RED_1, "RED 1", AutonMode::Competition, AutonSide::Loader},
     {AUTON_RED_2, "RED 2", AutonMode::Competition, AutonSide::NonLoader},
     {AUTON_SKILLS, "SKILLS", AutonMode::Skills, AutonSide::Loader},
-    {BRRR, "BRRR", AutonMode::Competition, AutonSide::NonLoader},
+    {TEST_5, "TEST_5", AutonMode::Competition, AutonSide::NonLoader},
     {CHOTTU, "CHOTTU", AutonMode::Competition, AutonSide::NonLoader},
     {FILLER, "FILLER", AutonMode::Competition, AutonSide::NonLoader},
     {LEBRON, "LEBRON", AutonMode::Competition, AutonSide::NonLoader},

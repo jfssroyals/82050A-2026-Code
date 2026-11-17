@@ -30,6 +30,20 @@ void cancel_intake_pick_up() {
     intakePickupStep = 0;
 }
 
+void test_5() {
+    chassis.moveToPoint(0,18, 10000);
+    chassis.waitUntilDone();
+    chassis.turnToHeading(-90, 3000);
+    chassis.waitUntilDone();
+    chassis.arcade(100, 0);
+    pros::delay(1000);
+    chassis.arcade(0, 0);
+    pros::delay(500);
+    chassis.moveToPoint(0, 18,  5000, {.forwards = false});
+    chassis.waitUntilDone();
+    chassis.turnToHeading(0, 1000);
+}
+
 void start_intake_pick_up() {
     if (intake_pick_up_active()) return;
     claw.open();
