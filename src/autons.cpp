@@ -31,17 +31,63 @@ void cancel_intake_pick_up() {
 }
 
 void test_5() {
-    chassis.moveToPoint(0,18, 10000);
+    // // Far Goal
+    chassis.moveToPoint(0, 12, 5000);
     chassis.waitUntilDone();
-    chassis.turnToHeading(-90, 3000);
+    chassis.turnToHeading(-25, 5000);
     chassis.waitUntilDone();
-    chassis.arcade(100, 0);
-    pros::delay(1000);
-    chassis.arcade(0, 0);
+    chassis.moveToPoint(-10, 25, 5000);
+    chassis.waitUntilDone();
+    chassis.arcade(70, 0);
     pros::delay(500);
-    chassis.moveToPoint(0, 18,  5000, {.forwards = false});
-    chassis.waitUntilDone();
-    chassis.turnToHeading(0, 1000);
+    chassis.arcade(0,0);
+    // // Near Goal
+    // chassis.moveToPoint(0,17.5, 10000);
+    // chassis.waitUntilDone();
+    // chassis.turnToPoint(-26, 18, 10000);
+    // chassis.waitUntilDone();
+    // chassis.moveToPoint(-22, 18, 10000);
+    // chassis.waitUntilDone();
+    // chassis.arcade(120, 0);
+    
+    // pros::delay(1000);
+    // chassis.arcade(0,0);
+    // pros::delay(500);
+    // chassis.moveToPoint(0, 17.8,  5000, {.forwards = false});
+    // chassis.waitUntilDone();
+    // chassis.turnToHeading(0, 1000);
+    // chassis.waitUntilDone();
+    // chassis.arcade(-68, 0);
+    // pros::delay(1288);
+    // chassis.arcade(0,0);
+    // pros::delay(2000);
+    // chassis.arcade(-100, 0);
+    // pros::delay(500);
+    // chassis.arcade(0, 0);
+
+
+
+    // //second one
+    // chassis.setPose(0,0,0);
+    // chassis.moveToPoint(0,17.5, 10000);
+    // chassis.waitUntilDone();
+    // chassis.turnToPoint(-26, 18, 10000);
+    // chassis.waitUntilDone();
+    // chassis.moveToPoint(-22, 18, 10000);
+    // chassis.waitUntilDone();
+    // chassis.arcade(120, 0);
+    
+    // pros::delay(1000);
+    // chassis.arcade(0,0);
+    // pros::delay(500);
+    // chassis.moveToPoint(0, 17.8,  5000, {.forwards = false});
+    // chassis.waitUntilDone();
+    // chassis.turnToHeading(0, 1000);
+    // chassis.waitUntilDone();
+    // chassis.arcade(-100, 0);
+    // pros::delay(1288);
+    // chassis.arcade(0,0);
+
 }
 
 void start_intake_pick_up() {
