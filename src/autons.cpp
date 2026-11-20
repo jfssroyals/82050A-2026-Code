@@ -5,6 +5,7 @@
 #include "lift.hpp"
 #include "claw.hpp"
 #include "intake.hpp"
+#include "pros/rtos.hpp"
 #include "wrist.hpp"
 
 extern Claw claw;
@@ -89,6 +90,31 @@ void test_5() {
     // chassis.arcade(0,0);
 
 }
+
+// matchloader part of auton skills
+// will add to auton skills once it works
+void test_6() {
+
+    chassis.setPose(0, 0, 0);
+    chassis.moveToPoint(0, 4, 1000, {.minSpeed = 50, .earlyExitRange = 1});
+    chassis.moveToPoint(-6.4, 14.1, 1000, {.minSpeed = 80, .earlyExitRange = 4});
+    chassis.swingToHeading(0, DriveSide::RIGHT, 1000, {.minSpeed = 80, .earlyExitRange = 4});
+    chassis.waitUntilDone(); // Wait for the swing to finish first
+    chassis.arcade(95, 0); // Start driving into the goal
+    pros::delay(750);       // Keep driving for 750 ms (increase if still short)
+    chassis.arcade(0, 0);   // Stop
+
+
+
+        // chassis.moveToPose(-4.9, 28.1, -21.5, 1000);
+        // chassis.waitUntilDone();
+
+        // chassis.arcade(100,0);
+        // chassis.waitUntilDone();
+
+        // chassis.moveToPose(-3.7, 3.0, 0, 1000, forward);
+}
+
 
 void start_intake_pick_up() {
     if (intake_pick_up_active()) return;
@@ -336,6 +362,7 @@ void autonskills() {
 
     // ADD MATCHLOAD CODE HERE
 
+    
     // Do toggle and mid goal 
     chassis.moveToPoint(-1.3, 19.3, 1000, {.forwards = false});
     chassis.waitUntilDone();

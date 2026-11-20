@@ -349,9 +349,7 @@ void initialize() {
     // 3. AUTON SELECTOR
     // ==========================================
 
-    selector.setOrientation(
-        AutonSelector::Orientation::Portrait
-    );
+    selector.setOrientation(AutonSelector::Orientation::Portrait);
 
     selector.initialize();
 
@@ -359,17 +357,17 @@ void initialize() {
     // 4. MECHANISM INITIALIZATION
     // ==========================================
 
-    lift.reset();
+    // lift.reset();
 
-    claw.open();
+    // claw.open();
 
-    pros::delay(3000);
+    // pros::delay(3000);
 
-    claw.close();
+    // claw.close();
 
     pros::delay(200);
 
-    lift.foldInSize(wrist);
+    // lift.foldInSize(wrist);
 
     // ==========================================
     // 5. START TELEMETRY TASK
@@ -414,7 +412,7 @@ void autonomous() {
     pros::lcd::print(5, "Starting auton ID: %d", selectedId);
 
     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
-        test_5();
+        test_6();
         return;
     }
 
@@ -474,10 +472,6 @@ void opcontrol() {
     // =========================================
     // DRIVER CONTROL INITIALIZATION
     // =========================================
-    // if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
-    //     test_5();
-    //     return;
-    // }
 
     lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
 
@@ -496,6 +490,11 @@ void opcontrol() {
         // =========================================
 
         if (!autonexecuted) {
+
+            if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
+                test_6();
+                return;
+            }
 
             // Read the confirmed autonomous ID.
             const int selectedId = selector.getConfirmedAuton();
