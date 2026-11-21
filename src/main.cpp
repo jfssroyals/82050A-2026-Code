@@ -412,7 +412,7 @@ void autonomous() {
     pros::lcd::print(5, "Starting auton ID: %d", selectedId);
 
     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
-        test_6();
+        test_5();
         return;
     }
 
@@ -492,7 +492,7 @@ void opcontrol() {
         if (!autonexecuted) {
 
             if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
-                test_6();
+                test_5();
                 return;
             }
 

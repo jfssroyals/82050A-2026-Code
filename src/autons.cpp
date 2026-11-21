@@ -32,16 +32,75 @@ void cancel_intake_pick_up() {
 }
 
 void test_5() {
-    // // Far Goal
-    chassis.moveToPoint(0, 12, 5000);
-    chassis.waitUntilDone();
-    chassis.turnToHeading(-25, 5000);
-    chassis.waitUntilDone();
-    chassis.moveToPoint(-10, 25, 5000);
-    chassis.waitUntilDone();
-    chassis.arcade(70, 0);
-    pros::delay(500);
-    chassis.arcade(0,0);
+    // Far Goal
+    for (int i = 0; i < 1; i++)
+    {
+
+        chassis.setPose(0, 0, 0);
+        chassis.moveToPoint(0, 26, 5000);
+        chassis.waitUntilDone();
+        chassis.turnToHeading(-34.5, 300);
+        chassis.waitUntilDone();
+
+        chassis.arcade(70,0);
+        pros::delay(600);
+        chassis.arcade(0,0);
+        pros::delay(200);
+
+        chassis.moveToPoint(-0.9, 24.5, 5000, {.forwards = false});
+        chassis.waitUntilDone();
+        chassis.turnToHeading(1, 300);
+        chassis.waitUntilDone();
+        
+
+        // chassis.arcade(-100, 0);
+        // pros::delay(500);
+
+        // chassis.arcade(0,0);
+        // chassis.arcade(-70, 0);
+        // pros::delay(200);
+        // chassis.arcade(0,0 );
+
+        // pros::delay(5000);
+    }
+
+
+    // chassis.moveToPoint(0, 12, 5000);
+    // chassis.waitUntilDone();
+    // chassis.turnToHeading(-25, 5000);
+    // chassis.waitUntilDone();
+
+    // chassis.moveToPoint(-10, 25, 5000);
+    // chassis.waitUntilDone();
+
+    // chassis.turnToHeading(0, 5000);
+    // chassis.waitUntilDone();
+
+    // chassis.arcade(85, 0);
+    // pros::delay(500);
+    // chassis.arcade(0,0);
+    // pros::delay(200);
+
+    // // ALTERNATE BEGINNING (Far Goal): GOING INWARD and straight------------------------------------
+    // chassis.setPose(0, 0, 0);
+    // chassis.moveToPoint(0, 4, 1000, {.minSpeed = 50, .earlyExitRange = 1});
+    // chassis.moveToPoint(-6.4, 14.1, 1000, {.minSpeed = 80, .earlyExitRange = 4});
+    // chassis.swingToHeading(0, DriveSide::RIGHT, 1000, {.minSpeed = 80, .earlyExitRange = 4});
+    // chassis.waitUntilDone(); // Wait for the swing to finish first
+    // chassis.arcade(95, 0); // Start driving into the goal
+    // pros::delay(750);       // Keep driving for 750 ms (increase if still short)
+    // chassis.arcade(0, 0);   // Stop
+    // // -----------------------------------------------
+
+
+    // chassis.moveToPoint(0, 22.5, 4000, {.forwards = false});
+    // chassis.waitUntilDone();
+
+    // chassis.turnToHeading(-40, 4000);
+    // chassis.waitUntilDone();
+
+        // --------------------------
+
     // // Near Goal
     // chassis.moveToPoint(0,17.5, 10000);
     // chassis.waitUntilDone();
@@ -51,12 +110,17 @@ void test_5() {
     // chassis.waitUntilDone();
     // chassis.arcade(120, 0);
     
-    // pros::delay(1000);
+    // pros::delay(500);
     // chassis.arcade(0,0);
     // pros::delay(500);
-    // chassis.moveToPoint(0, 17.8,  5000, {.forwards = false});
+    
+    // // ensure that it reaches the point within the timeout
+    // // likely it will
+    // chassis.moveToPoint(2, 17.8,  5000, {.forwards = false});
     // chassis.waitUntilDone();
-    // chassis.turnToHeading(0, 1000);
+
+    // // positions itself to move back to theloader
+    // chassis.turnToHeading(0, 3000);
     // chassis.waitUntilDone();
     // chassis.arcade(-68, 0);
     // pros::delay(1288);
@@ -65,7 +129,6 @@ void test_5() {
     // chassis.arcade(-100, 0);
     // pros::delay(500);
     // chassis.arcade(0, 0);
-
 
 
     // //second one
@@ -77,11 +140,12 @@ void test_5() {
     // chassis.moveToPoint(-22, 18, 10000);
     // chassis.waitUntilDone();
     // chassis.arcade(120, 0);
-    
     // pros::delay(1000);
     // chassis.arcade(0,0);
     // pros::delay(500);
-    // chassis.moveToPoint(0, 17.8,  5000, {.forwards = false});
+
+
+    // chassis.moveToPoint(2, 17.8,  5000, {.forwards = false});
     // chassis.waitUntilDone();
     // chassis.turnToHeading(0, 1000);
     // chassis.waitUntilDone();
