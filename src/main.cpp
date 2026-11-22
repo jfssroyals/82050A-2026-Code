@@ -117,7 +117,7 @@ lemlib::ExpoDriveCurve throttleCurve(
 lemlib::ExpoDriveCurve steerCurve(
     3,
     4,
-    1.019
+    1.03
 );
 
 
@@ -140,8 +140,7 @@ void telemetryTask() {
 
     while (true) {
 
-        // The selector owns the screen until confirmation.
-        if (selector.isAutonConfirmed()) {
+        if (selector.isTelemetryVisible()) {
 
             // ==========================================
             // 1. READ ROBOT DATA
@@ -475,6 +474,10 @@ void opcontrol() {
 
     lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
 
+    bool drivetrainLocked = false;
+    leftMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
+    rightMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
+
     std::uint32_t outtakeRemainingMs = 0;
     std::uint32_t lastOuttakeUpdate = pros::millis();
     std::uint32_t lastOuttakeRumble = 0;
@@ -485,15 +488,32 @@ void opcontrol() {
     
     while (true) {
 
+        if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) {
+            drivetrainLocked = !drivetrainLocked;
+            const auto brakeMode = drivetrainLocked ? pros::E_MOTOR_BRAKE_HOLD
+                                                    : pros::E_MOTOR_BRAKE_COAST;
+            leftMotors.set_brake_mode_all(brakeMode);
+            rightMotors.set_brake_mode_all(brakeMode);
+            if (drivetrainLocked) {
+                // Command each drive motor to stay at its current encoder position.
+                leftMotors.move_relative(0, 100);
+                rightMotors.move_relative(0, 100);
+            } else {
+                chassis.arcade(0, 0);
+            }
+            controller.rumble(drivetrainLocked ? "-" : ".");
+        }
+
         // =========================================
         // OPTIONAL AUTONOMOUS TESTING
         // =========================================
 
-        if (!autonexecuted) {
+        if (!drivetrainLocked && !autonexecuted) {
 
             if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
+                selector.showPracticeTelemetry();
+                chassis.arcade(0, 0);
                 test_5();
-                return;
             }
 
             // Read the confirmed autonomous ID.
@@ -557,16 +577,11 @@ void opcontrol() {
         // This runs even when no auton is selected.
         // =========================================
 
-        // DRIVE
-        int leftY = controller.get_analog(
-            pros::E_CONTROLLER_ANALOG_LEFT_Y
-        );
-
-        int rightX = controller.get_analog(
-            pros::E_CONTROLLER_ANALOG_RIGHT_X
-        );
-
-        chassis.arcade(leftY, rightX);
+        if (!drivetrainLocked) {
+            const int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+            const int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
+            chassis.arcade(leftY, rightX);
+        }
 
 
         // =========================================

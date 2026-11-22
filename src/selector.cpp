@@ -168,7 +168,7 @@ void AutonSelector::touchTaskLoop() {
 
 void AutonSelector::update() {
     
-    if (auton_confirmed.load(std::memory_order_acquire)) {
+    if (isTelemetryVisible()) {
         return;
     }
     const pros::screen_touch_status_s touch = pros::screen::touch_status();
@@ -207,7 +207,7 @@ void AutonSelector::update() {
 
 void AutonSelector::render() {
 
-    if (auton_confirmed.load(std::memory_order_acquire)) {
+    if (isTelemetryVisible()) {
         return;
     }
     ui::clear();
@@ -517,6 +517,14 @@ int AutonSelector::getConfirmedAuton() const {
 
 bool AutonSelector::isAutonConfirmed() const {
     return auton_confirmed.load(std::memory_order_acquire);
+}
+
+void AutonSelector::showPracticeTelemetry() {
+    practice_telemetry_visible.store(true, std::memory_order_release);
+}
+
+bool AutonSelector::isTelemetryVisible() const {
+    return isAutonConfirmed() || practice_telemetry_visible.load(std::memory_order_acquire);
 }
 
 

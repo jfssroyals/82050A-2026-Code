@@ -45,6 +45,8 @@ public:
     AutonSide getSelectedSide() const;
     bool isAutonConfirmed() const;
     void clearConfirmation();
+    void showPracticeTelemetry();
+    bool isTelemetryVisible() const;
 
     const std::vector<AutonDefinition>& autons_public() const {
         return AUTONS;
@@ -97,6 +99,7 @@ private:
     int auton_number = -1;
     
     std::atomic<bool> auton_confirmed{false};
+    std::atomic<bool> practice_telemetry_visible{false};
     
     static bool isInside(int x, int y, const Button& button);
     static int getCenterX(const Button& button);
