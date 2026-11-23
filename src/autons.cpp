@@ -64,7 +64,7 @@ void test_5() {
     //     std::printf("Test 5: startup wall distance %d mm\n", baselineWallDistance);
     // }
     for (int i = 0; i < 5; i++)
-    {   
+    {
         // Move to the far goal and score
         chassis.moveToPoint(0, 26, 5000);
         chassis.waitUntilDone();
@@ -77,34 +77,26 @@ void test_5() {
         pros::delay(200);
 
         // Move back to the loader and pick up a matchload
-        const int wallDistance = readStableWallDistanceMm();
         chassis.moveToPose(1, 24, -34.5, 5000, {.forwards = false, .maxSpeed = 80});
         chassis.waitUntilDone();
-        float offset = wallDistanceToXSign - baselineWallDistance;
-        
-        // add the offset to the x coordinate of the pose
-
-        chassis.setPose(wallDistanceToXSign - offset, chassis.getPose().y, chassis.getPose().theta);
 
         chassis.turnToPoint(0.75, 0, 2000, {.forwards = false, .maxSpeed = 70});
         chassis.waitUntilDone();
         chassis.moveToPose(0.75, 0, 0, 5000, {.forwards = false, .lead = 0.25, .maxSpeed = 70});
         chassis.waitUntilDone();
 
-        // if (baselineWallDistance == PROS_ERR) continue;
+        // Correct odometry X at the loader for the next lap.
+        if (baselineWallDistance == PROS_ERR) continue;
 
-        
-        // const auto pose = chassis.getPose();
-        // if (wallDistance == PROS_ERR || std::abs(std::remainder(pose.theta, 360.0)) > 5.0) {
-        //     std::printf("Test 5 lap %d: skipped X correction (wall %d mm, heading %.1f)\n",
-        //                 i + 1, wallDistance, pose.theta);
-        //     continue;
-        // }
+        const auto pose = chassis.getPose();
+        if (std::abs(std::remainder(pose.theta, 360.0)) > 5.0) continue;
 
-        // const float measuredX = wallDistanceToXSign * (wallDistance - baselineWallDistance) / 25.4f;
-        // chassis.setPose(measuredX, pose.y, pose.theta);
-        // std::printf("Test 5 lap %d: wall %d mm, X %.2f -> %.2f in\n",
-        //             i + 1, wallDistance, pose.x, measuredX);
+        const int wallDistance = readStableWallDistanceMm();
+        if (wallDistance == PROS_ERR) continue;
+
+        const float measuredX =
+            wallDistanceToXSign * (wallDistance - baselineWallDistance) / 25.4f;
+        chassis.setPose(measuredX, pose.y, pose.theta);
     }
 
     // Near Goal Matchload Code
