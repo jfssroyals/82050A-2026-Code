@@ -7,19 +7,33 @@
 #include "intake.hpp"
 #include "pros/rtos.hpp"
 #include "wrist.hpp"
+#include <algorithm>
+#include <cmath>
+#include <cstdio>
 
-extern Claw claw;
-extern Lift lift;
-extern Wrist wrist;
-extern Intake intake;
-extern pros::Distance distanceSensor;
-extern pros::Distance objectSensor;
+extern pros::Distance sideDistanceSensor;
+
 // extern pros::Distance distanceSensor; // Uncomment with the auto-close block below.
 
 namespace {
 int intakePickupStep = 0; // 0 idle, 1 detecting, 2 gripping, 3 raising, 4 flipping, 5 lowering.
 bool intakePickupTracking = false;
 std::uint32_t intakePickupSince = 0;
+
+// Positive X increases the distance from a wall on the robot's left at heading 0.
+constexpr int wallDistanceToXSign = 1;
+
+int readStableWallDistanceMm() {
+    int samples[5];
+    for (int i = 0; i < 5; ++i) {
+        if (i > 0) pros::delay(25);
+        samples[i] = sideDistanceSensor.get();
+        if (samples[i] == PROS_ERR || samples[i] <= 0 || samples[i] == 9999) return PROS_ERR;
+    }
+
+    std::sort(samples, samples + 5);
+    return samples[4] - samples[0] <= 15 ? samples[2] : PROS_ERR;
+}
 }
 
 bool intake_pick_up_active() { return intakePickupStep != 0; }
@@ -43,9 +57,14 @@ void test_5() {
     // chassis.waitUntilDone();
 
     // Far Goal Matchload Code
-    /*
+    const int baselineWallDistance = readStableWallDistanceMm();
+    // if (baselineWallDistance == PROS_ERR) {
+    //     std::printf("Test 5: no stable startup wall reading; X correction disabled\n");
+    // } else {
+    //     std::printf("Test 5: startup wall distance %d mm\n", baselineWallDistance);
+    // }
     for (int i = 0; i < 5; i++)
-    {
+    {   
         // Move to the far goal and score
         chassis.moveToPoint(0, 26, 5000);
         chassis.waitUntilDone();
@@ -54,19 +73,39 @@ void test_5() {
 
         chassis.arcade(80, 0);
         pros::delay(700);
-        chassis.arcade(0,0);
+        chassis.arcade(0, 0);
         pros::delay(200);
 
         // Move back to the loader and pick up a matchload
+        const int wallDistance = readStableWallDistanceMm();
         chassis.moveToPose(1, 24, -34.5, 5000, {.forwards = false, .maxSpeed = 80});
         chassis.waitUntilDone();
+        float offset = wallDistanceToXSign - baselineWallDistance;
+        
+        // add the offset to the x coordinate of the pose
+
+        chassis.setPose(wallDistanceToXSign - offset, chassis.getPose().y, chassis.getPose().theta);
 
         chassis.turnToPoint(0.75, 0, 2000, {.forwards = false, .maxSpeed = 70});
         chassis.waitUntilDone();
         chassis.moveToPose(0.75, 0, 0, 5000, {.forwards = false, .lead = 0.25, .maxSpeed = 70});
         chassis.waitUntilDone();
+
+        // if (baselineWallDistance == PROS_ERR) continue;
+
+        
+        // const auto pose = chassis.getPose();
+        // if (wallDistance == PROS_ERR || std::abs(std::remainder(pose.theta, 360.0)) > 5.0) {
+        //     std::printf("Test 5 lap %d: skipped X correction (wall %d mm, heading %.1f)\n",
+        //                 i + 1, wallDistance, pose.theta);
+        //     continue;
+        // }
+
+        // const float measuredX = wallDistanceToXSign * (wallDistance - baselineWallDistance) / 25.4f;
+        // chassis.setPose(measuredX, pose.y, pose.theta);
+        // std::printf("Test 5 lap %d: wall %d mm, X %.2f -> %.2f in\n",
+        //             i + 1, wallDistance, pose.x, measuredX);
     }
-    */
 
     // Near Goal Matchload Code
     // chassis.moveToPoint(0,17.5, 10000);

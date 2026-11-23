@@ -5,6 +5,13 @@
 // global objects defined in main.cpp
 extern pros::Controller controller;
 extern lemlib::Chassis chassis;
+extern Claw claw;
+extern Lift lift;
+extern Wrist wrist;
+extern Intake intake;
+extern pros::Distance distanceSensor;
+extern pros::Distance objectSensor;
+extern pros::Distance sideDistanceSensor;
 
 // auton routines
 void right3pin();

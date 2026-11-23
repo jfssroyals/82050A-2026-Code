@@ -29,6 +29,7 @@ Intake intake(1);
 
 pros::Distance distanceSensor(7);
 pros::Distance objectSensor(4);
+pros::Distance sideDistanceSensor(20);
 
 // Only detect objects strictly closer than 7 cm (70 mm).
 constexpr int objectDetectionMaxMm = 70;
@@ -156,6 +157,7 @@ void telemetryTask() {
                 horizontalEnc.get_position();
 
             const int objectDistance = objectSensor.get();
+            const int sideDistance = sideDistanceSensor.get();
 
             // ==========================================
             // 2. OBJECT DETECTION LOGIC
@@ -207,6 +209,7 @@ void telemetryTask() {
             char line5[40];
             char line6[40];
             char line7[40];
+            char sideDistanceLine[32];
 
             std::snprintf(
                 line1, sizeof(line1),
@@ -260,6 +263,14 @@ void telemetryTask() {
                 objectStatus
             );
 
+            if (sideDistance == PROS_ERR) {
+                std::snprintf(sideDistanceLine, sizeof(sideDistanceLine), "SIDE DIST: ERROR");
+            } else if (sideDistance == 9999) {
+                std::snprintf(sideDistanceLine, sizeof(sideDistanceLine), "SIDE DIST: NO TARGET");
+            } else {
+                std::snprintf(sideDistanceLine, sizeof(sideDistanceLine), "SIDE DIST: %d MM", sideDistance);
+            }
+
             // ==========================================
             // 4. DRAW TELEMETRY DASHBOARD
             // ==========================================
@@ -272,47 +283,15 @@ void telemetryTask() {
                 pros::Color::green, 2
             );
 
-            ui::drawText(
-                10, 65,
-                line1,
-                pros::Color::white, 1
-            );
-
-            ui::drawText(
-                10, 115,
-                line2,
-                pros::Color::white, 1
-            );
-
-            ui::drawText(
-                10, 165,
-                line3,
-                pros::Color::white, 1
-            );
-
-            ui::drawText(
-                10, 215,
-                line4,
-                pros::Color::white, 1
-            );
-
-            ui::drawText(
-                10, 265,
-                line5,
-                pros::Color::white, 1
-            );
-
-            ui::drawText(
-                10, 315,
-                line6,
-                pros::Color::white, 1
-            );
-
-            ui::drawText(
-                10, 365,
-                line7,
-                pros::Color::white, 1
-            );
+            const char* const rows[] = {
+                line1, line2, sideDistanceLine, line3, line4, line5, line6, line7
+            };
+            const int rowHeight = (ui::height() - 65) / 8;
+            int rowY = 65;
+            for (const char* row : rows) {
+                ui::drawText(10, rowY, row);
+                rowY += rowHeight;
+            }
         }
 
         pros::delay(100);
