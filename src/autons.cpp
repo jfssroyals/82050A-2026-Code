@@ -47,21 +47,37 @@ void cancel_intake_pick_up() {
 
 void test_5() {
     chassis.setPose(0, 0, 0);
-
-    // Toggle + Mid Goal Score
-    // chassis.moveToPoint(0, 5, 2000);
-    // chassis.waitUntilDone();
-    // chassis.turnToHeading(-45, 2000);
-    // chassis.waitUntilDone();
-    // chassis.moveToPoint(-16.97, 21.97, 5000);
-    // chassis.waitUntilDone();
-
-    // Far Goal Matchload Code
     const int baselineWallDistance = readStableWallDistanceMm();
 
-    // sequence repeats 5 times
-    for (int i = 0; i < 5; i++)
-    {
+    // Near Goal Matchload Code
+    chassis.moveToPoint(0,17.5, 10000);
+    chassis.waitUntilDone();
+    chassis.turnToPoint(-26, 18, 10000);
+    chassis.waitUntilDone();
+    chassis.moveToPoint(-22, 18, 10000);
+    chassis.waitUntilDone();
+    chassis.arcade(120, 0);
+
+    pros::delay(500);
+    chassis.arcade(0,0);
+    pros::delay(500);
+
+    chassis.moveToPoint(2, 17.8,  5000, {.forwards = false});
+    chassis.waitUntilDone();
+
+    // Turn before backing into the loader.
+    chassis.turnToHeading(0, 3000);
+    chassis.waitUntilDone();
+    chassis.arcade(-68, 0);
+    pros::delay(1288);
+    chassis.arcade(0,0);
+    pros::delay(2000);
+    chassis.arcade(-100, 0);
+    pros::delay(500);
+    chassis.arcade(0, 0);
+
+    // Far Goal Matchload Code
+    for (int i = 0; i < 5; ++i) {
         // Move to the far goal and score
         chassis.moveToPoint(0, 26, 5000);
         chassis.waitUntilDone();
@@ -92,37 +108,27 @@ void test_5() {
         const int wallDistance = readStableWallDistanceMm();
         if (wallDistance == PROS_ERR) continue; // if out of range from wall, continue operating normally
 
-        // 
         const float measuredX = wallDistanceToXSign * (wallDistance - baselineWallDistance) / 25.4f;
         chassis.setPose(measuredX, pose.y, pose.theta);
     }
 
-    // Near Goal Matchload Code
-    // chassis.moveToPoint(0,17.5, 10000);
-    // chassis.waitUntilDone();
-    // chassis.turnToPoint(-26, 18, 10000);
-    // chassis.waitUntilDone();
-    // chassis.moveToPoint(-22, 18, 10000);
-    // chassis.waitUntilDone();
-    // chassis.arcade(120, 0);
+    // Toggle + Mid Goal
+    chassis.moveToPoint(0, 10, 2000);
+    chassis.waitUntilDone();
+    chassis.turnToHeading(-45, 2000);
+    chassis.waitUntilDone();
+    chassis.moveToPoint(-19.80, 29.80, 5000);
+    // curve around goal
+    chassis.swingToHeading(0, DriveSide::RIGHT, 2000);
+    chassis.waitUntilDone();
 
-    // pros::delay(500);
-    // chassis.arcade(0,0);
-    // pros::delay(500);
+    chassis.moveToPoint(-21.27, 67, 3000);
+    chassis.waitUntilDone();
+    chassis.turnToHeading(-90, 2000);
+    chassis.waitUntilDone();
 
-    // chassis.moveToPoint(2, 17.8,  5000, {.forwards = false});
-    // chassis.waitUntilDone();
-
-    // Turn before backing into the loader.
-    // chassis.turnToHeading(0, 3000);
-    // chassis.waitUntilDone();
-    // chassis.arcade(-68, 0);
-    // pros::delay(1288);
-    // chassis.arcade(0,0);
-    // pros::delay(2000);
-    // chassis.arcade(-100, 0);
-    // pros::delay(500);
-    // chassis.arcade(0, 0);
+    // toggle
+    toggleDriveSequence();
 }
 
 // matchloader part of auton skills
@@ -318,17 +324,17 @@ void toggleDriveSequence() {
     chassis.arcade(0, 0);
     pros::delay(50);
 
-    // Forward: 300 ms total, slowing to a final stop.
-    chassis.arcade(100, 0);
-    pros::delay(100);
-    chassis.arcade(75, 0);
-    pros::delay(50);
-    chassis.arcade(50, 0);
-    pros::delay(50);
-    chassis.arcade(25, 0);
-    pros::delay(50);
-    chassis.arcade(0, 0);
-    pros::delay(50);
+    // // Forward: 300 ms total, slowing to a final stop.
+    // chassis.arcade(100, 0);
+    // pros::delay(100);
+    // chassis.arcade(75, 0);
+    // pros::delay(50);
+    // chassis.arcade(50, 0);
+    // pros::delay(50);
+    // chassis.arcade(25, 0);
+    // pros::delay(50);
+    // chassis.arcade(0, 0);
+    // pros::delay(50);
 }
 
 
