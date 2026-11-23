@@ -58,11 +58,8 @@ void test_5() {
 
     // Far Goal Matchload Code
     const int baselineWallDistance = readStableWallDistanceMm();
-    // if (baselineWallDistance == PROS_ERR) {
-    //     std::printf("Test 5: no stable startup wall reading; X correction disabled\n");
-    // } else {
-    //     std::printf("Test 5: startup wall distance %d mm\n", baselineWallDistance);
-    // }
+
+    // sequence repeats 5 times
     for (int i = 0; i < 5; i++)
     {
         // Move to the far goal and score
@@ -91,11 +88,12 @@ void test_5() {
         const auto pose = chassis.getPose();
         if (std::abs(std::remainder(pose.theta, 360.0)) > 5.0) continue;
 
+        // checks the wall distance
         const int wallDistance = readStableWallDistanceMm();
-        if (wallDistance == PROS_ERR) continue;
+        if (wallDistance == PROS_ERR) continue; // if out of range from wall, continue operating normally
 
-        const float measuredX =
-            wallDistanceToXSign * (wallDistance - baselineWallDistance) / 25.4f;
+        // 
+        const float measuredX = wallDistanceToXSign * (wallDistance - baselineWallDistance) / 25.4f;
         chassis.setPose(measuredX, pose.y, pose.theta);
     }
 

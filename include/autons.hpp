@@ -1,6 +1,10 @@
 #pragma once
 
 #include "lemlib/api.hpp"
+#include "lift.hpp"
+#include "claw.hpp"
+#include "intake.hpp"
+#include "wrist.hpp"
 
 // global objects defined in main.cpp
 extern pros::Controller controller;
