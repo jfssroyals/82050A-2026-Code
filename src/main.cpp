@@ -13,6 +13,7 @@
 #include "pros/misc.h"
 #include "ui_renderer.hpp"
 #include <cstdio>
+#include <cerrno>
 #include "leds.hpp"
 
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
@@ -158,6 +159,7 @@ void telemetryTask() {
 
             const int objectDistance = objectSensor.get();
             const int sideDistance = sideDistanceSensor.get();
+            const int sideDistanceError = sideDistance == PROS_ERR ? errno : 0;
 
             // ==========================================
             // 2. OBJECT DETECTION LOGIC
@@ -264,7 +266,9 @@ void telemetryTask() {
             );
 
             if (sideDistance == PROS_ERR) {
-                std::snprintf(sideDistanceLine, sizeof(sideDistanceLine), "SIDE DIST: ERROR");
+                const char* reason = sideDistanceError == ENODEV ? "NO SENSOR" : "ERROR";
+                std::snprintf(sideDistanceLine, sizeof(sideDistanceLine),
+                              "SIDE P20: %s (%d)", reason, sideDistanceError);
             } else if (sideDistance == 9999) {
                 std::snprintf(sideDistanceLine, sizeof(sideDistanceLine), "SIDE DIST: NO TARGET");
             } else {

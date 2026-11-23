@@ -9,7 +9,6 @@
 #include "wrist.hpp"
 #include <algorithm>
 #include <cmath>
-#include <cstdio>
 
 extern pros::Distance sideDistanceSensor;
 
@@ -20,8 +19,8 @@ int intakePickupStep = 0; // 0 idle, 1 detecting, 2 gripping, 3 raising, 4 flipp
 bool intakePickupTracking = false;
 std::uint32_t intakePickupSince = 0;
 
-// Positive X increases the distance from a wall on the robot's left at heading 0.
-constexpr int wallDistanceToXSign = 1;
+// Positive X decreases the distance to the wall on the robot's right at heading 0.
+constexpr int wallDistanceToXSign = -1;
 
 int readStableWallDistanceMm() {
     int samples[5];
@@ -33,6 +32,19 @@ int readStableWallDistanceMm() {
 
     std::sort(samples, samples + 5);
     return samples[4] - samples[0] <= 15 ? samples[2] : PROS_ERR;
+}
+
+void correctXFromWall(int baselineWallDistance) {
+    if (baselineWallDistance == PROS_ERR) return;
+
+    const auto pose = chassis.getPose();
+    if (!std::isfinite(pose.theta) || std::abs(std::remainder(pose.theta, 360.0)) > 5.0) return;
+
+    const int wallDistance = readStableWallDistanceMm();
+    if (wallDistance == PROS_ERR) return;
+
+    const float measuredX = wallDistanceToXSign * (wallDistance - baselineWallDistance) / 25.4f;
+    chassis.setPose(measuredX, pose.y, pose.theta);
 }
 }
 
@@ -49,32 +61,32 @@ void test_5() {
     chassis.setPose(0, 0, 0);
     const int baselineWallDistance = readStableWallDistanceMm();
 
-    // Near Goal Matchload Code
-    chassis.moveToPoint(0,17.5, 10000);
-    chassis.waitUntilDone();
-    chassis.turnToPoint(-26, 18, 10000);
-    chassis.waitUntilDone();
-    chassis.moveToPoint(-22, 18, 10000);
-    chassis.waitUntilDone();
-    chassis.arcade(120, 0);
+    // // Near Goal Matchload Code
+    // chassis.moveToPoint(0,17.5, 10000);
+    // chassis.waitUntilDone();
+    // chassis.turnToPoint(-26, 18, 10000);
+    // chassis.waitUntilDone();
+    // chassis.moveToPoint(-22, 18, 10000);
+    // chassis.waitUntilDone();
+    // chassis.arcade(120, 0);
 
-    pros::delay(500);
-    chassis.arcade(0,0);
-    pros::delay(500);
+    // pros::delay(500);
+    // chassis.arcade(0,0);
+    // pros::delay(500);
 
-    chassis.moveToPoint(2, 17.8,  5000, {.forwards = false});
-    chassis.waitUntilDone();
+    // chassis.moveToPoint(2, 17.8,  5000, {.forwards = false});
+    // chassis.waitUntilDone();
 
-    // Turn before backing into the loader.
-    chassis.turnToHeading(0, 3000);
-    chassis.waitUntilDone();
-    chassis.arcade(-68, 0);
-    pros::delay(1288);
-    chassis.arcade(0,0);
-    pros::delay(2000);
-    chassis.arcade(-100, 0);
-    pros::delay(500);
-    chassis.arcade(0, 0);
+    // // Turn before backing into the loader.
+    // chassis.turnToHeading(0, 3000);
+    // chassis.waitUntilDone();
+    // chassis.arcade(-68, 0);
+    // pros::delay(1288);
+    // chassis.arcade(0,0);
+    // pros::delay(2000);
+    // chassis.arcade(-100, 0);
+    // pros::delay(500);
+    // chassis.arcade(0, 0);
 
     // Far Goal Matchload Code
     for (int i = 0; i < 5; ++i) {
@@ -90,39 +102,33 @@ void test_5() {
         pros::delay(200);
 
         // Move back to the loader and pick up a matchload
-        chassis.moveToPose(1, 24, -34.5, 5000, {.forwards = false, .maxSpeed = 80});
+        chassis.moveToPose(1, 24, -34.5, 1500, {.forwards = false, .lead = 0.25, .maxSpeed = 70});
         chassis.waitUntilDone();
 
-        chassis.turnToPoint(0.75, 0, 2000, {.forwards = false, .maxSpeed = 70});
+        // Aim the back of the robot toward the loader before the final return.
+        chassis.turnToPoint(0, 0, 1000, {.forwards = false, .maxSpeed = 55});
         chassis.waitUntilDone();
-        chassis.moveToPose(0.75, 0, 0, 5000, {.forwards = false, .lead = 0.25, .maxSpeed = 70});
+        correctXFromWall(baselineWallDistance);
+
+        chassis.moveToPose(0, 0, 0, 5000, {.forwards = false, .lead = 0.25, .maxSpeed = 70});
         chassis.waitUntilDone();
+
 
         // Correct odometry X at the loader for the next lap.
-        if (baselineWallDistance == PROS_ERR) continue;
-
-        const auto pose = chassis.getPose();
-        if (std::abs(std::remainder(pose.theta, 360.0)) > 5.0) continue;
-
-        // checks the wall distance
-        const int wallDistance = readStableWallDistanceMm();
-        if (wallDistance == PROS_ERR) continue; // if out of range from wall, continue operating normally
-
-        const float measuredX = wallDistanceToXSign * (wallDistance - baselineWallDistance) / 25.4f;
-        chassis.setPose(measuredX, pose.y, pose.theta);
+        correctXFromWall(baselineWallDistance);
     }
 
     // Toggle + Mid Goal
     chassis.moveToPoint(0, 10, 2000);
     chassis.waitUntilDone();
-    chassis.turnToHeading(-45, 2000);
+    chassis.turnToHeading(-50, 2000);
     chassis.waitUntilDone();
-    chassis.moveToPoint(-19.80, 29.80, 5000);
+    chassis.moveToPoint(-21.45, 28.00, 5000);
     // curve around goal
     chassis.swingToHeading(0, DriveSide::RIGHT, 2000);
     chassis.waitUntilDone();
 
-    chassis.moveToPoint(-21.27, 67, 3000);
+    chassis.moveToPoint(-23.25, 67, 3000);
     chassis.waitUntilDone();
     chassis.turnToHeading(-90, 2000);
     chassis.waitUntilDone();
