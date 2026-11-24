@@ -9,15 +9,16 @@
 #include "wrist.hpp"
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 
 extern pros::Distance sideDistanceSensor;
 
 // extern pros::Distance distanceSensor; // Uncomment with the auto-close block below.
 
 namespace {
-int intakePickupStep = 0; // 0 idle, 1 detecting, 2 gripping, 3 raising, 4 flipping, 5 lowering.
+int intakePickupStep = 0; // 0 idle, 1 detecting, 2 gripping, 3 raising, 4 flipping, 5 lowering, 6 settling.
 bool intakePickupTracking = false;
-std::uint32_t intakePickupSince = 0;
+std::uint32_t intakePickupStepStartedMs = 0;
 
 // Positive X decreases the distance to the wall on the robot's right at heading 0.
 constexpr int wallDistanceToXSign = -1;
@@ -89,21 +90,54 @@ void test_5() {
     // chassis.arcade(0, 0);
 
     // Far Goal Matchload Code
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < 3; ++i) {
         // Move to the far goal and score
+        start_intake_pick_up();
+        const auto detectionStart = pros::millis();
+        while (intakePickupStep == 1 && pros::millis() - detectionStart < 5000U) {
+            update_intake_pick_up();
+            if (intakePickupStep == 1) pros::delay(10);
+        }
+        if (intakePickupStep == 1) {
+            cancel_intake_pick_up();
+            return;
+        }
+
         chassis.moveToPoint(0, 26, 5000);
+        while (intake_pick_up_active()) {
+            update_intake_pick_up();
+            pros::delay(10);
+        }
         chassis.waitUntilDone();
         chassis.turnToHeading(-34.5, 300);
         chassis.waitUntilDone();
 
+        lift.manual(50);
+        pros::delay(150 * (i + 1));
+        lift.stop();
+
         chassis.arcade(80, 0);
         pros::delay(700);
         chassis.arcade(0, 0);
-        pros::delay(200);
+        lift.manual(-40);
+        pros::delay(100);
+        lift.manual(0);
+        claw.open();
+        pros::delay(500);
+
+
+
+
 
         // Move back to the loader and pick up a matchload
         chassis.moveToPose(1, 24, -34.5, 1500, {.forwards = false, .lead = 0.25, .maxSpeed = 70});
         chassis.waitUntilDone();
+
+        lift.manual(-50);
+        pros::delay(150 * (i + 1));
+        lift.stop();
+
+        match_load_ready();
 
         // Aim the back of the robot toward the loader before the final return.
         chassis.turnToPoint(0, 0, 1000, {.forwards = false, .maxSpeed = 55});
@@ -113,9 +147,16 @@ void test_5() {
         chassis.moveToPose(0, 0, 0, 5000, {.forwards = false, .lead = 0.25, .maxSpeed = 70});
         chassis.waitUntilDone();
 
+        // Seat the robot in the loader for the next pickup.
+        chassis.arcade(-80, 0);
+        pros::delay(100);
+        chassis.arcade(0, 0);
+        pros::delay(100);
 
         // Correct odometry X at the loader for the next lap.
         correctXFromWall(baselineWallDistance);
+
+        
     }
 
     // Toggle + Mid Goal
@@ -170,43 +211,64 @@ void start_intake_pick_up() {
     intakePickupStep = 1;
 }
 
+bool waitForObject() {
+    const std::uint32_t startTime = pros::millis();
+    std::uint32_t detectedSince = 0;
+    bool trackingObject = false;
+    for (auto now = startTime; now - startTime < 5000U; now = pros::millis()) {
+        const int distance = objectSensor.get();
+        if (distance != PROS_ERR && distance > 0 && distance < constants::objectDetectionMaxMm) {
+            if (!trackingObject) {
+                trackingObject = true;
+                detectedSince = now;
+            }
+            if (now - detectedSince >= 1000U) return true;
+        } else {
+            trackingObject = false;
+        }
+        pros::delay(10);
+    }
+    return false;
+}
+
 void update_intake_pick_up() {
     const std::uint32_t now = pros::millis();
     if (intakePickupStep == 1) {
         const int distance = objectSensor.get(); // Port 4, millimeters.
-        if (distance != PROS_ERR && distance > 0 && distance < 70) {
+        if (distance != PROS_ERR && distance > 0 && distance < constants::objectDetectionMaxMm) {
             if (!intakePickupTracking) {
                 intakePickupTracking = true;
-                intakePickupSince = now;
+                intakePickupStepStartedMs = now;
             }
-            if (now - intakePickupSince > 1000U) {
+            if (now - intakePickupStepStartedMs > 1000U) {
                 intake.stop();
                 lift.cancelAuto();
                 lift.manual(-100); // Match the lift controller's minimum downward output.
-                pros::delay(1000);
-                lift.stop(); 
                 intakePickupStep = 5;
-                intakePickupSince = now;
+                intakePickupStepStartedMs = now;
             }
         } else {
             intakePickupTracking = false;
         }
-    } else if (intakePickupStep == 5 && now - intakePickupSince >= 150U) {
+    } else if (intakePickupStep == 5 && now - intakePickupStepStartedMs >= 750U) {
         lift.stop();
+        intakePickupStep = 6;
+        intakePickupStepStartedMs = now;
+    } else if (intakePickupStep == 6 && now - intakePickupStepStartedMs >= 150U) {
         claw.close();
         intakePickupStep = 2;
-        intakePickupSince = now;
+        intakePickupStepStartedMs = now;
     // Allow the pneumatic claw to finish closing before raising the lift.
-    } else if (intakePickupStep == 2 && now - intakePickupSince >= 300U) {
+    } else if (intakePickupStep == 2 && now - intakePickupStepStartedMs >= 300U) {
         lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-        lift.manual(100);
+        lift.manual(180);
         intakePickupStep = 3;
-        intakePickupSince = now;
-    } else if (intakePickupStep == 3 && now - intakePickupSince >= 200U) {
+        intakePickupStepStartedMs = now;
+    } else if (intakePickupStep == 3 && now - intakePickupStepStartedMs >= 200U) {
         wrist.moveUP();
         intakePickupStep = 4;
-        intakePickupSince = now;
-    } else if (intakePickupStep == 4 && now - intakePickupSince >= 200U) {
+        intakePickupStepStartedMs = now;
+    } else if (intakePickupStep == 4 && now - intakePickupStepStartedMs >= 300U) {
         lift.stop();
         intakePickupStep = 0;
     }

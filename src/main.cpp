@@ -32,8 +32,6 @@ pros::Distance distanceSensor(7);
 pros::Distance objectSensor(4);
 pros::Distance sideDistanceSensor(20);
 
-// Only detect objects strictly closer than 7 cm (70 mm).
-constexpr int objectDetectionMaxMm = 70;
 constexpr std::uint32_t objectDetectionTimeMs = 1000;
 
 
@@ -168,7 +166,7 @@ void telemetryTask() {
             const bool objectPresent =
                 objectDistance != PROS_ERR &&
                 objectDistance > 0 &&
-                objectDistance < objectDetectionMaxMm;
+                objectDistance < constants::objectDetectionMaxMm;
 
             const std::uint32_t now = pros::millis();
 
@@ -573,7 +571,8 @@ void opcontrol() {
 
         if (controller.get_digital_new_press(
                 pros::E_CONTROLLER_DIGITAL_A)) {
-
+            claw.open();
+            wrist.moveDOWN();
             outtakeRemainingMs = 0;
             start_intake_pick_up();
 

@@ -28,7 +28,7 @@ void matchload();
 void test_5();
 void test_6(); // testing to get matchloader in auton skills
 
-// Blocking: open claw and intake until port 4 reads <70 mm for >1 second,
+// Blocking: open claw and intake until port 4 detects an object for >1 second,
 // then stop intake, lower briefly, grip, raise, and flip wrist up.
 void intake_pick_up();
 // Nonblocking driver-control interface to the same pickup sequence.
@@ -36,6 +36,8 @@ void start_intake_pick_up();
 void update_intake_pick_up();
 void cancel_intake_pick_up();
 bool intake_pick_up_active();
+// Wait up to five seconds for one continuous second of object detection.
+bool waitForObject();
 void match_load_ready();
 void autonMatchloadTest();
 void align_pose(double straight);

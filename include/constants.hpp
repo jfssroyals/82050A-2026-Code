@@ -2,6 +2,8 @@
 
 namespace constants {
 
+    constexpr int objectDetectionMaxMm = 115;
+
     // linear controller
     constexpr float linear_kP = 10;
     constexpr float linear_kI = 0;
