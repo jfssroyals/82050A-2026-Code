@@ -570,7 +570,7 @@ void opcontrol() {
         // =========================================
 
         if (controller.get_digital_new_press(
-                pros::E_CONTROLLER_DIGITAL_A)) {
+                pros::E_CONTROLLER_DIGITAL_B)) {
             claw.open();
             wrist.moveDOWN();
             outtakeRemainingMs = 0;
