@@ -504,24 +504,79 @@ void autonskills() {
 void auton2() {
     chassis.setPose(0, 0, 0);
 
-    // Toggle twice using the skills opening.
-    chassis.arcade(0, 100);
-    pros::delay(240);
-    chassis.arcade(0, 0);
+    // Move into toggle from the back
+    chassis.tank(-55, -10, true);
+    pros::delay(400);
+    chassis.tank(0, 0, true);
     intake.spinOutward();
-    pros::delay(250);
+    pros::delay(400);
     intake.stop();
+    pros::delay(200);
+    intake.spinOutward();
+    pros::delay(400);
+    intake.stop();
+    pros::delay(200);
+    
+    // Go into the goal and score the first pin
+    lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+    chassis.arcade(100, -50);
+    lift.unfold(wrist, 300);
+    // Finish the 1000 ms drive after the 300 ms lift raise.
+    pros::delay(700);
+    chassis.arcade(0, 0);
+    lift.stop();
+    chassis.arcade(70, 0);
+    lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
+    lift.manual(-40);
+    pros::delay(500);
+    lift.stop();
+    claw.open();
+    pros::delay(200);
+    chassis.arcade(0, 0);
+    pros::delay(300);
 
-    chassis.arcade(0, 100);
-    pros::delay(180);
+    // Going into first stack
+    chassis.moveToPoint(-5,5, 1000, {.forwards = false});
+    chassis.waitUntilDone();
+    chassis.turnToHeading(20, 1000);
+    chassis.waitUntilDone();
+    chassis.moveToPoint(-4.14, 7.35, 1000);
+    chassis.waitUntilDone();
+
+    pros::delay(200);
+    chassis.arcade(85, 95);
+    pros::delay(1000);
     chassis.arcade(0, 0);
-    intake.spinOutward();
+    //Non auto Claw Close
+    claw.close();
     pros::delay(200);
-    intake.stop();
-    pros::delay(200);
+    lift.manual(127);
+    pros::delay(300);
+    lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+    lift.stop();
+    return;
+    // Move into the toggle old
+    // chassis.arcade(0, 100, true);
+    // pros::delay(90);
+    // chassis.arcade(0, 0);
+    // chassis.arcade(100,0);
+    // pros::delay(300);
+    // chassis.arcade(0, 0);
+    // intake.spinOutward();
+    // pros::delay(100);
+    // intake.stop();
+    // pros::delay(200);
+    // intake.spinOutward();
+    // pros::delay(100);
+    // intake.stop();
+    // pros::delay(200);
+    // // going back a little bit
+    // chassis.arcade(-100,0);
+    // pros::delay(200);
+    // chassis.arcade(0, 0);
 
     // Turn and score the first pin.
-    chassis.turnToHeading(-20, 1000, {}, false);
+    chassis.turnToHeading(-25, 1000, {.maxSpeed = 64}, false);
     chassis.arcade(100, 0);
     lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
     lift.unfold(wrist);
@@ -536,6 +591,21 @@ void auton2() {
     pros::delay(200);
     chassis.arcade(0, 0);
     pros::delay(300); // Shorter release pause than the skills opening's 1000 ms.
+    
+    // Back up, then swing 60 degrees clockwise around the right side.
+    chassis.moveToPoint(-4, 10, 1000, {.forwards = false});
+    chassis.waitUntilDone();
+
+    const float swingHeading = chassis.getPose().theta + 60.0f;
+    chassis.swingToHeading(swingHeading, lemlib::DriveSide::RIGHT, 1500,
+                           {.direction = lemlib::AngularDirection::CW_CLOCKWISE}, false);
+    chassis.moveToPoint(-4, 22, 1500, {}, false);
+
+    // Drive both sides forward, with the left side faster to arc right.
+    chassis.tank(55, 10, true);
+    pros::delay(400);
+    chassis.tank(0, 0, true);
+
 
     // Back away while lowering the lift.
     chassis.moveToPose(-5, 8, 0, 1000, {.forwards = false});
@@ -602,7 +672,6 @@ void auton2() {
     lift.getMotorGroup().set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
     chassis.arcade(0, 0);
 
-    return;
     // // Approach the matchloader using the skills route.
     // pros::lcd::print(5, "Auton2: last move -23,69");
     // chassis.moveToPose(-23, 69, 180, 10000, {.forwards = false, .maxSpeed = 50});
@@ -638,7 +707,7 @@ void auton1() {
     // Open claw to score
     claw.open();
     pros::delay(200);
-
+    
     // Two extra inches behind the original (5.5, 3) target along the 51-degree heading.
     chassis.moveToPoint(3.946, 1.741, 10000, {.forwards = false, .maxSpeed = 50}, false);
     

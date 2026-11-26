@@ -339,15 +339,15 @@ void initialize() {
 
     // lift.reset();
 
-    // claw.open();
+    claw.open();
 
-    // pros::delay(3000);
+    pros::delay(3000);
 
-    // claw.close();
+    claw.close();
 
     pros::delay(200);
 
-    // lift.foldInSize(wrist);
+    lift.foldInSize(wrist);
 
     // ==========================================
     // 5. START TELEMETRY TASK
@@ -494,7 +494,8 @@ void opcontrol() {
             if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
                 selector.showPracticeTelemetry();
                 chassis.arcade(0, 0);
-                test_5();
+                //test_5();
+                auton2();
             }
 
             // Read the confirmed autonomous ID.
