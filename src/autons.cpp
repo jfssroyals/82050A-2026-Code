@@ -62,120 +62,139 @@ void test_5() {
     chassis.setPose(0, 0, 0);
     const int baselineWallDistance = readStableWallDistanceMm();
 
-    // // Near Goal Matchload Code
-    // chassis.moveToPoint(0,17.5, 10000);
-    // chassis.waitUntilDone();
-    // chassis.turnToPoint(-26, 18, 10000);
-    // chassis.waitUntilDone();
-    // chassis.moveToPoint(-22, 18, 10000);
-    // chassis.waitUntilDone();
-    // chassis.arcade(120, 0);
 
-    // pros::delay(500);
-    // chassis.arcade(0,0);
-    // pros::delay(500);
+    // Near Goal Matchload Code
 
-    // chassis.moveToPoint(2, 17.8,  5000, {.forwards = false});
-    // chassis.waitUntilDone();
+    start_intake_pick_up();
+    const auto detectionStart = pros::millis();
+    while (intakePickupStep == 1 && pros::millis() - detectionStart < 10000U) {
+        update_intake_pick_up();
+    }
+    chassis.moveToPoint(0,17.5, 10000);
+    chassis.waitUntilDone();
+    chassis.turnToPoint(-26, 18, 10000);
+    chassis.waitUntilDone();
+    claw.close(); 
+    wrist.moveUP();
+    pros::delay(50);
+    lift.manual(170);
+    pros::delay(350);
+    lift.stop();
+    chassis.moveToPoint(-20, 18, 10000);
+    chassis.waitUntilDone();
+  
 
-    // // Turn before backing into the loader.
-    // chassis.turnToHeading(0, 3000);
-    // chassis.waitUntilDone();
-    // chassis.arcade(-68, 0);
-    // pros::delay(1288);
-    // chassis.arcade(0,0);
-    // pros::delay(2000);
-    // chassis.arcade(-100, 0);
-    // pros::delay(500);
-    // chassis.arcade(0, 0);
+   
+    chassis.arcade(120, 0);
 
-    // Far Goal Matchload Code
-    for (int i = 0; i < 3; ++i) {
-        // Move to the far goal and score
-        start_intake_pick_up();
-        const auto detectionStart = pros::millis();
-        while (intakePickupStep == 1 && pros::millis() - detectionStart < 5000U) {
-            update_intake_pick_up();
-            if (intakePickupStep == 1) pros::delay(10);
-        }
-        if (intakePickupStep == 1) {
-            cancel_intake_pick_up();
-            return;
-        }
+    pros::delay(500);
+    chassis.arcade(0,0);
+    pros::delay(500);
+    
+    claw.open();
+    pros::delay(500);
 
-        chassis.moveToPoint(0, 26, 5000);
-        while (intake_pick_up_active()) {
-            update_intake_pick_up();
-            pros::delay(10);
-        }
-        chassis.waitUntilDone();
-        chassis.turnToHeading(-34.5, 300);
-        chassis.waitUntilDone();
+    chassis.moveToPoint(2, 17.8,  5000, {.forwards = false});
+    chassis.waitUntilDone();
 
-        lift.manual(50);
-        pros::delay(150 * (i + 1));
-        lift.stop();
+    // Turn before backing into the loader.
+    chassis.turnToHeading(0, 3000);
+    chassis.waitUntilDone();
+    chassis.arcade(-68, 0);
+    pros::delay(1288);
+    chassis.arcade(0,0);
+    pros::delay(2000);
+    chassis.arcade(-100, 0);
+    pros::delay(500);
+    chassis.arcade(0, 0);
 
-        chassis.arcade(80, 0);
-        pros::delay(700);
-        chassis.arcade(0, 0);
-        lift.manual(-40);
-        pros::delay(100);
-        lift.manual(0);
-        claw.open();
-        pros::delay(500);
+    // // Far Goal Matchload Code
+    // for (int i = 0; i < 5; ++i) {
+    //     // Move to the far goal and score
+    //     start_intake_pick_up();
+    //     const auto detectionStart = pros::millis();
+    //     while (intakePickupStep == 1 && pros::millis() - detectionStart < 10000U) {
+    //         update_intake_pick_up();
+    //         if (intakePickupStep == 1) pros::delay(10);
+    //     }
+    //     if (intakePickupStep == 1) {
+    //         cancel_intake_pick_up();
+    //         return;
+    //     }
+
+    //     chassis.moveToPoint(0, 26, 5000);
+    //     while (intake_pick_up_active()) {
+    //         update_intake_pick_up();
+    //         pros::delay(10);
+    //     }
+    //     chassis.waitUntilDone();
+    //     chassis.turnToHeading(-34.5, 300);
+    //     chassis.waitUntilDone();
+
+    //     lift.manual(100);
+    //     pros::delay(175 * (i + 1));
+    //     lift.stop();
+
+    //     chassis.arcade(80, 0);
+    //     pros::delay(700);
+    //     chassis.arcade(0, 0);
+    //     lift.manual(-40);
+    //     pros::delay(100);
+    //     lift.manual(0);
+    //     claw.open();
+    //     pros::delay(500);
 
 
 
 
 
-        // Move back to the loader and pick up a matchload
-        chassis.moveToPose(1, 24, -34.5, 1500, {.forwards = false, .lead = 0.25, .maxSpeed = 70});
-        chassis.waitUntilDone();
+    //     // Move back to the loader and pick up a matchload
+    //     chassis.moveToPose(1, 24, -34.5, 1500, {.forwards = false, .lead = 0.25, .maxSpeed = 70});
+    //     chassis.waitUntilDone();
 
-        lift.manual(-50);
-        pros::delay(150 * (i + 1));
-        lift.stop();
+    //     lift.manual(-50);
+    //     pros::delay(175 * (i + 1));
+    //     lift.stop();
 
-        match_load_ready();
+    //     match_load_ready();
 
-        // Aim the back of the robot toward the loader before the final return.
-        chassis.turnToPoint(0, 0, 1000, {.forwards = false, .maxSpeed = 55});
-        chassis.waitUntilDone();
-        correctXFromWall(baselineWallDistance);
+    //     // Aim the back of the robot toward the loader before the final return.
+    //     chassis.turnToPoint(0, 0, 1000, {.forwards = false, .maxSpeed = 55});
+    //     chassis.waitUntilDone();
+    //     correctXFromWall(baselineWallDistance);
 
-        chassis.moveToPose(0, 0, 0, 5000, {.forwards = false, .lead = 0.25, .maxSpeed = 70});
-        chassis.waitUntilDone();
+    //     chassis.moveToPose(0, 0, 0, 5000, {.forwards = false, .lead = 0.25, .maxSpeed = 70});
+    //     chassis.waitUntilDone();
 
-        // Seat the robot in the loader for the next pickup.
-        chassis.arcade(-80, 0);
-        pros::delay(100);
-        chassis.arcade(0, 0);
-        pros::delay(100);
+    //     // Seat the robot in the loader for the next pickup.
+    //     chassis.arcade(-80, 0);
+    //     pros::delay(100);
+    //     chassis.arcade(0, 0);
+    //     pros::delay(100);
 
-        // Correct odometry X at the loader for the next lap.
-        correctXFromWall(baselineWallDistance);
+    //     // Correct odometry X at the loader for the next lap.
+    //     correctXFromWall(baselineWallDistance);
 
         
-    }
+    // }
 
-    // Toggle + Mid Goal
-    chassis.moveToPoint(0, 10, 2000);
-    chassis.waitUntilDone();
-    chassis.turnToHeading(-50, 2000);
-    chassis.waitUntilDone();
-    chassis.moveToPoint(-21.45, 28.00, 5000);
-    // curve around goal
-    chassis.swingToHeading(0, DriveSide::RIGHT, 2000);
-    chassis.waitUntilDone();
+    // // Toggle + Mid Goal
+    // chassis.moveToPoint(0, 10, 2000);
+    // chassis.waitUntilDone();
+    // chassis.turnToHeading(-50, 2000);
+    // chassis.waitUntilDone();
+    // chassis.moveToPoint(-21.45, 28.00, 5000);
+    // // curve around goal
+    // chassis.swingToHeading(0, DriveSide::RIGHT, 2000);
+    // chassis.waitUntilDone();
 
-    chassis.moveToPoint(-23.25, 67, 3000);
-    chassis.waitUntilDone();
-    chassis.turnToHeading(-90, 2000);
-    chassis.waitUntilDone();
+    // chassis.moveToPoint(-23.25, 67, 3000);
+    // chassis.waitUntilDone();
+    // chassis.turnToHeading(-90, 2000);
+    // chassis.waitUntilDone();
 
-    // toggle
-    toggleDriveSequence();
+    // // toggle
+    // toggleDriveSequence();
 }
 
 // matchloader part of auton skills
@@ -215,14 +234,14 @@ bool waitForObject() {
     const std::uint32_t startTime = pros::millis();
     std::uint32_t detectedSince = 0;
     bool trackingObject = false;
-    for (auto now = startTime; now - startTime < 5000U; now = pros::millis()) {
+    for (auto now = startTime; now - startTime < 10000U; now = pros::millis()) {
         const int distance = objectSensor.get();
         if (distance != PROS_ERR && distance > 0 && distance < constants::objectDetectionMaxMm) {
             if (!trackingObject) {
                 trackingObject = true;
                 detectedSince = now;
             }
-            if (now - detectedSince >= 1000U) return true;
+            if (now - detectedSince >= 1500U) return true;
         } else {
             trackingObject = false;
         }
@@ -240,7 +259,7 @@ void update_intake_pick_up() {
                 intakePickupTracking = true;
                 intakePickupStepStartedMs = now;
             }
-            if (now - intakePickupStepStartedMs > 1000U) {
+            if (now - intakePickupStepStartedMs > 2000U) {
                 intake.stop();
                 lift.cancelAuto();
                 lift.manual(-100); // Match the lift controller's minimum downward output.

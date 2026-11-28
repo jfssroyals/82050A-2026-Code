@@ -494,8 +494,8 @@ void opcontrol() {
             if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
                 selector.showPracticeTelemetry();
                 chassis.arcade(0, 0);
-                //test_5();
-                auton2();
+                test_5();
+                //auton2();
             }
 
             // Read the confirmed autonomous ID.
